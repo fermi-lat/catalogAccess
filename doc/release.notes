@@ -3,6 +3,9 @@
     @author A. Sauvageon
 
 @verbatim
+22-feb-2005  v0r1    AS  Modified generic functions.
+                         Corrected bug in setSelEllipse method.
+
 23-dec-2004  v0r0p3  AS  Add generic functions.
                          Optimize catalog text file reading.
 

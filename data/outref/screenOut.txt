@@ -4,7 +4,7 @@ Argument #1 (default): 5.0000e+00
 Argument #2 (default): /1rxs_50.out
 
 sizeof bool, int, long, float, double, pointer = 1, 4, 4, 4, 8, 4
-screen outpout of Nan, +infinite, -infinite: NaN,  Inf,  -Inf
+screen output of Nan, +infinite, -infinite: NaN,  Inf,  -Inf
 
 Number to unselect = 1.7900e+308
 Constant arcsecond = 2.7778e-04
@@ -42,6 +42,9 @@ ROSAT 1RXS           (IX/10A/1rxs)
 Veron (11th) quasar  (VII/235/table1)
 Veron (11th) BL Lac  (VII/235/table2)
 Veron (11th) AGN     (VII/235/table3)
+WGACAT of ROSAT      (IX/31/wgacat)
+ROSAT faint sources  (IX/29/rass_fsc)
+Green galactic SNR   (VII/227/snrs)
 
 
 =================================
@@ -55,7 +58,6 @@ WARNING catalogAccess (IN importWeb): given Catalog name (toto) do not exist
 
 * Try to load via Web catalog "ROSAT 1RXS" (pointer 'myCat')
 ERROR catalogAccess (IN importDescriptionWeb) : CODE for URL (web http address) is empty
-WARNING catalogAccess (IN importWeb): trying to query whole catalog
 ERROR catalogAccess (IN importWeb) : CODE for URL (web http address) do not exist
 * Values returned = -7 then -7
 * Number of rows in 'myCat' = 0
@@ -92,11 +94,7 @@ STEP 3) METHODS when IMPORT WORKS (on EGRET)
 * Calling: importDescription on file "3EG_test.out" (pointer 'myCat')
 WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
-LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
- 2406 Ko for numericals (  7 double per row)
- 3695 Ko for  4 strings ( 86 char per row)
-  172 Ko for select bits ( 1 long per row)
+LOG_0 (catalogAccess): input text file: 30 lines read
 * Value returned = 11
 * Calling: getQuantityNames, get 11 quantities:
 recno
@@ -114,47 +112,47 @@ OtherNames
 
 * Calling: getQuantityDescription, results: 
 recno: ucd="", type=1, unit="", format="I8",
-     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Record number within the original table (starting from 1)        (link)"
 3EG: ucd="", type=2, unit="", format="A14",
-     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="3EG name (3EG Jhhmm+ddmm)"
 RAJ2000: ucd="", type=1, unit="deg", format="F6.2",
-     index=1, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=1, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Right ascension (J2000)"
 DEJ2000: ucd="", type=1, unit="deg", format="F6.2",
-     index=2, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=2, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Declination (J2000)"
 GLON: ucd="", type=1, unit="deg", format="F6.2",
-     index=3, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=3, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic longitude"
 GLAT: ucd="", type=1, unit="deg", format="F6.2",
-     index=4, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=4, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic latitude"
 theta95: ucd="", type=1, unit="deg", format="F6.3",
-     index=5, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=5, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Radius of the circle containing the same solid angle as the 95% confidence contour"
 n_theta95: ucd="", type=2, unit="", format="A1",
-     index=1, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=1, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[*] *: value was obtained by multiplying the 68% radius by 1.62. This was necessary in cases of unclosed or extremely irregular 95% contours."
 z: ucd="", type=1, unit="", format="F7.4",
-     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=6, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Redshift (AGNs only)"
 u_z: ucd="", type=2, unit="", format="A1",
-     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=2, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[?] Uncertainty flag on z"
 OtherNames: ucd="", type=2, unit="", format="A70",
-     index=3, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=3, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Other names (3)"
 
@@ -163,7 +161,10 @@ WARNING catalogAccess (IN getSValue): catalog is empty
 WARNING catalogAccess (IN setLowerCut): given Quantity name () do not exist
 * Value returned = 0, 1 and -11
 
-* Calling: importSelected (empty function)
+* Calling: importSelected
+LOG_1 (catalogAccess): 11 quantities (over 11) selected for import
+LOG_0 (catalogAccess): 6 data lines read for importSelected()
+WARNING catalogAccess (IN importSelected): function not implemented
 * Value returned = 0
 * Number of rows = 0
 
@@ -171,11 +172,7 @@ WARNING catalogAccess (IN setLowerCut): given Quantity name () do not exist
 LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
-LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
- 2406 Ko for numericals (  7 double per row)
- 3695 Ko for  4 strings ( 86 char per row)
-  172 Ko for select bits ( 1 long per row)
+LOG_0 (catalogAccess): input text file: 30 lines read
 * Value returned = 11
 
 * Calling: import on file "3EG_test.out" (with 5 rows)
@@ -183,14 +180,13 @@ LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN import): trying to get whole catalog file
 WARNING catalogAccess (IN import): more units than quantities, ignoring last unit(s)
 WARNING catalogAccess (IN import): line #32 does not contain all quantities
-WARNING catalogAccess (IN private translate_cell): one quantity has no character (row #5)
 WARNING catalogAccess (IN import): line #35 contains too many quantities
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file is closed ( 36 lines read)
-LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
- 2406 Ko for numericals (  7 double per row)
- 3695 Ko for  4 strings ( 86 char per row)
-  172 Ko for select bits ( 1 long per row)
+LOG_0 (catalogAccess): input text file: 36 lines read
+LOG_1 (catalogAccess): Needed RAM space (MB) for      5 data rows =   0.0
+    0 kB for numericals (  7 double per row)
+    0 kB for  4 strings ( 86 char per row)
+    0 kB for select bits ( 1 long per row)
 * Value returned = 5
 * Number of quantities & rows = 11 & 5
 
@@ -245,23 +241,24 @@ STEP 4) COPY CONSTRUCTOR and QUANTITIES
 =======================================
 * Default Quantity constructor, changing m_name to: toto
 toto: ucd="", type=0, unit="", format="",
-     index=-1, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=-1, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
 
 * Quantity constructor, changing m_name (time), m_ucd, m_type (NUM), m_unit, m_index (0)
 time: ucd="IJD", type=1, unit="sec", format="",
-     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
 
 * Quantity COPY constructor, changing m_ucd to: IJDelapsed
 time: ucd="IJDelapsed", type=1, unit="sec", format="",
-     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
 
 * COPY 'myCat' to 'aCat' then DELETE 'myCat
+ERROR catalogAccess (IN Catalog copy constructor) FILE should be CLOSED (in this version), FORBIDS importSelected
 * Number of rows in 'aCat' = 5
 
 * 'aCat' info (size 3):
@@ -271,47 +268,47 @@ catalog="J/ApJS/123/79"
 
 * Getting all quantities from 'aCat':
 recno: ucd="", type=1, unit="", format="I8",
-     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Record number within the original table (starting from 1)        (link)"
 3EG: ucd="", type=2, unit="", format="A14",
-     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="3EG name (3EG Jhhmm+ddmm)"
 RAJ2000: ucd="", type=1, unit="deg", format="F6.2",
-     index=1, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=1, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Right ascension (J2000)"
 DEJ2000: ucd="", type=1, unit="deg", format="F6.2",
-     index=2, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=2, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Declination (J2000)"
 GLON: ucd="", type=1, unit="deg", format="F6.2",
-     index=3, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=3, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic longitude"
 GLAT: ucd="", type=1, unit="deg", format="F6.2",
-     index=4, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=4, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic latitude"
 theta95: ucd="", type=1, unit="deg", format="F6.3",
-     index=5, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=5, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Radius of the circle containing the same solid angle as the 95% confidence contour"
 n_theta95: ucd="", type=2, unit="", format="A1",
-     index=1, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=1, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[*] *: value was obtained by multiplying the 68% radius by 1.62. This was necessary in cases of unclosed or extremely irregular 95% contours."
 z: ucd="", type=1, unit="", format="F7.4",
-     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=6, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Redshift (AGNs only)"
 u_z: ucd="", type=2, unit="", format="A1",
-     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=2, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[?] Uncertainty flag on z"
 OtherNames: ucd="", type=2, unit="", format="A70",
-     index=3, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=3, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Other names (3)"
 
@@ -373,7 +370,7 @@ ERROR catalogAccess (IN importDescription) : FILENAME "../.." is a directory
 
 * Calling: importDescription on file "1rxs_50.fits"
 ERROR catalogAccess (IN importDescription) : FILENAME "/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.fits" is fits without extension[] specified
-LOG_0 (catalogAccess): input text file is closed ( 0 lines read)
+LOG_0 (catalogAccess): input file: 0 lines read
 * Value returned = -4
 
 * Calling: importDescription on "1rxs_50.fits[1]"
@@ -383,11 +380,11 @@ ERROR catalogAccess (IN importDescription) : fits FILE not handled now
 * Calling: import on file "/1rxs_50.out"
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
-LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =  10.2
- 7562 Ko for numericals ( 22 double per row)
- 2535 Ko for  9 strings ( 59 char per row)
-  344 Ko for select bits ( 2 long per row)
+LOG_0 (catalogAccess): input text file: 102 lines read
+LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
+    9 kB for numericals ( 22 double per row)
+    3 kB for  9 strings ( 59 char per row)
+    0 kB for select bits ( 2 long per row)
 * Value returned = 50
 * Number of quantities & rows = 31 & 50
 * 'aCat' info (size 6):
@@ -398,127 +395,127 @@ table  ="IX/10A/1rxs" [The 1RXS catalogue]
 
 * Calling: getQuantityDescription, results:
 _Glon: ucd="POS_GAL_LON", type=1, unit="deg", format="F6.2",
-     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic longitude (computed by VizieR, not part of the original data)"
 _Glat: ucd="POS_GAL_LAT", type=1, unit="deg", format="F6.2",
-     index=1, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=1, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic latitude (computed by VizieR, not part of the original data)"
 recno: ucd="RECORD", type=1, unit="", format="I8",
-     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=2, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Record number within the original table (starting from 1)        (link)"
 1RXS: ucd="ID_MAIN", type=2, unit="", format="A21",
-     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=0, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="ROSAT All-Sky Survey Catalogue source name (1)        (link)"
 n_1RXS: ucd="NOTE", type=2, unit="", format="A1",
-     index=1, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=1, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[*] Names modified from previous version"
 RAJ2000: ucd="POS_EQ_RA_MAIN", type=1, unit="deg", format="F9.5",
-     index=3, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=3, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Right ascension (J2000), decimal degrees"
 DEJ2000: ucd="POS_EQ_DEC_MAIN", type=1, unit="deg", format="F9.5",
-     index=4, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=4, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Declination (J2000), decimal degrees"
 PosErr: ucd="ERROR", type=1, unit="arcsec", format="I2",
-     index=5, boolGeneric=1, boolLoad=1, boolNaN=1
+     index=5, boolGeneric=1, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Total positional error (including 6" systematic error)"
 ScrFlags: ucd="CODE_MISC", type=2, unit="", format="A5",
-     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=2, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[T_] screening flags (2)"
 NewFlag: ucd="CODE_MISC", type=2, unit="", format="A4",
-     index=3, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=3, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[T._] 'new data' flags (3)"
 Count: ucd="PHOT_COUNT-RATE_X", type=1, unit="ct/s", format="E9.2",
-     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=6, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Source countrate (4)"
 e_Count: ucd="ERROR", type=1, unit="ct/s", format="E9.2",
-     index=7, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=7, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Error on Count (4)"
 bgCt: ucd="INST_BACKGROUND", type=1, unit="ct/s/arcmin2", format="E9.2",
-     index=8, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=8, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Background countrate (4)"
 ExpTime: ucd="TIME_EXPTIME", type=1, unit="s", format="I6",
-     index=9, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=9, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Exposure time"
 HR1: ucd="SPECT_HARDNESS-RATIO", type=1, unit="", format="F5.2",
-     index=10, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=10, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[-1/1]? Hardness ratio 1 (5)"
 e_HR1: ucd="ERROR", type=1, unit="", format="F5.2",
-     index=11, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=11, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Error on HR1 (6)"
 HR2: ucd="SPECT_HARDNESS-RATIO", type=1, unit="", format="F5.2",
-     index=12, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=12, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[-1/1]? hardness ratio 2 (5)"
 e_HR2: ucd="ERROR", type=1, unit="", format="F5.2",
-     index=13, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=13, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Error on HR2 (6)"
 Extent: ucd="EXTENSION_DIAM", type=1, unit="arcsec", format="I5",
-     index=14, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=14, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Source extent, by which the source image exceeds the point spread function."
 L_Extent: ucd="STAT_LIKELIHOOD", type=1, unit="", format="I4",
-     index=15, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=15, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Likelihood of source extent (7)"
 Ldetect: ucd="STAT_LIKELIHOOD", type=1, unit="", format="I4",
-     index=16, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=16, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Likelihood of source detection algorithm (7)"
 ExtRad: ucd="REDUCT_EXTR-RAD", type=1, unit="arcsec", format="I5",
-     index=17, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=17, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Extraction radius"
 PrioFlags: ucd="CODE_MISC", type=2, unit="", format="A6",
-     index=4, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=4, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[01] priority flags (8)"
 PHA: ucd="CODE_MISC", type=2, unit="", format="A1",
-     index=5, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=5, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="[ABCDb] PHA range of best detection (9)"
 VigFactor: ucd="INST_CORR-FACTOR", type=1, unit="", format="F5.2",
-     index=18, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=18, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Vignetting factor"
 IncDate: ucd="TIME_DATE", type=2, unit=""Y:M:D"", format="A10",
-     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=6, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Date when source was included (10)"
 UpdDate: ucd="TIME_DATE", type=2, unit=""Y:M:D"", format="A10",
-     index=7, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=7, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="? Date when source properties changed (11)"
 Ncand: ucd="NUMBER", type=1, unit="", format="I3",
-     index=19, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=19, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Number of identification candidates in the correlation catalogue"
 SASS: ucd="ID_FIELD", type=1, unit="", format="I8",
-     index=20, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=20, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Identification number of SASS field (12)"
 ---: ucd="", type=2, unit="toto", format="A1",
-     index=8, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=8, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="original useless data field"
 MASOL: ucd="ID_NUMBER", type=1, unit="", format="I4",
-     index=21, boolGeneric=0, boolLoad=1, boolNaN=1
+     index=21, boolGeneric=0, boolNaN=1
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="SASS source number (MASOL number) in SASS field (mainly for internal use)"
 
@@ -535,11 +532,15 @@ LOG_1 (catalogAccess): selection ellipse center RA=0 , DEC=90 with radius 90 * 9
 * Calling: set cut (on L_Extent)
 LOG_1 (catalogAccess): Enabling lower cut (1.1 on L_Extent)
 * Number of SELECTED rows = 6
-LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (1 elements)
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (1 elements, ANDed with cut)
+* Number of SELECTED rows = 0
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (1 elements, ORed with cut)
 * Number of SELECTED rows = 16
 LOG_1 (catalogAccess): Enabling lower cut (1 on L_Extent)
 * Number of SELECTED rows = 16
-LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (1 elements)
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (1 elements, ANDed with cut)
+* Number of SELECTED rows = 10
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (1 elements, ANDed with cut)
 * Number of SELECTED rows = 6
 LOG_1 (catalogAccess): NaN values are now  accepted (on L_Extent)
 * Number of SELECTED rows = 17
@@ -572,10 +573,10 @@ LOG_0 (catalogAccess): 37 row(s) deleted
 * Calling: getSelSValues (on 1RXS)
 * String vector (size=13) contains: "1RXS J000012.6+014621"  "1RXS J000055.5+172346"  "1RXS J000123.3+272241"  "1RXS J000124.2+393648"  "1RXS J000143.9+521246"  "1RXS J000150.9+111705"  "1RXS J000155.1+120323"  "1RXS J000209.4+672503"  "1RXS J000256.7+444027"  "1RXS J000259.6+395743"  "1RXS J000342.8+180828"  "1RXS J000350.4+020340"  "1RXS J000409.2+452618"  
 
-* Calling: setUpperCut (on MASOL)
+* Calling: setUpperCut (same limit 100 on MASOL)
 * Number of SELECTED rows = 13
 
-* Calling: useOnlyS (on 1RXS first object)
+* Calling: useOnlyS (on 1RXS, list is first object)
 LOG_1 (catalogAccess): Include rows with "1RXS" string in list (1 elements, caseless match)
 * Number of SELECTED rows = 1
 * Calling: useOnlyS to unselect 1RXS
@@ -600,11 +601,11 @@ LOG_2 (catalogAccess): all rows selected, calling deleteContent()
 LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
-LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =  10.2
- 7562 Ko for numericals ( 22 double per row)
- 2535 Ko for  9 strings ( 59 char per row)
-  344 Ko for select bits ( 2 long per row)
+LOG_0 (catalogAccess): input text file: 102 lines read
+LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
+    9 kB for numericals ( 22 double per row)
+    3 kB for  9 strings ( 59 char per row)
+    0 kB for select bits ( 2 long per row)
 * Value returned = 50
 * Number of rows = 50
 
@@ -617,28 +618,24 @@ Quantity L_Extent minimum =   1.000e+00
 Quantity L_Extent maximum =   3.700e+01
 
 * Setting list of values: 1.00, NaN
- with default behaviour (reject NaN):  NaN not taken into account in list
-LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements)
+ with default behaviour (reject NaN), anyway NaN is checked first, before list or cut tests
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements, ANDed with cut)
 * Number of SELECTED rows = 10
-LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements)
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements, ORed with cut)
+* Number of SELECTED rows = 10
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements, ANDed with cut)
 * Number of SELECTED rows = 6
 
 * Calling: unsetCuts (on L_Extent)
 * Number of SELECTED rows = 27
 
-* Accepting NaN, EQUALITY TEST on NaN in list always FAILS:
- excluding list ==> NaN included
- including list ==> NaN excluded
-LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements)
+* Accepting NaN (whatever condition, always select NaN)
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements, ANDed with cut)
 * Number of SELECTED rows = 17
-LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements)
-* Number of SELECTED rows = 10
-
-* Must use upper/lower cut (even if no value in interval) to always accept NaN
-LOG_1 (catalogAccess): Enabling lower cut (40 on L_Extent)
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements, ANDed with cut)
 * Number of SELECTED rows = 21
 
-* Calling: unsetCuts (all quantities)
+* Calling: unsetCuts (all quantities, remains only selection ellipse)
 * Number of SELECTED rows = 27
 
 * Calling: eraseSelected()

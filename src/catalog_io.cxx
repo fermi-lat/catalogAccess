@@ -16,9 +16,59 @@
 namespace catalogAccess {
 
 /**********************************************************************/
+/*  DEFINING CLASS CONSTANTS                                          */
+/**********************************************************************/
+
+// BEWARE: the two constant below are UCD1 standard
+//         need to be changed for UCD1+
+
+// the order is important and must be compatible with s_CatalogGeneric
+static const char *UCD_List[MAX_GEN]={
+       "ID_MAIN", "POS_EQ_RA_MAIN", "POS_EQ_DEC_MAIN",
+        "",       "POS_GAL_LON",    "POS_GAL_LAT"};
+// "ERROR", "POS_GAL_LON", "POS_GAL_LAT"
+// ERROR do not only refer to the position error
+// ERROR is for any "Uncertainty in Measurements"
+
+static const char *UCD_Added[MAX_GEN]={
+       "", "_RAJ2000", "_DEJ2000", "", "_Glon", "_Glat"};
+
+// the 2 constants above are only defined in this file,
+// need to set catalog static members for global availability
+
+const std::string Catalog::s_genericL = UCD_List[4];
+const std::string Catalog::s_genericB = UCD_List[5];
+
+/**********************************************************************/
 /*  METHODS for IMPORTING, SAVING, LOADING                            */
 /**********************************************************************/
-// search for generic quantities, private: suppose import done
+
+// set m_posErrFactor, suppose that Quantity index exist (private method)
+void Catalog::setPosErrFactor(const int index) {
+
+  std::string text=m_quantities[index].m_unit;
+  if (text == "") {
+    std::ostringstream sortie;
+    sortie << "Generic position error (" << m_quantities[index].m_name
+           << ") has no unit, by default multiply by: 1/" << m_posErrFactor;
+    printWarn("private setGeneric", sortie.str());
+  }
+  else {
+    // use explicit cast to be sure compiler choose the right tolower()
+    transform(text.begin(), text.end(), text.begin(), (int(*)(int)) tolower);
+    if (text == "deg") m_posErrFactor=1.0;
+    else if (text == "arcsec") m_posErrFactor=3600.0;
+    else if (text == "arcmin") m_posErrFactor=60.0;
+    else if (text == "rad") m_posErrFactor=1.0/Angle_Conv;
+    else {
+      std::ostringstream sortie;
+      sortie << "Generic position error (" << m_quantities[index].m_name
+             << ") has unknown unit, by default multiply by: 1/" << m_posErrFactor;
+      printWarn("private setGeneric", sortie.str());
+    }
+  }
+}
+// search for generic quantities, private: suppose import done (private method)
 void Catalog::setGeneric(const int whichCat) {
 
   const std::string epoch="J2000";
@@ -36,11 +86,12 @@ void Catalog::setGeneric(const int whichCat) {
         if (text == name) {
           m_quantities.at(i).m_isGeneric=true;
           switch (j) {
-            case 1: m_indexRA=m_quantities[i].m_index;
+            case 1: m_indexRA=i;
             break;
-            case 2: m_indexDEC=m_quantities[i].m_index;
+            case 2: m_indexDEC=i;
             break;
-            case 3: m_indexErr=m_quantities[i].m_index;
+            case 3: m_indexErr=i;
+                    setPosErrFactor(i);
             break;
             default: break;
           }
@@ -61,8 +112,8 @@ void Catalog::setGeneric(const int whichCat) {
             name.erase(0, name.length()-epoch.length());
             // format contains at least 1 char
             if ((name == epoch) && (m_quantities.at(i).m_format[0] == 'F')) {
-              if (j == 1) m_indexRA=m_quantities[i].m_index;
-              else        m_indexDEC=m_quantities[i].m_index;
+              if (j == 1) m_indexRA=i;
+              else        m_indexDEC=i;
             }
             else m_quantities.at(i).m_isGeneric=false;
           }
@@ -85,9 +136,10 @@ void Catalog::setGeneric(const int whichCat) {
           break;
         }
       }
-      else if (text == "PosErr") {
+      else if ((text == "PosErr") || (text == "ErrorRad")) {
         m_quantities.at(i).m_isGeneric=true;
-        m_indexErr=m_quantities[i].m_index;
+        m_indexErr=i;
+        setPosErrFactor(i);
       }
     }
 
@@ -96,11 +148,13 @@ void Catalog::setGeneric(const int whichCat) {
 }
 
 /**********************************************************************/
-// output the estimation of RAM needed per data row
-void Catalog::showRAMsize(long numRows) {
+// return the number of RAM bytes needed for numRows catalog rows
+long Catalog::getRAMsize(const long numRows, const bool writeLog) {
 
   std::string mot, text;
   int quantSize=m_quantities.size();
+  if (quantSize == 0) return IMPORT_NEED;
+
   int nD=0, nS=0, nchar=0;
   int i, j;
   for (i=0; i<quantSize; i++) {
@@ -121,35 +175,39 @@ void Catalog::showRAMsize(long numRows) {
   long sizeS=nchar*sizeof(char)*numRows;
   i=1+(quantSize+1)/(sizeof(long)*8);
   long sizeB=i*sizeof(long)*numRows;
-  if (m_numOriRows > 0) {
+  if (writeLog && (m_numOriRows > 0)) {
     sprintf(buffer, "%6ld", m_numOriRows);
     mot=buffer; /* convert C string to C++ string */
     text="Original whole catalog number of rows = "+mot;
     printLog(1, text);
   }
-  sprintf(buffer, "%6ld", numRows);
-  mot=buffer; /* convert C string to C++ string */
-  text="Needed RAM space (Mo) for "+mot;
-  sprintf(buffer, "%5.1f", (sizeD+sizeS+sizeB)/(1024.*1024.));
-  mot=buffer;
-  text=text+" data rows = "+mot+"\n";
-  sprintf(buffer, "%5.0f Ko for numericals (%3d double per row)",
-                 sizeD/1024., nD);
-  mot=buffer;
-  text=text+mot+"\n";
-  sprintf(buffer, "%5.0f Ko for %2d strings (%3d char per row)",
-                 sizeS/1024., nS, nchar);
-  mot=buffer;
-  text=text+mot+"\n";
-  sprintf(buffer, "%5.0f Ko for select bits (%2d long per row)",
-                 sizeB/1024., i);
-  mot=buffer;
-  text=text+mot;
-  printLog(1, text);
+  if (numRows <= 0) return 0;
+  if (writeLog) {
+    sprintf(buffer, "%6ld", numRows);
+    mot=buffer; /* convert C string to C++ string */
+    text="Needed RAM space (MB) for "+mot;
+    sprintf(buffer, "%5.1f", (sizeD+sizeS+sizeB)/(1024.*1024.));
+    mot=buffer;
+    text=text+" data rows = "+mot+"\n";
+    sprintf(buffer, "%5.0f kB for numericals (%3d double per row)",
+                   sizeD/1024., nD);
+    mot=buffer;
+    text=text+mot+"\n";
+    sprintf(buffer, "%5.0f kB for %2d strings (%3d char per row)",
+                   sizeS/1024., nS, nchar);
+    mot=buffer;
+    text=text+mot+"\n";
+    sprintf(buffer, "%5.0f kB for select bits (%2d long per row)",
+                   sizeB/1024., i);
+    mot=buffer;
+    text=text+mot;
+    printLog(1, text);
+  }
+  return (sizeD+sizeS+sizeB);
 }
 
 /**********************************************************************/
-// creates a new column in m_strings, m_numericals
+// creates a new column in m_strings, m_numericals (private method)
 void Catalog::create_tables(const int nbQuantAscii) {
 
   int vecSize;
@@ -175,15 +233,16 @@ void Catalog::create_tables(const int nbQuantAscii) {
       throw;
     }
   }
-  add_rows();
+  if (m_numReadRows > 0) add_rows();
 
 }
 /**********************************************************************/
-// creates a new row in m_strings, m_numericals
+// creates a new row in m_strings, m_numericals (private method)
 void Catalog::add_rows() {
 
   int i, vecSize;
   std::string errText;
+//printf("!! %ld / %ld \n", m_numRows, m_numReadRows);
   vecSize=m_strings.size();
   if (vecSize > 0 ) {
     try {
@@ -213,8 +272,8 @@ void Catalog::add_rows() {
 }
 
 /**********************************************************************/
-// loads Ascii input in m_quantities, suppose that index really exists:
-// 0 <= index < m_quantities.size()
+// loads Ascii input in m_quantities (private method)
+// suppose that index really exists: 0 <= index < m_quantities.size()
 void Catalog::translate_cell(std::string mot, const int index) {
 
   int  j, last;
@@ -222,12 +281,14 @@ void Catalog::translate_cell(std::string mot, const int index) {
 
   // remove trailing spaces
   last=mot.length();
+/* useless Warning, happen many times for last column of 3EG objects (EGRET)
   if (last == 0) {
     std::ostringstream sortie;
     sortie << "one quantity has no character (row #" << m_numRows+1 << ")";
     printWarn("private translate_cell", sortie.str());
   }
-  else {
+  else {*/
+  if (last) {
     do last--;
     while ( (last >= 0) && (mot.at(last) == ' ') );
   }
@@ -248,8 +309,8 @@ void Catalog::translate_cell(std::string mot, const int index) {
 }
 
 /**********************************************************************/
-// read the catalog from fits file (only description if getAll is false)
-int Catalog::analyze_fits(const std::string &fileName, const bool getAll,
+// read the catalog from fits file (only description if getDescr is true)
+int Catalog::analyze_fits(const std::string &fileName, const bool getDescr,
                           const std::string origin) {
 
 /*TO BE DONE   use tip to open ASCII fits */
@@ -259,7 +320,7 @@ int Catalog::analyze_fits(const std::string &fileName, const bool getAll,
 
 
 /**********************************************************************/
-// read the catalog header from text file
+// read the catalog header from text file (private method)
 int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 
   std::string text, mot;
@@ -295,8 +356,8 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 #Table  J_ApJS_123_79_3eg:
 #Name: J/ApJS/123/79/3eg
 #Title: Third EGRET Source Catalog (table 4)
+#blabla(Coosys	G:	galactic)
 #Column
-// Column must follow Title without separation line
 // Column must be followed by at least one separation line 
 
     OR (-meta.all for description)
@@ -315,11 +376,13 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
       if (pos == 0) {
         found++;
         last=text.length();
+        // test if last char is CR from WINDOWS
         if (text[last-1] == 0x0D) {
           *testCR=true;
           last--;
           text.erase(last);
         }
+        else *testCR=false;
         mot=text.substr(10);
         pos=mot.find('/');
         if (pos == std::string::npos) {
@@ -395,7 +458,7 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
       }
       else if (*what >= 2) {
         // separation '#' found,
-        if ((last=text.length()) < 2) { found=5; break;}
+        if ((last=text.length()) < 3) { found=5; break;}
         found++;
         if (*testCR) text.erase(--last);
         // remove heading spaces
@@ -417,14 +480,18 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
       break;
 
     default:
-      // case only for metaALL file, read until # [ucd=]
+      // case only for META file, read until #RESOURCE= or # [ucd=]
       if ((last=text.length()) > 7) {
         if (*testCR) text.erase(--last);
-        // remove heading spaces
+        // for META file with several tables, start of 2nd table
+        mot="#RESOURCE=";
+        if (text.find(mot) == 0) { found++; break; }
+        // otherwise, remove heading spaces
         for (i=1; i<last; i++) {
           if ((text[i] != ' ') && (text[i] != 0x09)) break;
         }
         mot=text.substr(i, last-i);
+        // before #Column, metaALL must end with following string
         if (mot == "[ucd=]") found++;
       }
       break;
@@ -448,21 +515,24 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 }
 
 /**********************************************************************/
-// read catalog data from text file (only description if getAll is false)
+// read catalog data from text file (private method);
+// read only column/quantity description if getDescr is true
 int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
-                          const bool getAll) {
+                          const bool getDescr) {
 
   std::string origin, text, mot;
   unsigned int pos;
   char sep=';',
        line[MAX_LINE];
   std::ostringstream sortie;
+  bool foundColumn=false,
+       lineSkipped=false;
   int  i, last, err=IS_OK,
        found=0,
        nbQuantAscii=0;
   int (*pfunc)(int)=toupper; // function used by transform
 
-  if (getAll) origin="import"; else origin="importDescription";
+  if (getDescr) origin="importDescription"; else origin="import";
   while ( myFile.good() ) {
 
     // extract line with delimiter \n which is discarded
@@ -475,6 +545,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
       pos=text.find(mot);
       if (pos == 0) {
         Quantity readQ;
+        foundColumn=true;
       do {
         // column NAME, FORMAT, DESCR, UCD separated by only 1 TAB
         last=text.length();
@@ -542,8 +613,9 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
           found++; break; // to stop reading file
         }
       }
-      else found++;
-      //at least one line without any information
+      else if (foundColumn) found++;
+      // skip lines before #Column (foundColumn is false);
+      // then: at least one line without any information
       break;
 
     case 1:
@@ -568,11 +640,12 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
       break;
 
     case 2:
-      // most of decription is read, units follow Quantity names
+      // most of decription is read, units on separate line
       last=text.length();
       if (testCR) text.erase(--last);
       if (last > 0) {
         found++;
+        m_filePos=myFile.tellg();
         i=0;
         last=text.find(sep);
         do {
@@ -595,28 +668,31 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
           i++;
         }
         while (pos != std::string::npos);
+        if (i < m_quantities.size())
+          printWarn(origin, "less units than quantities !");
       }
       break;
 
     case 3:
-      // decription is read, only used if getAll is true
-      // separation line starting with ---
+      // decription is read, separation line starting with ---
       last=text.length();
       if (testCR) text.erase(--last);
       if ((last > 0) && (text[0] == '-')) {
         found++;
         m_numRows=0;
+        m_filePos=myFile.tellg();
+        if (getDescr) break; // must NOT read all file and create tables
         if ( !m_numReadRows ) {
           // read the total number of rows to have a maximal value
           // to allocate m_strings, m_numericals buffers.
-          long filePos=myFile.tellg();
           while ( myFile.good() ) {
             myFile.getline(line, MAX_LINE);
+            if (strlen(line) == (size_t)testCR) break;
             m_numReadRows++;
           }
           // go back to initial position printf("%ld ReadRows\n", m_numReadRows);
           myFile.clear(); // needed to reset flags before seekg
-          myFile.seekg(filePos);
+          myFile.seekg(m_filePos);
         }
         create_tables(nbQuantAscii);
       }
@@ -624,7 +700,10 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
 
     default:
       last=text.length();
-      if ((last == 0) || (text[0] == 0x0D)) break;
+      if ((last == 0) || (text[0] == 0x0D)) {
+        lineSkipped=true;
+        break;
+      }
       // string max size is MAX_LINE-1;
       if (last >= MAX_LINE-1) {
         sortie << "line #" << *tot << " exceeds maximal size ("
@@ -637,7 +716,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
       if (testCR) text.erase(--last);
       mot="#Table";
       pos=text.find(mot);
-      if (pos != std::string::npos) {
+      if (pos == 0) {
         sortie << "line #" << *tot << ": second table start (not read)";
         printWarn(origin, sortie.str());
         sortie.str(""); // Will empty the string.
@@ -651,7 +730,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
         sortie.str(""); // Will empty the string.
         break;
       }
-      if (m_numRows == m_numReadRows) {
+      if ((m_numRows == m_numReadRows) || lineSkipped) {
         err=BAD_ROW;
         break;
       }
@@ -690,31 +769,28 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
       // Quantities must be set.
       if (found == 1) {
         if (m_quantities.size() == 0) { found--; break; }
-        if (*what >= 2) { found=3; break; }
+        if (*what >= 2) { found=4; break; }// found changed, no error on META ALL
       }
-      // all description is read, now read data (if required)
-      else if ((found == 3) && (!getAll)) break;
     }
+    else if (getDescr) break;
     else if (err == BAD_ROW) break; // just stop, error not taken into account
 
   }// loop on file lines
   //only possible errors: BAD_FILELINE or BAD_ROW
   if (err == BAD_ROW) err=IS_OK;
   else if (err == BAD_FILELINE) return err;
-  else if (found < 3) return (-1*found);
-
-  if ((getAll) && (found < 4)) return (-1*found);
+  else if (found < 4) return (-1*found);
   
   return err;
 }
 
 /**********************************************************************/
-// common code between import and importDescription
-int Catalog::load(const std::string &fileName, const bool getAll) {
+// common code between import and importDescription (private method)
+int Catalog::load(const std::string &fileName, const bool getDescr) {
 
   int i, err=IS_OK;
   std::string origin, text;
-  if (getAll) origin="import"; else origin="importDescription";
+  if (getDescr) origin="importDescription"; else origin="import";
 
   m_numRows=0;
   i=fileName.length();
@@ -727,7 +803,7 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
   }
   if (fileName.at(i-1) == ']') {
     // file should be a fits
-    err=analyze_fits(fileName, getAll, origin);
+    err=analyze_fits(fileName, getDescr, origin);
  
     text=": fits FILE not handled now";
     printErr(origin, text);
@@ -764,8 +840,11 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
     }
     err=analyze_head(&tot, &what, &testCR);
     if (!tot) {
-      text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
-      printErr(origin, text);
+      sortie << ": FILENAME \"" << fileName << "\" is fits without extension[] "
+             << "specified";
+      printErr(origin, sortie.str());
+      sortie.str(""); // Will empty the string.
+      text="input file";
       if (err == IS_OK) err=BAD_FILENAME;
       // in case, for strange reason, file.good() fails at first time
     }
@@ -774,6 +853,7 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
              << "has unknown structure (stopped step " << -1*err << ")";
       printErr(origin, sortie.str());
       sortie.str(""); // Will empty the string.
+      text="input file";
       err=BAD_FILETYPE;
     }
     else {
@@ -783,42 +863,49 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
       else text="input META file";
 
       // get columns description and units, data
-      err=analyze_body(&tot, &what, testCR, getAll);
+      err=analyze_body(&tot, &what, testCR, getDescr);
       if (err == BAD_FILELINE) {
-        // stopped before reading needed stuff (with getAll true)
+        // stopped before reading needed stuff (with getDescr false)
         text=": FILENAME \""+fileName+"\" couldn't be read (line too long)";
         printErr(origin, text);
       }
       else if (err < IS_OK) {
         sortie << ": FILENAME \"" << fileName
-             << "\" has unknown type (stopped step " << 5-1*err << ")";
+             << "\" has wrong type (stopped step " << 5-1*err << ")";
         printErr(origin, sortie.str());
         sortie.str(""); // Will empty the string.
         err=BAD_FILETYPE;
       }
       else {
-        if (what > 0) text=text + " is CSV type (; separator)";
-        else text=text + " is TSV type (Tab=0x09 separator)";
-        printLog(1, text);
+        if (what > 0) sortie << text << " is CSV type (; separator)";
+        else sortie << text << " is TSV type (Tab=0x09 separator)";
+        printLog(1, sortie.str());
+        sortie.str(""); // Will empty the string.
       }
 
     }
-    myFile.close();  // to be commented to let file opened
-    sortie << "input text file is closed ( " << tot << " lines read)";
+    // myFile.close();  to be commented to let file opened
+    sortie << text << ": " << tot << " lines read";
     printLog(0, sortie.str());
 
   }// file is read
-  try { m_selEllipse.assign(7, 0.0); }
-  catch (std::exception &prob) {
-    text=std::string("EXCEPTION on creating m_selEllipse: ")+prob.what();
-    printErr(origin, text);
-    throw;
-  }
   if (err < 0) {
     deleteContent(); // to erase data already loaded in memory
     m_numRows=err;
+    m_numReadRows=0;
     // exit only if nothing is read
     if (err == BAD_FILENAME) return err;
+  }
+  // m_quantities vector maybe filled, MUST fill m_selEllipse, m_loadQuantity
+  try {
+    m_selEllipse.assign(7, 0.0);
+    m_loadQuantity.assign(m_quantities.size(), true);
+  }
+  catch (std::exception &prob) {
+    text=std::string("EXCEPTION on creating m_selEllipse, m_loadQuantity: ")
+        +prob.what();
+    printErr(origin, text);
+    throw;
   }
   // check if tableName is known to set generic
   for (i=0; i<MAX_CAT; i++) {
@@ -830,7 +917,6 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
   }
   else m_code=Catalog::s_CatalogList[2*i];
   setGeneric(i);
-  if (err == IS_OK) showRAMsize();
   return err;
 }
 /**********************************************************************/
@@ -842,7 +928,7 @@ int Catalog::importDescription(const std::string &fileName) {
   // must be called before load() which set m_numRows to 0
   if (err < IS_VOID) return err;
 
-  err=load(fileName, false);
+  err=load(fileName, true);
   if (err < IS_OK) return err;
 
   return m_quantities.size();
@@ -853,7 +939,7 @@ int Catalog::import(const std::string &fileName, const long maxRow) {
 
   int err;
   err=checkImport("import", false);
-  // this check can set m_numReadRows to 0
+  // after this check, m_numReadRows is 0
   if (err < IS_VOID) return err;
 
   if (maxRow <= 0) {
@@ -861,9 +947,10 @@ int Catalog::import(const std::string &fileName, const long maxRow) {
     m_numReadRows=0;
   }
   else m_numReadRows=maxRow;
-  err=load(fileName, true);
-  if (err < IS_OK) return err;
 
+  err=load(fileName, false);
+  if (err < IS_OK) return err;
+  getRAMsize(m_numRows, true);
   try {
     if (m_numRows < m_numReadRows) {
       int i;
@@ -881,8 +968,9 @@ int Catalog::import(const std::string &fileName, const long maxRow) {
     std::cout << "Number of unsigned long required for m_rowIsSelected = "
               << err << std::endl;
     #endif
-    for (int j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
-    // above line can be commented to test the try catch mechanism
+    if (m_numRows)
+      for (int j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
+    // above lines can be commented to test the try catch mechanism
   }
   catch (std::exception &prob) {
     std::string text;
@@ -895,28 +983,22 @@ int Catalog::import(const std::string &fileName, const long maxRow) {
 
 
 /**********************************************************************/
-// common code between importWeb and importDescriptionWeb
+// common code between importWeb and importDescriptionWeb (private method)
 int Catalog::loadWeb(const std::string catName, const std::string urlCode,
                      const std::string &fileName, const long maxRow) {
 
   std::string origin, text, web;
-  int err;
+  int i, err;
+  unsigned int pos;
   if (maxRow >= 0) origin="importWeb"; else origin="importDescriptionWeb";
 
-  int iCat=checkImport(origin, false);
-  if (iCat < IS_VOID) return iCat;
-  iCat=checkCatName(origin, catName);
-  if (iCat < 0) { m_numRows=iCat; return iCat; }
-
+  err=BAD_URL;
+  m_numRows=err;
   if (urlCode.length() == 0) {
     text=": CODE for URL (web http address) is empty";
     printErr(origin, text);
-    err=BAD_URL;
-    m_numRows=err;
     return err;
   }
-  unsigned int pos;
-  int i;
   for (i=0; i<MAX_URL; i++) {
     text=Catalog::s_CatalogURL[i]; /* convert C string to C++ string */
     pos=text.find(' ');
@@ -926,20 +1008,33 @@ int Catalog::loadWeb(const std::string catName, const std::string urlCode,
   if (i == MAX_URL) {
     text=": CODE for URL (web http address) do not exist";
     printErr(origin, text);
-    err=BAD_URL;
-    m_numRows=err;
     return err;
   }
   pos=text.rfind(' ');
   if (pos == std::string::npos) web=text;
   else web=text.substr(pos+1, text.length()-pos);
 
+  int iCat=checkCatName(origin, catName);
+  if (iCat < 0) {
+    m_numRows=iCat;
+    return iCat;
+  }
+  err=checkImport(origin, false);
+  // after this check, m_numOriRows is 0
+  if (err < IS_VOID) return err;
+
+  if (maxRow == 0) printWarn(origin, "trying to query whole catalog");
+  m_numRows=0;
 /* now, ASCII query must be created
   and sent, using CDS package to given URL
 */
   err=-9;
+  text="Web query not implemented";
+  printErr(origin, text);
+
 
   if (err < 0) {
+    deleteContent(); // to erase data already loaded in memory
     m_numRows=err;
     return err;
   }
@@ -951,7 +1046,6 @@ int Catalog::loadWeb(const std::string catName, const std::string urlCode,
   }
   m_code=catName;
   setGeneric(iCat);
-  showRAMsize();
   return IS_OK;
 }
 /**********************************************************************/
@@ -964,7 +1058,6 @@ int Catalog::importDescriptionWeb(const std::string catName,
   err=loadWeb(catName, urlCode, fileName, -1);
   if (err < IS_OK) return err;
 
-  m_numRows=0;
   return m_quantities.size();
 }
 /**********************************************************************/
@@ -975,12 +1068,10 @@ int Catalog::importWeb(const std::string catName,
 
   int err;
   long limitRow=maxRow;
-  if (limitRow <= 0) {
-    printWarn("importWeb", "trying to query whole catalog");
-    limitRow=0;
-  }
+  if (limitRow < 0) limitRow=0; // to avoid confusion with importDescriptionWeb
   err=loadWeb(catName, urlCode, fileName, limitRow);
   if (err < IS_OK) return err;
+  getRAMsize(m_numRows, true);
 
   try {
     err=m_quantities.size()+2;
@@ -991,8 +1082,9 @@ int Catalog::importWeb(const std::string catName,
     std::cout << "Number of unsigned long required for m_rowIsSelected = "
               << err << std::endl;
     #endif
-    for (int j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
-    // above line can be commented to test the try catch mechanism
+    if (m_numRows)
+      for (int j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
+    // above lines can be commented to test the try catch mechanism
   }
   catch (std::exception &prob) {
     std::string text;
@@ -1005,12 +1097,108 @@ int Catalog::importWeb(const std::string catName,
 
 
 /**********************************************************************/
+int Catalog::loadSelected(unsigned long *tot) {
+
+  const std::string origin="importSelected";
+  char sep=';',
+       line[MAX_LINE];
+  bool testCR=false,
+       first=true;
+  int  i, last,
+       err=IS_OK;
+  unsigned int pos;
+  std::ostringstream sortie;
+  std::string text, mot;
+  while ( myFile.good() ) {
+
+    // extract line with delimiter \n which is discarded
+    myFile.getline(line, MAX_LINE);
+    (*tot)++;
+    last=strlen(line);
+    if ((last == 0) || (line[0] == 0x0D)) continue;
+    // string max size is MAX_LINE-1;
+    if (last >= MAX_LINE-1) {
+      sortie << "data line #" << *tot << " exceeds maximal size ("
+             << MAX_LINE << ")";
+      printErr(origin, sortie.str());
+      err=BAD_FILELINE;
+      break;
+    }
+    if (first) {
+      first=false;
+      // test if last char is CR from WINDOWS
+      if (line[last-1] == 0x0D) testCR=true;
+      char *posC=strchr(line, sep);
+      // if separator isn't the default ; search for TAB
+      // suppose there is at least 2 columns
+      if (posC == NULL) {
+        posC=strchr(line, 0x09);
+        if (posC != NULL) sep=0x09;
+        else {
+          printErr(origin, "first data line has no separator");
+          err=BAD_FILETYPE;
+          break;
+        }
+      }
+/*   if (pos == std::string::npos) {
+       if ((pos=text.find(0x09)) != std::string::npos) {
+        // suppose there is at least 2 columns
+          found++;
+          sep=0x09;
+        }*/
+    }
+    else if (testCR) line[--last]='\0';
+    text=line; /* convert C string to C++ string */
+    mot="#Table";
+    pos=text.find(mot);
+    if (pos == 0) {
+      sortie << "data line #" << *tot << ": second table start (not read)";
+      printWarn(origin, sortie.str());
+      sortie.str(""); // Will empty the string.
+      break;
+    }
+    pos=text.find(sep);
+    if (pos == std::string::npos) {
+      sortie << "data line #" << *tot << " without separator, line skipped";
+      printWarn(origin, sortie.str());
+      sortie.str(""); // Will empty the string.
+      continue;
+    }
+    i=0;
+/*    err=m_quantities.size();
+    do {
+      mot=text.substr(0, pos);
+      if (i < err) translate_cell(mot, i);
+      else {
+        sortie << "data line #" << *tot << " contains too many quantities";
+        printWarn(origin, sortie.str());
+        sortie.str(""); // Will empty the string.
+        break;
+      }
+      i++;
+      if (pos != std::string::npos) {
+        text.erase(0, pos+1);
+        pos=text.find(sep);
+      }
+      else break;
+    }
+    while (1);
+    if (i <  err) {
+      sortie << "data line #" << *tot << " does not contain all quantities";
+      printWarn(origin, sortie.str());
+      sortie.str(""); // Will empty the string.
+    }
+    err=IS_OK;
+    m_numRows++;*/
+  }
+  return err;
+}
+/**********************************************************************/
 // if a catalog description was already loaded, this method does
 // the same as import() adding selection criteria for loading
 int Catalog::importSelected() {
 
   const std::string origin="importSelected";
-
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return quantSize;
 
@@ -1018,9 +1206,42 @@ int Catalog::importSelected() {
     printWarn(origin, "call 'deleteContent' before 'importSelected'");
     return IMPORT_BIS;
   }
+  int i, err=0;
+  for (i=0; i<quantSize; i++) if (m_loadQuantity.at(i)) err++;
+  if (err < 2) {
+    printWarn(origin, "at least 2 quantities must be selected for import");
+    return IS_VOID;
+  }
+  std::ostringstream sortie; 
+  sortie << err << " quantities (over " << quantSize << ") selected for import";
+  printLog(1, sortie.str());
+  sortie.str(""); // Will empty the string
+
+  err=IS_VOID; //IS_OK;
+  if ( myFile.is_open() ) { // data must be read from file
+
+    if (!m_filePos) {
+      printErr(origin, "file import was not succesful");
+      return IMPORT_NEED;
+    }
+    // go back to initial position
+    myFile.clear(); // needed to reset flags before seekg
+    myFile.seekg(m_filePos);
+    unsigned long tot=0ul; // number of data lines read
+    err=loadSelected(&tot);
+    if (err == IS_OK) {
+      sortie << tot << " data lines read for importSelected()";
+      printLog(0, sortie.str());
+      err=m_numRows;
+    }
+
+  }
+  else { // data must be querried via web
 
 
-  return m_numRows;
+  }
+  printWarn(origin, "function not implemented");
+  return err;
 }
 
 
@@ -1062,6 +1283,7 @@ int Catalog::save(const std::string fileName, bool no_replace) {
     }
     file.clear();  // clears all flags associated with the current stream
   }
+  // open in write mode, if the file already existed it is erased
   file.open(fileName.c_str(), std::ios::out | std::ios::trunc);
   if (!file) {
     text=": FILENAME \""+fileName+"\" cannot be written";
@@ -1132,9 +1354,9 @@ int Catalog::save(const std::string fileName, bool no_replace) {
         formats[i]=sortie.str();
         break;
       case 'F':  // number of decimals is needed from CSV/TSV
-        if (m_quantities[i].m_index == m_indexRA)
+        if (i == m_indexRA)
           sortie << "%0" << text << "f";
-        else if (m_quantities[i].m_index == m_indexDEC)
+        else if (i == m_indexDEC)
           sortie << "%+0" << text << "f";
         else sortie << "%" << text << "f";
         formats[i]=sortie.str();

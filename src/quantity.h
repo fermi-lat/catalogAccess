@@ -32,7 +32,7 @@ namespace catalogAccess {
 
 static const double Min_Axis = 1./3600.; // just below 0.00028 degree
 static const double Min_Prec = std::numeric_limits<double>::epsilon();
-static const double NearZero = std::numeric_limits<double>::min();
+static const double NearZero = 10*std::numeric_limits<double>::min();
 static const unsigned long Max_Test = std::numeric_limits<unsigned long>::max();
 static const double Angle_Conv = M_PI/180.;
 
@@ -67,20 +67,17 @@ public:
     m_type =VECTOR;
     m_index=-1;
     m_isGeneric   =false;
-    m_toBeLoaded  =true;
     m_lowerCut=NO_SEL_CUT; m_upperCut=NO_SEL_CUT;
     m_precision   =10*Min_Prec;
     m_rejectNaN   =true;
-    m_includeList =true;
-    m_caselessList=true;
+    m_cutORed     =false;
+    m_excludeList =false;
   }
   Quantity(std::string name, std::string comm, std::string ucd,
            QuantityType type, std::string unit, int index=-1,
-           bool gene=false, bool load=true,
-           double low=NO_SEL_CUT, double up=NO_SEL_CUT) :
-    m_name(name), m_comment(comm), m_ucd(ucd), m_type(type),
-    m_unit(unit), m_index(index), m_isGeneric(gene), m_toBeLoaded(load),
-    m_lowerCut(low), m_upperCut(up) {}
+           bool gene=false, double low=NO_SEL_CUT, double up=NO_SEL_CUT) :
+    m_name(name), m_comment(comm), m_ucd(ucd), m_type(type), m_unit(unit),
+    m_index(index), m_isGeneric(gene), m_lowerCut(low), m_upperCut(up) {}
                                 // Constructor with arguments
   ~Quantity();                  // Destructor needed to free memory
   Quantity(const Quantity & );  // Copy constructor needed
@@ -101,8 +98,6 @@ public:
   bool m_isGeneric;
       // True if the quantity is part of the set of quantities
       // common to all catalogs
-  bool m_toBeLoaded;
-      // True if data corresponding to this quantity must be loaded into memory
   std::string m_statError;
       // For numerical quantities: the name of the quantity which contains
       // the statistical error of this quantity;
@@ -134,10 +129,12 @@ public:
      // for string   : undefined; default: empty
      // for numerical: stores the list of values to be tested
 
-  bool   m_includeList;// if true the values in the list lead to row inclusion
-  bool   m_caselessList;//if true the string is matched whatever case
+  bool   m_excludeList;// if false the values in the list lead to row inclusion
   double m_precision;  // test for equality used for m_excludedN, listValN
   bool   m_rejectNaN;  // if true the NaN values are not selected
+  bool   m_cutORed;
+      // set false by useOnlyN (default): numerical cut AND list
+      // set true by includeN: numerical cut OR list
 
 }; // end class definition 
 
