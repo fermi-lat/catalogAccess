@@ -1,0 +1,35 @@
+#  
+#   VizieR Astronomical Server: http://vizier.u-strasbg.fr	2004-09-08T10:14:36
+#   Explanations and Statistics of UCDs:			See LINK below
+#   In case of problem, please report to:	question@simbad.u-strasbg.fr
+#    (link)
+#   
+#Coosys	J2000:	eq_FK5 2000 
+#INFO	Ref=Vxml7161
+
+#RESOURCE=21230079   
+#Name: J/ApJS/123/79   
+#Title:	Third EGRET catalog (3EG) (Hartman+, 1999)   
+#Table	J_ApJS_123_79_3eg:      
+#Name: J/ApJS/123/79/3eg     
+#Title:	Third EGRET Source Catalog (table 4)          
+#Column	recno	(I8)	       Record number within the original table (starting from 1)        (link)     	[ucd=]     
+#Column	3EG	(A14)	       3EG name (3EG Jhhmm+ddmm)     	[ucd=]     
+#Column	RAJ2000	(F6.2)	       Right ascension (J2000)     	[ucd=]     
+#Column	DEJ2000	(F6.2)	       Declination (J2000)     	[ucd=]     
+#Column	GLON	(F6.2)	       Galactic longitude     	[ucd=]     
+#Column	GLAT	(F6.2)	       Galactic latitude     	[ucd=]     
+#Column	theta95	(F6.3)	       Radius of the circle containing the same solid angle as the 95% confidence contour     	[ucd=]     
+#Column	n_theta95	(A1)	       [*] *: value was obtained by multiplying the 68% radius by 1.62. This was necessary in cases of unclosed or extremely irregular 95% contours.     	[ucd=]        
+#Column	z	(F7.4)	       ? Redshift (AGNs only)     	[ucd=]     
+#Column	u_z	(A1)	       [?] Uncertainty flag on z     	[ucd=]     
+#Column	OtherNames	(A70)	       Other names (3)     	[ucd=]
+
+recno;3EG;RAJ2000;DEJ2000;GLON;GLAT;theta95;n_theta95;z;u_z;OtherNames
+;;deg;deg;deg;deg;deg;;;;;;;;;;;
+--------;--------------;------;------;------;------;------;-;-------;-;----------------------------------------------------------------------
+       1;3EG J0010+7309;  2.56; 73.17;119.92; 10.54; 0.240; ;       ; ;2EG J0008+7307, GEV J0008+7304, SNR CTA 1?, Pulsar in CTA 1?          
+       2;3EG J0038-0949;  9.74; -9.82;112.69;-72.44; 0.590; ;       ; 
+       3;3EG J0118+0248; 19.60;  2.81;136.23;-59.36; 1.160; ; 0.6370; ;2EG J0119+0312, 0119+041?                                             
+       4;3EG J0130-1758; 22.70;-17.97;169.71;-77.11; 0.970; ; 1.0220; ;2EG J0129-1748, 0130-171?                                             
+      14;3EG J0245+1758; 41.36; 17.97;157.62;-37.11; 0.660;*;       ; ;;
