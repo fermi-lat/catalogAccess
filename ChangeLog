@@ -1,0 +1,37 @@
+------------------------------------------------------------
+User: landriu  Wed Sep 29 07:14:15 PDT 2004
+catalogAccess
+
+Log Message:
+Creation
+
+Status:
+
+Vendor Tag:	GLAST
+Release Tags:	v0
+		
+N catalogAccess/.cvsignore
+N catalogAccess/cmt/requirements
+N catalogAccess/src/mainpage.h
+N catalogAccess/src/Makefile
+N catalogAccess/src/catalog.h
+N catalogAccess/src/catalog.cxx
+N catalogAccess/src/quantity.cxx
+N catalogAccess/src/quantity.h
+N catalogAccess/src/catalog_io.cxx
+N catalogAccess/src/catalog_sel.cxx
+N catalogAccess/src/test/main_test.cxx
+N catalogAccess/data/1rxs_50.fits
+N catalogAccess/data/3EG_all.fits
+N catalogAccess/data/1rxs_50.out
+N catalogAccess/data/1rxs_50.tsv
+N catalogAccess/data/3EG_test.out
+N catalogAccess/data/3EG_all.tsv
+N catalogAccess/data/outref/screenOut.txt
+N catalogAccess/data/outref/1rxs_50.out.DEJ
+N catalogAccess/data/outref/1rxs_50.out.txt
+N catalogAccess/doc/release.notes
+
+No conflicts created by this import
+
+    *
