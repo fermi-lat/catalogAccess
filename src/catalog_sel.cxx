@@ -1,7 +1,7 @@
 /**
  * @file   catalog_sel.cxx
  * @brief  Selection routines for Catalog class.
- * Provide methods to READ selected data or MAKE the selection.
+ * Provide methods to MAKE the selection (READING selection is in catalog.cxx).
  * Selection can be defined with no row, it will be used with
  * importSelected() method.
  *
@@ -15,351 +15,24 @@
 namespace catalogAccess {
 
 /**********************************************************************/
-/*  ACCESSING the Catalog CONTENTS with in-memory SELECTION CRITERIA  */
+/*  METHOD for SELECTING QUANTITY (BEFORE IMPORT)                     */
 /**********************************************************************/
-// get the number of selected rows in the catalog
-void Catalog::getNumSelRows(long *nrows) {
+// importSelected() will actually load selected quantities
+int Catalog::selectQuantity(const std::string name, const bool toBeLoaded) {
 
- *nrows=m_numSelRows;
-}
-
-/**********************************************************************/
-// get the value of given string quantity in given selected row
-int Catalog::getSelSValue(const std::string name, const long srow,
-                          std::string *stringVal) {
-
-  const std::string origin="getSelSValue";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-  // above test avoid searching for srow when no row is selected
-  num=checkQuant_name(origin, name);
+  int num=checkImport("selectQuantity", true);
+  if (num < IS_VOID) return num;
+  num=checkQuant_name("selectQuantity", name);
   if (num < 0) return num;
-  if (m_quantities.at(num).m_type != Quantity::STRING) {
-    std::string errText;
-    errText="given Quantity name ("+name+") is not of STRING type";
-    printWarn(origin, errText);
-    return BAD_QUANT_TYPE;
-  }
-  num=m_quantities.at(num).m_index;
-  long tot=0;
-  // first bit indicates global selection
-  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-    if (tot == srow) { *stringVal=m_strings[num].at(i); break; }
-    tot++;
-    //if (tot == m_numSelRows) break; should not happen
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-/**********************************************************************/
-// get the value of given numerical quantity in given selected row
-int Catalog::getSelNValue(const std::string name, const long srow,
-                          double *realVal) {
-
-  const std::string origin="getSelNValue";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-  // above test avoid searching for srow when no row is selected
-  num=checkQuant_name(origin, name);
-  if (num < 0) return num;
-  if (m_quantities.at(num).m_type != Quantity::NUM) {  
-    std::string errText;
-    errText="given Quantity name ("+name+") is not of NUM type";
-    printWarn(origin, errText);
-    return BAD_QUANT_TYPE;
-  }
-  num=m_quantities.at(num).m_index;
-  long tot=0;
-  // first bit indicates global selection
-  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-    if (tot == srow) { *realVal=m_numericals[num].at(i); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-
-/**********************************************************************/
-// get the values of given vector quantity in given selected row
-
-/**********************************************************************/
-// get value of the statistical error of given quantity in given selected row
-
-/**********************************************************************/
-// get value of the systematic error of given quantity in given selected row
-
-/**********************************************************************/
-// get the values of the statistical error of given vector in given selected row
-
-/**********************************************************************/
-// get the values of the systematic error of given vector in given selected row
-
-/**********************************************************************/
-// access to generic quantity for object name in given selected row
-int Catalog::getSelObjName(const long srow, std::string *stringVal) {
-
-  const std::string origin="getSelObjName";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-
-  // objectName is the only generic string
-  num=m_quantities.size();
-  int i, j;
-  for (i=0; i<num; i++) {
-    if ( (m_quantities[i].m_isGeneric) 
-        && (m_quantities[i].m_type == Quantity::STRING) ) {
-      j=m_quantities[i].m_index; break;
-    }
-  }
-  if (i == num) { 
-    printWarn(origin, "missing generic object name quantity");
-    return BAD_QUANT_NAME;
-  }
-  long tot=0;
-  // first bit indicates global selection
-  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
-    if (tot == srow) { *stringVal=m_strings[j].at(k); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-
-/**********************************************************************/
-// access to generic quantity for RA  (degrees) in given selected row
-int Catalog::selRA_deg(const long srow, double *realVal) {
-
-  const std::string origin="selRA_deg";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-
-  if (m_indexRA < 0) { 
-    printWarn(origin, "missing generic RA position quantity");
-    return NO_RA_DEC;
-  }
-  long tot=0;
-  // first bit indicates global selection
-  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
-    if (tot == srow) { *realVal=m_numericals[m_indexRA].at(k); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-/**********************************************************************/
-// access to generic quantity for DEC (degrees) in given selected row
-int Catalog::selDEC_deg(const long srow, double *realVal) {
-
-  const std::string origin="selDEC_deg";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-
-  if (m_indexDEC < 0) { 
-    printWarn(origin, "missing generic DEC position quantity");
-    return NO_RA_DEC;
-  }
-  long tot=0;
-  // first bit indicates global selection
-  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
-    if (tot == srow) { *realVal=m_numericals[m_indexDEC].at(k); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-/**********************************************************************/
-// access to generic quantity for position uncertainty (degrees)
-//in given selected row
-int Catalog::selPosError_deg(const long srow, double *realVal) {
-
-  const std::string origin="selPosError_deg";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-
-  if (m_indexErr < 0) { 
-    printWarn(origin, "missing generic position error quantity");
-    return BAD_QUANT_NAME;
-  }
-  long tot=0;
-  // first bit indicates global selection
-  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
-    if (tot == srow) { *realVal=m_numericals[m_indexErr].at(k); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-
-/**********************************************************************/
-// access to generic quantity for galactic L (degrees) in given selected row
-int Catalog::selL_deg(const long srow, double *realVal) {
-  
-  const std::string origin="selL_deg";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-
-  num=m_quantities.size();
-  std::string text=UCD_List[4];
-  int i, j;
-  for (i=0; i<num; i++) {
-    if ( (m_quantities[i].m_isGeneric) 
-        && (m_quantities[i].m_ucd == text) ) {
-      j=m_quantities[i].m_index; break;
-    }
-  }
-  if (i == num) { 
-    printWarn(origin, "missing generic galactic L quantity");
-    return BAD_QUANT_NAME;
-  }
-  long tot=0;
-  // first bit indicates global selection
-  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
-    if (tot == srow) { *realVal=m_numericals[j].at(k); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-/**********************************************************************/
-// access to generic quantity for galactic B (degrees) in given selected row
-int Catalog::selB_deg(const long srow, double *realVal) {
-  
-  const std::string origin="selB_deg";
-  int num=checkSel_row(origin, srow);
-  if (num <= IS_VOID) return num;
-
-  num=m_quantities.size();
-  std::string text=UCD_List[5];
-  int i, j;
-  for (i=0; i<num; i++) {
-    if ( (m_quantities[i].m_isGeneric) 
-        && (m_quantities[i].m_ucd == text) ) {
-      j=m_quantities[i].m_index; break;
-    }
-  }
-  if (i == num) { 
-    printWarn(origin, "missing generic galactic B quantity");
-    return BAD_QUANT_NAME;
-  }
-  long tot=0;
-  // first bit indicates global selection
-  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
-    if (tot == srow) { *realVal=m_numericals[j].at(k); break; }
-    tot++;
-  }
-  if (tot < m_numSelRows) return IS_OK;
-  return IS_VOID; // should not happen
-}
-
-/**********************************************************************/
-// for string quantity: the list of different selected values assumed
-int Catalog::getSelSValues(const std::string name,
-                           std::vector<std::string> *values) {
-
-  values->clear();
-  const std::string origin="getSelSValues";
-  int num=checkSel_row(origin, 0);
-  if (num <= IS_VOID) return num;
-  // above test avoid searching when no row is selected
-  num=checkQuant_name(origin, name);
-  if (num < 0) return num;
-  if (m_quantities.at(num).m_type != Quantity::STRING) {
-    std::string errText;
-    errText="given Quantity name ("+name+") is not of STRING type";
-    printWarn(origin, errText);
-    return BAD_QUANT_TYPE;
-  }
-  num=m_quantities.at(num).m_index;
-  std::string text;
-  try {
-    long j, max=0, tot=0;
-    // first bit indicates global selection
-    for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-      text=m_strings[num].at(i);
-      if (max == 0) {values->assign(1, text); max++;}
-      else {
-        for (j=0; j<max; j++) if (values->at(j) == text) break;
-        if (j == max) {values->push_back(text); max++;}
-      }
-      if (++tot == m_numSelRows) break; // to speed up
-    }
-  }
-  catch (std::exception &err) {
-    text=std::string("EXCEPTION on values: ")+err.what();
-    printErr(origin, text);
-    throw;
-  }
-  return values->size();
-}
-
-/**********************************************************************/
-// for numerical quantity: the minimum value in the selected rows
-int Catalog::minSelVal(const std::string name, double *realVal) {
-
-  *realVal=NO_SEL_CUT;
-  const std::string origin="minSelVal";
-  int num=checkSel_row(origin, 0);
-  if (num <= IS_VOID) return num;
-  // above test avoid searching when no row is selected
-  num=checkQuant_name(origin, name);
-  if (num < 0) return num;
-  if (m_quantities.at(num).m_type != Quantity::NUM) {
-    std::string errText;
-    errText="given Quantity name ("+name+") is not of NUM type";
-    printWarn(origin, errText);
-    return BAD_QUANT_TYPE;
-  }
-  num=m_quantities.at(num).m_index;
-
-  long i, tot=0;
-  double r;
-  for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-    *realVal=m_numericals[num].at(i);
-    if (!isnan(*realVal)) break;
-    if (++tot == m_numSelRows) break; // to speed up
-  }
-  if (tot == m_numSelRows) return IS_OK;
-  // stop when selection contains only NaN
-  for (; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-    r=m_numericals[num].at(i);
-    if (r < *realVal) *realVal=r;
-    if (++tot == m_numSelRows) break; // to speed up
-  }
+  m_loadQuantity.at(num)=toBeLoaded;
   return IS_OK;
 }
 /**********************************************************************/
-// for numerical quantity: the maximum value in the selected rows
-int Catalog::maxSelVal(const std::string name, double *realVal) {
+int Catalog::selectAllQuantities(const bool toBeLoaded) {
 
-  *realVal=NO_SEL_CUT;
-  const std::string origin="maxSelVal";
-  int num=checkSel_row(origin, 0);
-  if (num <= IS_VOID) return num;
-  // above test avoid searching when no row is selected
-  num=checkQuant_name(origin, name);
-  if (num < 0) return num;
-  if (m_quantities.at(num).m_type != Quantity::NUM) {
-    std::string errText;
-    errText="given Quantity name ("+name+") is not of NUM type";
-    printWarn(origin, errText);
-    return BAD_QUANT_TYPE;
-  }
-  num=m_quantities.at(num).m_index;
-
-  long i, tot=0;
-  double r;
-  for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-    *realVal=m_numericals[num].at(i);
-    if (!isnan(*realVal)) break;
-    if (++tot == m_numSelRows) break; // to speed up
-  }
-  if (tot == m_numSelRows) return IS_OK;
-  // stop when selection contains only NaN
-  for (; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
-    r=m_numericals[num].at(i);
-    if (r > *realVal) *realVal=r;
-    if (++tot == m_numSelRows) break; // to speed up
-  }
+  int num=checkImport("selectAllQuantities", true);
+  if (num < IS_VOID) return num;
+  m_loadQuantity.assign(num, toBeLoaded);
   return IS_OK;
 }
 
@@ -367,7 +40,7 @@ int Catalog::maxSelVal(const std::string name, double *realVal) {
 /**********************************************************************/
 /*  METHODS for SELECTING DATA (BEFORE or AFTER IMPORT)               */
 /**********************************************************************/
-// private method, suppose given row exist
+// check if given row is inside the elliptical region (private method)
 bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
 
   /* for the moment, only circle
@@ -378,10 +51,10 @@ bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
    and the circular region around OA is defined by
    its scalar product with OM > cos desired_angle
   */
-  double myRA=m_numericals[m_indexRA].at(row);
-  double myDEC=m_numericals[m_indexDEC].at(row);
-  if (isnan(myRA) && m_quantities[nRA].m_rejectNaN) return false;
-  if (isnan(myDEC) && m_quantities[nDEC].m_rejectNaN) return false;
+  double myRA=m_numericals[nRA].at(row);
+  double myDEC=m_numericals[nDEC].at(row);
+  if (isnan(myRA))  return !(m_quantities[m_indexRA].m_rejectNaN);
+  if (isnan(myDEC)) return !(m_quantities[m_indexDEC].m_rejectNaN);
   double obj_cosP=cos(myRA * Angle_Conv);
   double obj_sinP=sin(myRA * Angle_Conv);
   double obj_sinT=cos(myDEC * Angle_Conv);
@@ -396,71 +69,93 @@ bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
 }
 
 /**********************************************************************/
-// private method, suppose given quantity index exist
-bool Catalog::checkSTR(const std::string s, const int index, const int code) {
-
-  int i, vecSize=m_quantities[index].m_listValS.size();
-  bool check=(code & 1);
-  // true for equality, false otherwise
-  for (i=0; i<vecSize; i++) {
-    if (s == m_quantities[index].m_listValS[i]) return check;
-  }
-  return !check;
-}
-/**********************************************************************/
-// private method, suppose given quantity index exist
-bool Catalog::checkNUM(const double r, const int index, const bool reject,
-                       const double precis) {
+// check if value pass criteria for given quantity index (cut AND list)
+// private method called by useOnlyN, excludeN
+bool Catalog::checkNUM(const double r, const int index, const bool miss,
+                       const bool reject, const double precis) {
 
   // since we test the NaN only once at the beginning
   // this methods MUST NOT be called if no criteria is applied
-  if (isnan(r) && reject) return false;
+  if (isnan(r)) return !reject;
 
-  bool check;
+  double myLimit;
+  myLimit=m_quantities[index].m_lowerCut;
+  if (myLimit < NO_SEL_CUT) {
+    if (r < myLimit) return false;
+  }
+  myLimit=m_quantities[index].m_upperCut;
+  if (myLimit < NO_SEL_CUT) {
+    if (r > myLimit) return false;
+  }
+
+  int vecSize=m_quantities[index].m_listValN.size();
+  if (vecSize > 0) {
+    for (int i=0; i<vecSize; i++) {
+      myLimit=m_quantities[index].m_listValN[i];
+      if (fabs(myLimit) > NearZero) {
+        if (fabs(r/myLimit-1.0) <= precis) return !miss;
+      }
+      else if (fabs(r) <= precis) return !miss;
+      // returns TRUE for inclusion (equality found)
+      // returns FALSE for exclusion (difference found)
+    }
+    return miss;
+    // not in list: returns FALSE for inclusion, TRUE for exclusion
+  }
+
+  // empty list (interval exist): within interval
+  return true;
+}
+
+/**********************************************************************/
+// check if value pass criteria for given quantity index (cut OR list)
+// private method called by includeN
+bool Catalog::checkNUMor(const double r, const int index,
+                         const bool reject, const double precis) {
+
+  // since we test the NaN only once at the beginning
+  // this methods MUST NOT be called if no criteria is applied
+  if (isnan(r)) return !reject;
+
+  bool check=true;
   double myLimit;
   int vecSize=m_quantities[index].m_listValN.size();
   if (vecSize > 0) {
-    check=m_quantities[index].m_includeList;
     int i;
+    check=false;
     for (i=0; i<vecSize; i++) {
       myLimit=m_quantities[index].m_listValN[i];
       if (fabs(myLimit) > NearZero) {
-        if (fabs(r/myLimit-1.0) <= precis) return check;
+        if (fabs(r/myLimit-1.0) <= precis) return true;
       }
-      else if (fabs(r) <= precis) return check;
+      else if (fabs(r) <= precis) return true;
+      // returns TRUE for inclusion (equality found)
+      // needn't check for upper/lower cut (OR condition)
     }
-    // returns true for inclusion (equality found)
-    // needn't check for upper/lower cut (OR condition)
-    // returns false for exclusion (difference found) 
-    // needn't check for upper/lower cut (AND condition)
   }
 
   myLimit=m_quantities[index].m_lowerCut;
   if (myLimit < NO_SEL_CUT) {
-    check=false; // used with list
+    check=true; // used with list
     if (r < myLimit) return false;
   }
 
   myLimit=m_quantities[index].m_upperCut;
   if (myLimit < NO_SEL_CUT) {
-    check=false; // used with list
+    check=true; // used with list
     if (r > myLimit) return false;
   }
 
-  // for include, not in list (or NaN):
-  // * no interval, returns FALSE (check not modified=true)
-  // * within interval or NaN, returns TRUE (check=false)
-  // for exclude, not in list (or NaN):
-  // * no interval, returns TRUE (check not modified=false)
-  // * within interval or NaN, returns TRUE (check=false)
-  if (vecSize > 0) return !check;
+  // empty list  + within interval = TRUE
+  // not in list + within interval = TRUE
+  // not in list +   no  interval = FALSE
+  return check;
 
-  // empty list, within interval or NaN
-  return true;
 }
 
 /**********************************************************************/
-// private method, suppose given row exist and m_rowIsSelected set
+// compute the global bit selection at existing row,
+// suppose that m_rowIsSelected is correctly set (private method)
 bool Catalog::rowSelect(const long row, const std::vector<bool> &quantSel) {
 
   int  numBit=sizeof(long)*8,
@@ -506,6 +201,127 @@ bool Catalog::rowSelect(const long row, const std::vector<bool> &quantSel) {
 
 
 /**********************************************************************/
+// unset cut on quantity found by its existing index (private method)
+void Catalog::unsetCuts(const int index) {
+
+  m_quantities.at(index).m_listValS.clear();
+  m_quantities.at(index).m_lowerCut=NO_SEL_CUT;
+  m_quantities.at(index).m_upperCut=NO_SEL_CUT;
+  m_quantities.at(index).m_listValN.clear();
+  /* if no data: exit */
+  if (m_numRows == 0) return;
+
+  // now, must check criteria on region and other quantities
+  int k;
+  std::vector<bool> isSelected;
+  bool oneCriteria=existCriteria(&isSelected);
+  if (oneCriteria) {
+
+    unsigned long test=bitPosition(index, &k);
+    m_numSelRows=0;
+    for (long i=0; i<m_numRows; i++) {
+      // setting required bit to 0
+      m_rowIsSelected[k].at(i)&= (Max_Test-test);
+      if (rowSelect(i, isSelected) == true) m_numSelRows++;
+    }// loop on rows
+
+  }
+  else {
+    if (m_numSelRows > 0) {
+      int quantSize=m_rowIsSelected.size(); // to avoid compiler Warning
+      for (k=0; k<quantSize; k++)
+        m_rowIsSelected[k].assign(m_numRows, 0);
+    }
+    m_numSelRows=0;
+    printLog(0, "All rows unselected");
+  }
+
+}
+/**********************************************************************/
+// unset all selection criteria relating to quantity "name"
+int Catalog::unsetCuts(const std::string name) {
+
+  int quantSize=checkImport("unsetCuts", true);
+  if (quantSize < IS_VOID) return quantSize;
+  int index=checkQuant_name("unsetCuts", name);
+  if (index < 0) return index;
+
+  unsetCuts(index);
+  return IS_OK;
+}
+
+/**********************************************************************/
+// unset all cuts on all quantities except the selection ellipse;
+// this also deletes the selection string
+int Catalog::unsetCuts() {
+
+  int quantSize=checkImport("unsetCuts", true);
+  if (quantSize < IS_VOID) return quantSize;
+  int j;
+  /*for (j=0; j<quantSize; j++) unsetCuts(m_quantities.at(j).m_name);*/
+  //quicker to just check for selection ellipse
+  for (j=0; j<quantSize; j++) {
+    m_quantities.at(j).m_listValS.clear();
+    m_quantities.at(j).m_lowerCut=NO_SEL_CUT;
+    m_quantities.at(j).m_upperCut=NO_SEL_CUT;
+    m_quantities.at(j).m_listValN.clear();
+  }
+  m_selection="";
+  /* if no data: exit */
+  if (m_numRows == 0) return IS_OK;
+
+  // now, must check criteria on region
+  quantSize=m_rowIsSelected.size();
+  if (m_selRegion) {
+
+    unsigned long currSel;
+    m_numSelRows=0;
+    for (long i=0; i<m_numRows; i++) {
+      currSel=m_rowIsSelected[0].at(i);
+      if (currSel & 2ul) {
+        m_rowIsSelected[0].at(i)=3ul;
+        m_numSelRows++;
+      }
+      else m_rowIsSelected[0].at(i)=0ul;
+      // setting all bits to 0 except first two
+      for (j=1; j<quantSize; j++) m_rowIsSelected[j].at(i)=0ul;
+    }// loop on rows
+
+  }
+  else {
+    if (m_numSelRows > 0)
+      for (j=0; j<quantSize; j++) m_rowIsSelected[j].assign(m_numRows, 0);
+    m_numSelRows=0;
+    printLog(0, "All rows unselected");
+  }
+  return IS_OK;
+}
+
+/**********************************************************************/
+// if true, criteria between quantities are ORed instead of ANDed
+int Catalog::setCriteriaORed(const bool bitOR) {
+
+  const std::string origin="setCriteriaORed";
+  int quantSize=checkImport(origin, true);
+  if (quantSize < IS_VOID) return quantSize;
+
+  // if boolean is the same: do nothing
+  if (bitOR == m_criteriaORed) return IS_OK;
+  m_criteriaORed=bitOR;
+
+  /* if no data: exit */
+  if (m_numRows == 0) return IS_OK;
+  m_numSelRows=0;
+  std::vector<bool> isSelected;
+  existCriteria(&isSelected);
+  for (long i=0; i<m_numRows; i++) {
+    if (rowSelect(i, isSelected) == true) m_numSelRows++;
+  }
+  return IS_OK;
+}
+      
+
+/**********************************************************************/
 // set and apply an elliptical selection region
 int Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
                            const double majAxis_deg, const double minAxis_deg,
@@ -516,14 +332,14 @@ int Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
   std::ostringstream sortie;
 
   // first check that selection is possible
-  int quantSize=checkImport(origin, true);
-  if (quantSize < IS_VOID) return quantSize;
+  int numPb=checkImport(origin, true);
+  if (numPb < IS_VOID) return numPb;
   if ((m_indexRA < 0) || (m_indexDEC < 0)) {
     text="missing generic position quantities (RA and DEC)"; 
     printWarn(origin, text);
     return NO_RA_DEC;
   }
-  int numPb=0;
+  numPb=0;
   //const std::_Ios_Fmtflags outDouble=std::ios::right | std::ios::scientific;
   if ((centRA_deg < 0.) || (centRA_deg >= 360.)) numPb=BAD_RA;
   else if ((centDEC_deg < -90.) || (centDEC_deg > 90.)) numPb=BAD_DEC;
@@ -573,12 +389,9 @@ int Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
   std::vector<bool> isSelected;
   existCriteria(&isSelected); // returns true (m_selRegion is true)
   bool check;
-  int j, nRA=0, nDEC=0; // should be useless to initialize 
+  int nRA =m_quantities[m_indexRA].m_index,
+      nDEC=m_quantities[m_indexDEC].m_index;
   unsigned long currSel;
-  for (j=0; j<quantSize; j++) {
-    if (m_quantities[j].m_index == m_indexRA) nRA=j;
-    else if (m_quantities[j].m_index == m_indexDEC) nDEC=j;
-  }
   m_numSelRows=0;
   for (long i=0; i<m_numRows; i++) {
 
@@ -632,92 +445,6 @@ int Catalog::unsetSelEllipse() {
 
 
 /**********************************************************************/
-// unset all cuts on all quantities except the selection ellipse
-int Catalog::unsetCuts() {
-
-  int quantSize=checkImport("unsetCuts", true);
-  if (quantSize < IS_VOID) return quantSize;
-  int j;
-  /*for (j=0; j<quantSize; j++) unsetCuts(m_quantities.at(j).m_name);*/
-  //quicker to just check for selection ellipse
-  for (j=0; j<quantSize; j++) {
-    m_quantities.at(j).m_listValS.clear();
-    m_quantities.at(j).m_lowerCut=NO_SEL_CUT;
-    m_quantities.at(j).m_upperCut=NO_SEL_CUT;
-    m_quantities.at(j).m_listValN.clear();
-  }
-  /* if no data: exit */
-  if (m_numRows == 0) return IS_OK;
-
-  // now, must check criteria on region
-  quantSize=m_rowIsSelected.size();
-  if (m_selRegion) {
-    unsigned long currSel;
-    m_numSelRows=0;
-    for (long i=0; i<m_numRows; i++) {
-
-      currSel=m_rowIsSelected[0].at(i);
-      if (currSel & 2ul) {
-        m_rowIsSelected[0].at(i)=3ul;
-        m_numSelRows++;
-      }
-      else m_rowIsSelected[0].at(i)=0ul;
-      // setting all bits to 0 except first two
-      for (j=1; j<quantSize; j++) m_rowIsSelected[j].at(i)=0ul;
-
-    }// loop on rows
-  }
-  else {
-    if (m_numSelRows > 0)
-      for (j=0; j<quantSize; j++) m_rowIsSelected[j].assign(m_numRows, 0);
-    m_numSelRows=0;
-    printLog(0, "All rows unselected");
-  }
-  return IS_OK;
-}
-/**********************************************************************/
-int Catalog::unsetCuts(const std::string name) {
-
-  int quantSize=checkImport("unsetCuts", true);
-  if (quantSize < IS_VOID) return quantSize;
-  int index=checkQuant_name("unsetCuts", name);
-  if (index < 0) return index;
-  m_quantities.at(index).m_listValS.clear();
-  m_quantities.at(index).m_lowerCut=NO_SEL_CUT;
-  m_quantities.at(index).m_upperCut=NO_SEL_CUT;
-  m_quantities.at(index).m_listValN.clear();
-  /* if no data: exit */
-  if (m_numRows == 0) return IS_OK;
-
-  // now, must check criteria on region and other quantities
-  std::vector<bool> isSelected;
-  bool oneCriteria=existCriteria(&isSelected);
-  if (oneCriteria) {
-    int k;
-    unsigned long test=bitPosition(index, &k);
-    m_numSelRows=0;
-    for (long i=0; i<m_numRows; i++) {
-
-      // setting required bit to 0
-      m_rowIsSelected[k].at(i)&= (Max_Test-test);
-      if (rowSelect(i, isSelected) == true) m_numSelRows++;
-
-    }// loop on rows
-  }
-  else {
-    if (m_numSelRows > 0) {
-      quantSize=m_rowIsSelected.size(); // to avoid compiler Warning
-      for (index=0; index<quantSize; index++)
-        m_rowIsSelected[index].assign(m_numRows, 0);
-    }
-    m_numSelRows=0;
-    printLog(0, "All rows unselected");
-  }
-  return IS_OK;
-}
-
-
-/**********************************************************************/
 // set and apply a cut on given quantity such that all values >= cutVal pass
 // double is not const because it can be locally modified to NO_SEL_CUT
 int Catalog::setLowerCut(const std::string name, double cutVal) {
@@ -725,6 +452,7 @@ int Catalog::setLowerCut(const std::string name, double cutVal) {
   const std::string origin="setLowerCut";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return quantSize;
+
   int index=checkQuant_name(origin, name);
   if (index < 0) return index;
   if (m_quantities.at(index).m_type != Quantity::NUM) {  
@@ -733,6 +461,7 @@ int Catalog::setLowerCut(const std::string name, double cutVal) {
     printWarn(origin, errText);
     return BAD_QUANT_TYPE;
   }
+
   // if cut is the same: do nothing
   if (cutVal >= NO_SEL_CUT) cutVal=NO_SEL_CUT;
   if (cutVal == m_quantities.at(index).m_lowerCut) return IS_OK;
@@ -764,30 +493,44 @@ int Catalog::setLowerCut(const std::string name, double cutVal) {
   }
   
   if (check) {
-    bool reject=m_quantities[index].m_rejectNaN;
+    bool reject=m_quantities[index].m_rejectNaN,
+         cutOR=m_quantities[index].m_cutORed,
+         miss=m_quantities[index].m_excludeList;
     double precis=m_quantities[index].m_precision;
     int  k,
          pos=m_quantities[index].m_index;
+    long i;
     unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
     // true if given quantity is selected (list or lower/upper cut)
     oneCriteria=isSelected.at(index+1);
-    check=false; // value used if oneCriteria is false
-    for (long i=0; i<m_numRows; i++) {
+    if (oneCriteria) {
 
       // due to NaN test, call checkNUM only if selection exists
-      if (oneCriteria)
-        check=checkNUM(m_numericals[pos].at(i), index, reject, precis);
-      // setting required bit
-      if (check)
-        m_rowIsSelected[k].at(i)|= test;
-      else
-        m_rowIsSelected[k].at(i)&= (Max_Test-test);
-      if (rowSelect(i, isSelected) == true) m_numSelRows++;
- 
-    }// loop on rows
-  }
+      for (i=0; i<m_numRows; i++) {
+        if (!cutOR) // usual case
+          check=checkNUM(m_numericals[pos].at(i), index, miss, reject, precis);
+        else
+          check=checkNUMor(m_numericals[pos].at(i), index, reject, precis);
+        // setting required bit
+        if (check)
+          m_rowIsSelected[k].at(i)|= test;
+        else
+          m_rowIsSelected[k].at(i)&= (Max_Test-test);
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }// loop on rows
 
+    }
+    else {
+
+      for (i=0; i<m_numRows; i++) {
+        // required bit set to FALSE
+        m_rowIsSelected[k].at(i)&= (Max_Test-test);
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }// loop on rows
+
+    }
+  }
   return IS_OK;
 }
 /**********************************************************************/
@@ -798,6 +541,7 @@ int Catalog::setUpperCut(const std::string name, double cutVal) {
   const std::string origin="setUpperCut";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return quantSize;
+
   int index=checkQuant_name(origin, name);
   if (index < 0) return index;
   if (m_quantities.at(index).m_type != Quantity::NUM) {  
@@ -837,31 +581,214 @@ int Catalog::setUpperCut(const std::string name, double cutVal) {
   }
   
   if (check) {
-    bool reject=m_quantities[index].m_rejectNaN;
+    bool reject=m_quantities[index].m_rejectNaN,
+         cutOR=m_quantities[index].m_cutORed,
+         miss=m_quantities[index].m_excludeList;
     double precis=m_quantities[index].m_precision;
     int  k,
          pos=m_quantities[index].m_index;
+    long i;
     unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
     // true if given quantity is selected (list or lower/upper cut)
     oneCriteria=isSelected.at(index+1);
-    check=false; // value used if oneCriteria is false
-    for (long i=0; i<m_numRows; i++) {
+    if (oneCriteria) {
 
       // due to NaN test, call checkNUM only if selection exists
-      if (oneCriteria)
-        check=checkNUM(m_numericals[pos].at(i), index, reject, precis);
-      // setting required bit
-      if (check)
-        m_rowIsSelected[k].at(i)|= test;
-      else
-        m_rowIsSelected[k].at(i)&= (Max_Test-test);
-      if (rowSelect(i, isSelected) == true) m_numSelRows++;
- 
-    }// loop on rows
-  }
+      for (i=0; i<m_numRows; i++) {
+        if (!cutOR) // usual case
+          check=checkNUM(m_numericals[pos].at(i), index, miss, reject, precis);
+        else
+          check=checkNUMor(m_numericals[pos].at(i), index, reject, precis);
+        // setting required bit
+        if (check)
+          m_rowIsSelected[k].at(i)|= test;
+        else
+          m_rowIsSelected[k].at(i)&= (Max_Test-test);
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }// loop on rows
 
+    }
+    else {
+
+      for (i=0; i<m_numRows; i++) {
+        // required bit set to FALSE
+        m_rowIsSelected[k].at(i)&= (Max_Test-test);
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }// loop on rows
+
+    }
+  }
   return IS_OK;
+}
+
+/**********************************************************************/
+// set and apply a cut on quantities in VECTOR type quantity "name"
+// such that all values >= cutValues[i] pass
+ 
+/**********************************************************************/
+// set and apply a cut on quantities in VECTOR type quantity "name"
+// such that all values <= cutValues[i] pass
+ 
+
+/**********************************************************************/
+// select rows depending on the given numerical list for existing index
+int Catalog::doSelN(const std::string name, const int index, const int code,
+                    const std::vector<double> &listVal) {
+
+  std::ostringstream sortie;
+  m_quantities[index].m_cutORed=false;
+  bool miss;
+  // take only first 7 char to match possible generic functions
+  if (code & 1) {
+    m_quantities[index].m_excludeList=false;
+    miss=false;
+    sortie << "Include rows";
+  }
+  else {
+    m_quantities[index].m_excludeList=true;
+    miss=true;
+    sortie << "Exclude rows";
+  }
+  int listSize=listVal.size();
+  /* if empty list as before: exit */
+  if (listSize == 0) {
+    // if NO list, m_cutORed has no effect (false method quicker)
+    if (m_quantities[index].m_listValN.size() == 0) return IS_OK;
+  }
+  else if (code > 1)
+    m_quantities[index].m_cutORed=true;
+
+  int j;
+  m_quantities[index].m_listValN.clear();
+  for (j=0; j<listSize; j++)
+     m_quantities[index].m_listValN.push_back(listVal.at(j));
+
+  /* if no data: exit */
+  if (m_numRows == 0) return IS_OK;
+
+  std::vector<bool> isSelected;
+  bool oneCriteria=existCriteria(&isSelected);
+  bool check=true;
+  if (listSize == 0) {
+    printLog(1, "Disabling list selection (on "+name+")");
+    if (!oneCriteria) {
+      if (m_numSelRows > 0) {
+        listSize=m_rowIsSelected.size(); // to avoid compiler Warning
+        for (j=0; j<listSize; j++)
+          m_rowIsSelected[j].assign(m_numRows, 0);
+      }
+      m_numSelRows=0;
+      check=false;
+      printLog(0, "All rows unselected");
+    }
+  }
+  else {
+    sortie << " with \"" << name <<"\" around value in list ("
+           << listSize << " elements, ";
+    if (m_quantities[index].m_cutORed)
+      sortie << "ORed with cut)";
+    else
+      sortie << "ANDed with cut)";
+    printLog(1, sortie.str());
+  }
+  
+  if (check) {
+    bool reject=m_quantities[index].m_rejectNaN,
+         cutOR=m_quantities[index].m_cutORed;
+    double precis=m_quantities[index].m_precision;
+    int  k,
+         pos=m_quantities[index].m_index;
+    long i;
+    unsigned long test=bitPosition(index, &k);
+    m_numSelRows=0;
+    // true if given quantity is selected (list or lower/upper cut)
+    oneCriteria=isSelected.at(index+1);
+    if (oneCriteria) {
+
+      // due to NaN test, call checkNUM only if selection exists
+      for (i=0; i<m_numRows; i++) {
+        if (!cutOR) // usual case
+          check=checkNUM(m_numericals[pos].at(i), index, miss, reject, precis);
+        else
+          check=checkNUMor(m_numericals[pos].at(i), index, reject, precis);
+        // setting required bit
+        if (check)
+          m_rowIsSelected[k].at(i)|= test;
+        else
+          m_rowIsSelected[k].at(i)&= (Max_Test-test);
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }// loop on rows
+
+    }
+    else {
+
+      for (i=0; i<m_numRows; i++) {
+        // required bit set to FALSE
+        m_rowIsSelected[k].at(i)&= (Max_Test-test);
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }// loop on rows
+
+    }
+  }
+  return IS_OK;  
+}
+/**********************************************************************/
+// include rows which value is NOT in the given list AND value within cut
+int Catalog::excludeN(const std::string name,
+                      const std::vector<double> &listVal) {
+
+  int done=checkImport("excludeN", true);
+  if (done < IS_VOID) return done;
+  int index=checkQuant_name("excludeN", name);
+  if (index < 0) return index;
+
+  if (m_quantities.at(index).m_type != Quantity::NUM) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of NUM type";
+    printWarn("excludeN", errText);
+    return BAD_QUANT_TYPE;
+  }
+  done=doSelN(name, index, 0, listVal);
+  return done;
+}
+/**********************************************************************/
+// only include rows which have numerical value in the given list AND cut
+int Catalog::useOnlyN(const std::string name,
+                      const std::vector<double> &listVal) {
+
+  int done=checkImport("useOnlyN", true);
+  if (done < IS_VOID) return done;
+  int index=checkQuant_name("useOnlyN", name);
+  if (index < 0) return index;
+
+  if (m_quantities.at(index).m_type != Quantity::NUM) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of NUM type";
+    printWarn("useOnlyN", errText);
+    return BAD_QUANT_TYPE;
+  }
+  done=doSelN(name, index, 1, listVal);
+  return done;
+}
+/**********************************************************************/
+// only include rows which have numerical value in the given list OR cut
+int Catalog::includeN(const std::string name,
+                      const std::vector<double> &listVal) {
+
+  int done=checkImport("includeN", true);
+  if (done < IS_VOID) return done;
+  int index=checkQuant_name("includeN", name);
+  if (index < 0) return index;
+
+  if (m_quantities.at(index).m_type != Quantity::NUM) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of NUM type";
+    printWarn("includeN", errText);
+    return BAD_QUANT_TYPE;
+  }
+  done=doSelN(name, index, 3, listVal); // 3 to set bit 0 to 1.
+  return done;
 }
 
 /**********************************************************************/
@@ -896,24 +823,33 @@ int Catalog::setRejectNaN(const std::string name, const bool rejectNaN) {
     else text=text+" accepted (on ";
     text=text+name+ ")";
     printLog(1, text);
+    bool check,
+         cutOR=m_quantities[index].m_cutORed,
+         miss=m_quantities[index].m_excludeList;
     double precis=m_quantities[index].m_precision;
     int  k,
          pos=m_quantities[index].m_index;
     unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
     for (long i=0; i<m_numRows; i++) {
-      if (checkNUM(m_numericals[pos].at(i), index, rejectNaN, precis))
+
+      if (!cutOR) // usual case
+        check=checkNUM(m_numericals[pos].at(i), index, miss, rejectNaN, precis);
+      else
+        check=checkNUMor(m_numericals[pos].at(i), index, rejectNaN, precis);
+      if (check)
         m_rowIsSelected[k].at(i)|= test;
       else
         m_rowIsSelected[k].at(i)&= (Max_Test-test);
       if (rowSelect(i, isSelected) == true) m_numSelRows++;
+
     }// loop on rows
 
   }
   return IS_OK;  
 }
 /**********************************************************************/
-// set quantity member and apply (if quantity has upper/lower cut)
+// set quantity member and apply (if quantity has a non empty selection list)
 int Catalog::setMatchPercent(const std::string name, double percent) {
 
   const std::string origin="setMatchPercent";
@@ -949,23 +885,32 @@ int Catalog::setMatchPercent(const std::string name, double percent) {
   sortie << "Relative precision for values in list (for "<<name<< ")"
          << " is: " << percent << " (absolute precision around 0)";
   printLog(1, sortie.str());
+  bool check,
+       cutOR=m_quantities[index].m_cutORed,
+       reject=m_quantities[index].m_rejectNaN,
+       miss=m_quantities[index].m_excludeList;
   int  k,
        pos=m_quantities[index].m_index;
   unsigned long test=bitPosition(index, &k);
-  bool rejectNaN=m_quantities[index].m_rejectNaN;
   m_numSelRows=0;
   for (long i=0; i<m_numRows; i++) {
-    if (checkNUM(m_numericals[pos].at(i), index, rejectNaN, percent))
+
+    if (!cutOR) // usual case
+      check=checkNUM(m_numericals[pos].at(i), index, miss, reject, percent);
+    else
+      check=checkNUMor(m_numericals[pos].at(i), index, reject, percent);
+    if (check)
       m_rowIsSelected[k].at(i)|= test;
     else
       m_rowIsSelected[k].at(i)&= (Max_Test-test);
     if (rowSelect(i, isSelected) == true) m_numSelRows++;
+
   }// loop on rows
 
   return IS_OK;  
 }
 /**********************************************************************/
-// set quantity member and apply (if quantity has upper/lower cut)
+// set quantity member and apply (if quantity has a non empty selection list)
 int Catalog::setMatchEpsilon(const std::string name, const unsigned long step)
 {
   const std::string origin="setMatchEpsilon";
@@ -1001,30 +946,42 @@ int Catalog::setMatchEpsilon(const std::string name, const unsigned long step)
   sortie << "Relative precision for values in list (for "<<name<< ")"
          << " is: " << precis << " (absolute precision around 0)";
   printLog(1, sortie.str());
+  bool check,
+       cutOR=m_quantities[index].m_cutORed,
+       reject=m_quantities[index].m_rejectNaN,
+       miss=m_quantities[index].m_excludeList;
   int  k,
        pos=m_quantities[index].m_index;
   unsigned long test=bitPosition(index, &k);
-  bool rejectNaN=m_quantities[index].m_rejectNaN;
   m_numSelRows=0;
   for (long i=0; i<m_numRows; i++) {
-    if (checkNUM(m_numericals[pos].at(i), index, rejectNaN, precis))
+
+    if (!cutOR) // usual case
+      check=checkNUM(m_numericals[pos].at(i), index, miss, reject, precis);
+    else
+      check=checkNUMor(m_numericals[pos].at(i), index, reject, precis);
+    if (check)
       m_rowIsSelected[k].at(i)|= test;
     else
       m_rowIsSelected[k].at(i)&= (Max_Test-test);
     if (rowSelect(i, isSelected) == true) m_numSelRows++;
+
   }// loop on rows
 
   return IS_OK;  
 }
 
 /**********************************************************************/
-// select rows depending on the given numerical list
-int Catalog::doSelN(const std::string name, const std::string origin,
-                    const std::vector<double> &listVal) {
+// check if given value is within interval cut
+int Catalog::checkValWithinCut(const std::string name, const double value,
+                               bool *cutLow, bool *cutUp,int *checkResult) {
 
+  *cutLow=false;
+  *cutUp=false;
+  *checkResult=0;
+  const std::string origin="checkValWithinCut";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return quantSize;
-  std::ostringstream sortie;
   int index=checkQuant_name(origin, name);
   if (index < 0) return index;
   if (m_quantities.at(index).m_type != Quantity::NUM) {  
@@ -1032,144 +989,73 @@ int Catalog::doSelN(const std::string name, const std::string origin,
     errText="given Quantity name ("+name+") is not of NUM type";
     printWarn(origin, errText);
     return BAD_QUANT_TYPE;
-  }
-  if (origin == "useOnlyN") {
-    m_quantities[index].m_includeList=true;
-    sortie << "Include rows";
-  }
-  else {
-    m_quantities[index].m_includeList=false;
-    sortie << "Exclude rows";
-  }
-  quantSize=listVal.size();
-  /* if empty list as before: exit */
-  if ((quantSize == 0) && (m_quantities[index].m_listValN.size() == 0))
-    return IS_OK;
-  int j;
-  m_quantities[index].m_listValN.clear();
-  for (j=0; j<quantSize; j++)
-     m_quantities[index].m_listValN.push_back(listVal.at(j));
+  }  
 
-  /* if no data: exit */
-  if (m_numRows == 0) return IS_OK;
-
-  std::vector<bool> isSelected;
-  bool oneCriteria=existCriteria(&isSelected);
-  bool check=true;
-  if (quantSize == 0) {
-    printLog(1, "Disabling list selection (on "+name+")");
-    if (!oneCriteria) {
-      if (m_numSelRows > 0) {
-        quantSize=m_rowIsSelected.size(); // to avoid compiler Warning
-        for (j=0; j<quantSize; j++)
-          m_rowIsSelected[j].assign(m_numRows, 0);
-      }
-      m_numSelRows=0;
-      check=false;
-      printLog(0, "All rows unselected");
-    }
+  double myLimit, r=value;
+  myLimit=m_quantities[index].m_lowerCut;
+  if (fabs(value) > NearZero)
+    r+=value*m_quantities[index].m_precision;
+  else
+    r+=m_quantities[index].m_precision;
+  if (myLimit < NO_SEL_CUT) {
+    *cutLow=true;
+    if (r < myLimit) *checkResult=-2;
+    else if (value < myLimit) *checkResult=-1;
   }
-  else {
-    sortie << " with \"" << name <<"\" around value in list ("
-           << quantSize << " elements)";
-    printLog(1, sortie.str());
+  r=value;
+  myLimit=m_quantities[index].m_upperCut;
+  if (fabs(value) > NearZero)
+    r-=value*m_quantities[index].m_precision;
+  else
+    r-=m_quantities[index].m_precision;
+  if (myLimit < NO_SEL_CUT) {
+    *cutUp=true;
+    if (r > myLimit) *checkResult=2;
+    else if (value > myLimit) *checkResult=1;
   }
-  
-  if (check) {
-    bool reject=m_quantities[index].m_rejectNaN;
-    double precis=m_quantities[index].m_precision;
-    int  k,
-         pos=m_quantities[index].m_index;
-    unsigned long test=bitPosition(index, &k);
-    m_numSelRows=0;
-    // true if given quantity is selected (list or lower/upper cut)
-    oneCriteria=isSelected.at(index+1);
-    check=false; // value used if oneCriteria is false
-    for (long i=0; i<m_numRows; i++) {
 
-      // due to NaN test, call checkNUM only if selection exists
-      if (oneCriteria)
-        check=checkNUM(m_numericals[pos].at(i), index, reject, precis);
-      // setting required bit
-      if (check)
-        m_rowIsSelected[k].at(i)|= test;
-      else
-        m_rowIsSelected[k].at(i)&= (Max_Test-test);
-
-      if (rowSelect(i, isSelected) == true) m_numSelRows++;
- 
-    }// loop on rows
-  }
   return IS_OK;  
 }
-/**********************************************************************/
-// only include rows which have numerical value in the given list
-int Catalog::useOnlyN(const std::string name,
-                      const std::vector<double> &listVal) {
-
-  int done=doSelN(name, "useOnlyN", listVal);
-  return done;
-}
-/**********************************************************************/
-// exclude all rows which have numerical value in the given list
-int Catalog::excludeN(const std::string name,
-                      const std::vector<double> &listVal) {
-
-  int done=doSelN(name, "excludeN", listVal);
-  return done;
-}
 
 
 /**********************************************************************/
-// select rows depending on the given string list
-int Catalog::doSelS(const std::string name, const std::string origin,
-                    const std::vector<std::string> &stringList, bool exact) {
+// select rows depending on the given string list for existing index
+int Catalog::doSelS(const std::string name, const int index, const int code,
+                    const std::vector<std::string> &list, const bool exact) {
 
-  int quantSize=checkImport(origin, true);
-  if (quantSize < IS_VOID) return quantSize;
   std::ostringstream sortie;
-  int code,
-      index=checkQuant_name(origin, name);
-  if (index < 0) return index;
-  if (m_quantities.at(index).m_type != Quantity::STRING) {  
-    std::string errText;
-    errText="given Quantity name ("+name+") is not of STRING type";
-    printWarn(origin, errText);
-    return BAD_QUANT_TYPE;
-  }
-  if (origin == "useOnlyS") {
-    m_quantities[index].m_includeList=true;
-    code=1;
+  bool miss;
+  if (code & 1) {
+    m_quantities[index].m_excludeList=false; // set but unused for string
+    miss=false;
     sortie << "Include rows";
   }
   else {
-    m_quantities[index].m_includeList=false;
-    code=0;
+    m_quantities[index].m_excludeList=true; // set but unused for string
+    miss=true;
     sortie << "Exclude rows";
   }
-  //m_quantities[index].m_caselessList=-exact; //how to negate ?
+  int listSize=list.size();
+  if ((!listSize) && (!m_quantities[index].m_listValS.size())) return IS_OK;
   m_quantities[index].m_listValS.clear();
-  quantSize=stringList.size();
   int j;
   int (*pfunc)(int)=tolower; // function used by transform
   std::string mot;
   if (exact) {
-    m_quantities[index].m_caselessList=false;
-    for (j=0; j<quantSize; j++)
-      m_quantities[index].m_listValS.push_back(stringList.at(j));
+    for (j=0; j<listSize; j++)
+      m_quantities[index].m_listValS.push_back(list.at(j));
   }
   else {
-    m_quantities[index].m_caselessList=true;
-    for (j=0; j<quantSize; j++) {
-      mot=stringList.at(j);
+    for (j=0; j<listSize; j++) {
+      mot=list.at(j);
       transform(mot.begin(), mot.end(), mot.begin(), pfunc);
       m_quantities[index].m_listValS.push_back(mot);
     }
   }
   #ifdef DEBUG_CAT
-  for (j=0; j<quantSize; j++)
+  for (j=0; j<listSize; j++)
     std::cout << m_quantities[index].m_listValS[j] << "|";
-  std::cout <<"caseless="<< m_quantities[index].m_caselessList << std::endl;
+  std::cout <<"caseless="<< exact << std::endl;
   #endif
 
   /* if no data: exit */
@@ -1178,12 +1064,12 @@ int Catalog::doSelS(const std::string name, const std::string origin,
   std::vector<bool> isSelected;
   bool oneCriteria=existCriteria(&isSelected);
   bool check=true;
-  if (quantSize == 0) {
+  if (listSize == 0) {
     printLog(1, "Disabling list selection (on "+name+")");
     if (!oneCriteria) {
       if (m_numSelRows > 0) {
-        code=m_rowIsSelected.size(); // to avoid compiler Warning
-        for (j=0; j<code; j++)
+        listSize=m_rowIsSelected.size(); // to avoid compiler Warning
+        for (j=0; j<listSize; j++)
           m_rowIsSelected[j].assign(m_numRows, 0);
       }
       m_numSelRows=0;
@@ -1193,25 +1079,28 @@ int Catalog::doSelS(const std::string name, const std::string origin,
   }
   else {
     sortie << " with \"" << name <<"\" string in list ("
-           << quantSize << " elements, ";
+           << listSize << " elements, ";
     if (exact) sortie << "exact match)"; else sortie << "caseless match)"; 
     printLog(1, sortie.str());
   }
   
   if (check) {
-    int pos=m_quantities[index].m_index;
-    unsigned long test=bitPosition(index, &j);
+    int k, pos=m_quantities[index].m_index;
+    unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
     for (long i=0; i<m_numRows; i++) {
 
       mot=m_strings[pos].at(i);
       if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
-      check=checkSTR(mot, index, code);
+      check=miss;
+      for (j=0; j<listSize; j++) {
+         if (mot == m_quantities[index].m_listValS[j]) {check=!miss; break;}
+      }
       // setting required bit
       if (check)
-        m_rowIsSelected[j].at(i)|= test;
+        m_rowIsSelected[k].at(i)|= test;
       else
-        m_rowIsSelected[j].at(i)&= (Max_Test-test);
+        m_rowIsSelected[k].at(i)&= (Max_Test-test);
       if (rowSelect(i, isSelected) == true) m_numSelRows++;
  
     }// loop on rows
@@ -1220,19 +1109,41 @@ int Catalog::doSelS(const std::string name, const std::string origin,
   return IS_OK;
 }
 /**********************************************************************/
-// only include rows which have string value in the given list
-int Catalog::useOnlyS(const std::string name,
-                      const std::vector<std::string> &stringList, bool exact) {
+// exclude all rows which have string value in the given list
+int Catalog::excludeS(const std::string name,
+                      const std::vector<std::string> &list, const bool exact) {
 
-  int done=doSelS(name, "useOnlyS", stringList, exact);
+  int done=checkImport("excludeS", true);
+  if (done < IS_VOID) return done;
+  int index=checkQuant_name("excludeS", name);
+  if (index < 0) return index;
+
+  if (m_quantities.at(index).m_type != Quantity::STRING) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of STRING type";
+    printWarn("excludeS", errText);
+    return BAD_QUANT_TYPE;
+  }
+  done=doSelS(name, index, 0, list, exact);
   return done;
 }
 /**********************************************************************/
-// exclude all rows which have string value in the given list
-int Catalog::excludeS(const std::string name,
-                      const std::vector<std::string> &stringList, bool exact) {
+// only include rows which have string value in the given list
+int Catalog::useOnlyS(const std::string name,
+                      const std::vector<std::string> &list, const bool exact) {
 
-  int done=doSelS(name, "excludeS", stringList, exact);
+  int done=checkImport("useOnlyS", true);
+  if (done < IS_VOID) return done;
+  int index=checkQuant_name("useOnlyS", name);
+  if (index < 0) return index;
+
+  if (m_quantities.at(index).m_type != Quantity::STRING) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of STRING type";
+    printWarn("useOnlyS", errText);
+    return BAD_QUANT_TYPE;
+  }
+  done=doSelS(name, index, 1, list, exact);
   return done;
 }
 
@@ -1444,5 +1355,4 @@ int Catalog::eraseSelected() {
   return IS_OK;
 }
 
-/**********************************************************************/
 } // namespace catalogAccess

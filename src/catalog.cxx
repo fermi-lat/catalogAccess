@@ -2,8 +2,9 @@
  * @file   catalog.cxx
  * @brief  Basic routines for Catalog class.
  * The 3 static members should be read in configuration files in the future.
- * The methods give information on: these static members, the few members
- * that describe the catalog itself, the quantity data without selection.
+ * The methods give information on: these static members,
+ * the few members that describe the catalog itself, 
+ * the quantity data (with or without selection).
  *
  * @author A. Sauvageon
  *
@@ -31,26 +32,32 @@ const char *Catalog::s_CatalogURL[MAX_URL]={
       "bejing cn data.bao.ac.cn/"         //Bejing Obs. - China
       };
 
-// information on catalog size laste updated on: JUL 2004
+// information on catalog size laste updated on: JAN 2005
 const char *Catalog::s_CatalogList[2*MAX_CAT]={
-      "EGRET3 sources", "J/ApJS/123/79/3eg",    //   271 rows (18 columns)
+      "EGRET3 sources", "J/ApJS/123/79/3eg",    //   271 rows (20 columns)
       "EGRET3 fluxes",  "J/ApJS/123/79/fluxes", //  5245 rows (10 columns)
       "EGRET3 periods", "J/ApJS/123/79/table1", //   169 rows ( 6 columns)
       "ROSAT 1RXS",     "IX/10A/1rxs",          // 18806 rows (28 columns)
-      "Veron (11th) quasar", "VII/235/table1",  // 48921 rows (25 columns)
-      "Veron (11th) BL Lac", "VII/235/table2",  //   876 rows (25 columns)
-      "Veron (11th) AGN",    "VII/235/table3"   // 15069 rows (25 columns)
+      "Veron (11th) quasar", "VII/235/table1",  // 48921 rows (21 columns)
+      "Veron (11th) BL Lac", "VII/235/table2",  //   876 rows (21 columns)
+      "Veron (11th) AGN",    "VII/235/table3",  // 15069 rows (21 columns)
+      "WGACAT of ROSAT",     "IX/31/wgacat",    // 88621 rows (101 columns)
+      "ROSAT faint sources", "IX/29/rass_fsc",  //105924 rows (30 columns)
+      "Green galactic SNR",  "VII/227/snrs"     //   231 rows (14 columns)
       };
 
 
 const char *Catalog::s_CatalogGeneric[MAX_CAT][MAX_GEN]={
      {"3EG", "RAJ2000", "DEJ2000", "theta95", "GLON", "GLAT"},
      {"3EG", "", "", "", "", ""},
-     {"",    "", "", "", "GLON", "GLAT"},
+     {"",    "+", "+", "", "GLON", "GLAT"},
      {"1RXS", "RAJ2000", "DEJ2000", "PosErr", "+", "+"},
      {"Name", "+", "+", "", "+", "+"},   // original format of RA/DEC
      {"Name", "+", "+", "", "+", "+"},   // is in sexagesimal
-     {"Name", "+", "+", "", "+", "+"}    // ==> need to be added in decimal
+     {"Name", "+", "+", "", "+", "+"},   // ==> need to be added in decimal
+     {"1WGA", "RAJ2000", "DEJ2000", "ErrorRad", "GLON", "GLAT"},
+     {"1RXS", "RAJ2000", "DEJ2000", "PosErr", "+", "+"},
+     {"SNR",  "+", "+", "", "+", "+"}   // RA/DEC is in sexagesimal
 };
 
 
@@ -82,19 +89,27 @@ void Catalog::deleteContent() {
 void Catalog::deleteDescription() {
 
   m_code="";
-  m_URL="";
-  m_catName="";
-  m_catRef="";
-  m_tableName="";
-  m_tableRef="";
+  m_URL ="";
+  m_catName   ="";
+  m_catRef    ="";
+  m_tableName ="";
+  m_tableRef  ="";
+  if ( myFile.is_open() ) myFile.close();
+  m_filePos   =0;
+  m_posErrSys = -1.0;
+  m_posErrFactor=1.0;  // "deg" by default
+  m_quantities.clear();
+  m_loadQuantity.clear();
+
+  m_numRows   =IMPORT_NEED;
   m_numOriRows=0;
   m_numReadRows=0;
-  if ( myFile.is_open() ) myFile.close();
-  m_positionSysErr = -1.0;
-  m_quantities.clear();
   m_selection="";
   m_selRegion=false;
   m_selEllipse.clear();
+  m_indexErr= -1;
+  m_indexRA = -1;
+  m_indexDEC= -1;
 }
 /**********************************************************************/
 // Copy constructor needed to allocate arrays in copy
@@ -115,11 +130,15 @@ Catalog::Catalog(const Catalog & myCat) {
   m_numRows   =myCat.m_numRows;
   m_numOriRows=myCat.m_numOriRows;
   m_numReadRows=myCat.m_numReadRows;
-  if ( myFile.is_open() ) {
-    errText="FILE should be CLOSED (in this version), pointer NOT copied";
+//  if ( myCat.myFile.is_open() ) { DO NOT COMPILE
+  if ( myCat.m_filePos > 0 ) {
+    // the file read is left opened, don't know how to get stream on same file
+    errText="FILE should be CLOSED (in this version), FORBIDS importSelected";
     printErr("Catalog copy constructor", errText);
   }
-  m_positionSysErr=myCat.m_positionSysErr;
+  m_filePos=0;
+  m_posErrSys=myCat.m_posErrSys;
+  m_posErrFactor=myCat.m_posErrFactor;
   m_selection =myCat.m_selection;
   m_criteriaORed=myCat.m_criteriaORed;
   // following three data members needed for efficient selection
@@ -147,6 +166,17 @@ Catalog::Catalog(const Catalog & myCat) {
   }
   catch (std::exception &err) {
     errText=std::string("EXCEPTION on m_selEllipse[]: ")+err.what();
+    printErr("Catalog copy constructor", errText);
+    throw;
+  }
+  // following data member m_loadQuantity[] needed for importSelected()
+  try {
+    vecSize=myCat.m_loadQuantity.size();
+    for (j=0; j<vecSize; j++)
+      m_loadQuantity.push_back(myCat.m_loadQuantity.at(j));
+  }
+  catch (std::exception &err) {
+    errText=std::string("EXCEPTION on m_loadQuantity[]: ")+err.what();
     printErr("Catalog copy constructor", errText);
     throw;
   }
@@ -278,6 +308,188 @@ void Catalog::getWebList(std::vector<std::string> *names, const bool isCode) {
   }
 }
 
+/**********************************************************************/
+// to know the maximal number of rows in the file
+int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
+
+  int i, err;
+  std::string text, origin="getMaxNumRows";
+  *nrows=0;
+  err=checkImport(origin, false);
+  // after this check, m_numReadRows is 0
+  if (err < IS_VOID) return err;
+
+  m_numRows=0;
+  i=fileName.length();
+  if (i == 0) {
+    text=": FILENAME is EMPTY";
+    printErr(origin, text);
+    err=BAD_FILENAME;
+    m_numRows=err;
+    return err;
+  }
+  if (fileName.at(i-1) == ']') {
+    // file should be a fits;
+ 
+    text=": fits FILE not handled now";
+    printErr(origin, text);
+    err=BAD_FILETYPE;
+    m_numRows=err;
+    return err;
+  }
+  else {
+
+    std::ostringstream sortie;
+    unsigned long tot=0ul; // number of lines read
+    bool testCR=false; // true if lines ends with CR (on windows)
+    int what=0;        // 0 for unkwown, >0 for csv, <0 to tsv
+                       // fabs()=1 for standard, =2 for meta QUERY
+
+    if ( myFile.is_open() ) myFile.close();
+    myFile.open(fileName.c_str(), std::ios::in);
+    // file can be opened ?
+    if ( !myFile.is_open() ) {
+      text=": FILENAME \""+fileName+"\" cannot be opened";
+      printErr(origin, text);
+      err=BAD_FILENAME;
+      m_numRows=err;
+      return err;
+    }
+    DIR *testDir=opendir(fileName.c_str());
+    if (testDir != NULL) {
+      closedir(testDir);
+      myFile.close();
+      text=": FILENAME \""+fileName+"\" is a directory";
+      printErr(origin, text);
+      err=BAD_FILETYPE;
+      m_numRows=err;
+      return err;
+    }
+    err=analyze_head(&tot, &what, &testCR);
+    if (!tot) {
+      text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
+      printErr(origin, text);
+      if (err == IS_OK) err=BAD_FILENAME;
+      // in case, for strange reason, file.good() fails at first time
+    }
+    else if (err < IS_OK) {
+      sortie << ": FILENAME \"" << fileName << "\" is empty or "
+             << "has unknown structure (stopped step " << -1*err << ")";
+      printErr(origin, sortie.str());
+      sortie.str(""); // Will empty the string.
+      err=BAD_FILETYPE;
+    }
+    else if (what == 2) {
+      sortie << "closing input META file (" << m_numOriRows;
+      sortie << " rows in whole CDS catalog)";
+      printLog(0, sortie.str());
+    }
+    else {
+      unsigned long refRow=0ul;
+      // get columns description and units, data
+      err=analyze_body(&tot, &what, testCR, true);
+      // only possible error: found < 4
+      if (err == IS_OK) {
+        // decription is read until separation line starting with ---
+        char line[MAX_LINE];
+        unsigned int pos;
+        std::string mot;
+        refRow=tot+1;
+        while ( myFile.good() ) {
+          myFile.getline(line, MAX_LINE);
+          tot++;
+          i=strlen(line);
+          if (testCR) line[--i]='\0';
+          if (i == 0) break; // in any case, stop on empty string contrary to
+                             //  load() which continues, skipping lines
+          // string max size is MAX_LINE-1;
+          text=line; /* convert C string to C++ string */
+          if (i >= MAX_LINE-1) {
+            sortie << "line #" << tot << " exceeds maximal size ("
+                   << MAX_LINE << ")";
+            printErr(origin, sortie.str());
+            sortie.str(""); // Will empty the string.
+            err=BAD_FILELINE;
+            break;
+          }
+          mot="#Table";
+          pos=text.find(mot);
+          if (pos == 0) {
+            // should not happen, normally preceded by empty lines
+            sortie << "line #" << tot << ": second table start (not read)";
+            printWarn(origin, sortie.str());
+            sortie.str(""); // Will empty the string.
+            err=BAD_ROW;
+            break;
+          }
+        }
+        if (err == BAD_ROW) err=IS_OK;
+      }// analyze_body() is OK
+ 
+      if ((err < IS_OK) && (err >= -3)) {
+        sortie << ": FILENAME \"" << fileName
+            << "\" has unknown type (stopped step " << 5-1*err << ")";
+        printErr(origin, sortie.str());
+        sortie.str(""); // Will empty the string.
+        err=BAD_FILETYPE;
+      }
+      else if (err == IS_OK) *nrows=tot-refRow;
+      sortie << "closing input text file: " << tot << " lines read";
+      printLog(0, sortie.str());
+    }// analyze_head() is OK
+
+  }// file is read
+
+  deleteDescription(); // close input file if left opened
+  return err;
+}
+/**********************************************************************/
+// to know the maximal number of rows in the CDS catalog
+int Catalog::getMaxNumRowsWeb(long *nrows, const std::string catName,
+                              const std::string urlCode) {
+
+  int i, err;
+  unsigned int pos;
+  std::string web, text, origin="getMaxNumRowsWeb";
+  *nrows=0;
+  err=BAD_URL;
+  if (urlCode.length() == 0) {
+    text=": CODE for URL (web http address) is empty";
+    printErr(origin, text);
+    return err;
+  }
+  for (i=0; i<MAX_URL; i++) {
+    text=Catalog::s_CatalogURL[i]; /* convert C string to C++ string */
+    pos=text.find(' ');
+    if (pos == std::string::npos) continue;
+    if (text.substr(0, pos) == urlCode) break;
+  }
+  if (i == MAX_URL) {
+    text=": CODE for URL (web http address) do not exist";
+    printErr(origin, text);
+    return err;
+  }
+  pos=text.rfind(' ');
+  if (pos == std::string::npos) web=text;
+  else web=text.substr(pos+1, text.length()-pos);
+
+  int iCat=checkCatName(origin, catName);
+  if (iCat < 0) return iCat;
+
+/* IS IT REALLY NEEDED ?
+  err=checkImport(origin, false);
+  if (err < IS_VOID) return err;
+*/
+/* now, ASCII query must be created
+  and sent, using CDS package to given URL
+*/
+  err=-9;
+  text="Web query not implemented";
+  printErr(origin, text);
+
+  return err;
+}
+
 
 /**********************************************************************/
 /*  ACCESSING Catalog DEFINITION                                      */
@@ -382,7 +594,7 @@ int Catalog::getQuantityUCDs (std::vector<std::string> *ucds) {
   return quantSize;
 }
 /**********************************************************************/
-// get only Quantity member m_type
+// get only Quantity member type
 int Catalog::getQuantityTypes(std::vector<Quantity::QuantityType> *types) {
 
   const std::string origin="getQuantityTypes";
@@ -524,9 +736,9 @@ int Catalog::getStatError(const std::string name, const long row,
 /**********************************************************************/
 // get the value of the systematic error of given quantity in given row
   int Catalog::getSysError(const std::string name, const long row,
-                           double *realValStat) {
+                           double *realValSys) {
 
-  *realValStat = -1.0;
+  *realValSys = -1.0;
   const std::string origin="getSysError";
   int num=checkSize_row(origin, row);
   if (num <= IS_VOID) return num;
@@ -544,7 +756,7 @@ int Catalog::getStatError(const std::string name, const long row,
   #ifdef DEBUG_CAT
     std::cout << "!! DEBUG NUM SYS. index = " << num << std::endl;
   #endif
-  *realValStat=m_numericals[num].at(row);
+  *realValSys=m_numericals[num].at(row);
   return IS_OK;
 }
 
@@ -554,126 +766,6 @@ int Catalog::getStatError(const std::string name, const long row,
 /**********************************************************************/
 // get the values of the systematic error of given vector in given row
 
-/**********************************************************************/
-// access to generic quantity for object name
-int Catalog::getObjName(const long row, std::string *stringVal) {
- 
-  const std::string origin="getObjName";
-  int num=checkSize_row(origin, row);
-  if (num <= IS_VOID) return num; 
-
-  // objectName is the only generic string
-  num=m_quantities.size();
-  int i, j;
-  for (i=0; i<num; i++) {
-    if ( (m_quantities[i].m_isGeneric) 
-        && (m_quantities[i].m_type == Quantity::STRING) ) {
-      j=m_quantities[i].m_index; break;
-    }
-  }
-  if (i == num) { 
-    printWarn(origin, "missing generic object name quantity");
-    return BAD_QUANT_NAME;
-  }
-  *stringVal=m_strings[j].at(row);
-  return IS_OK;
-}
- 
-/**********************************************************************/
-// access to generic quantity for RA  (degrees)
-int Catalog::ra_deg(const long row, double *realVal) {
-
-  const std::string origin="ra_deg";
-  int num=checkSize_row(origin, row);
-  if (num <= IS_VOID) return num;
-
-  if (m_indexRA < 0) { 
-    printWarn(origin, "missing generic RA position quantity");
-    return NO_RA_DEC;
-  }
-  *realVal=m_numericals[m_indexRA].at(row);
-  return IS_OK;
-}
-/**********************************************************************/
-// access to generic quantity for DEC (degrees)
-int Catalog::dec_deg(const long row, double *realVal) {
-
-  const std::string origin="dec_deg";
-  int num=checkSize_row(origin, row);
-  if (num <= IS_VOID) return num;
-
-  if (m_indexDEC < 0) { 
-    printWarn(origin, "missing generic DEC position quantity");
-    return NO_RA_DEC;
-  }
-  *realVal=m_numericals[m_indexDEC].at(row);
-  return IS_OK;
-}
-/**********************************************************************/
-// access to generic quantity for position uncertainty (degrees)
-int Catalog::posError_deg(const long row, double *realVal) {
-
-  const std::string origin="posError_deg";
-  int num=checkSize_row(origin, row);
-  if (num <= IS_VOID) return num;
-
-  if (m_indexErr < 0) { 
-    printWarn(origin, "missing generic position error quantity");
-    return BAD_QUANT_NAME;
-  }
-  *realVal=m_numericals[m_indexErr].at(row);
-  return IS_OK;
-}
-
-/**********************************************************************/
-// access to generic quantity for galactic L (degrees)
-int Catalog::l_deg(const long row, double *realVal) {
-
-  const std::string origin="l_deg";
-  int num=checkSize_row(origin, row);
-  if (num <= IS_VOID) return num;
-
-  num=m_quantities.size();
-  std::string text=UCD_List[4];
-  int i, j;
-  for (i=0; i<num; i++) {
-    if ( (m_quantities[i].m_isGeneric) 
-        && (m_quantities[i].m_ucd == text) ) {
-      j=m_quantities[i].m_index; break;
-    }
-  }
-  if (i == num) { 
-    printWarn(origin, "missing generic galactic L quantity");
-    return BAD_QUANT_NAME;
-  }
-  *realVal=m_numericals[j].at(row);
-  return IS_OK;
-}
-
-/**********************************************************************/
-// access to generic quantity for galactic B (degrees)
-int Catalog::b_deg(const long row, double *realVal) {
-
-  const std::string origin="b_deg";
-  int num=checkSize_row(origin, row);
-  if (num <= IS_VOID) return num;
-
-  num=m_quantities.size();
-  std::string text=UCD_List[5];
-  int i, j;
-  for (i=0; i<num; i++) {
-    if ( (m_quantities[i].m_isGeneric) 
-        && (m_quantities[i].m_ucd == text) ) {
-      j=m_quantities[i].m_index; break;
-    }
-  }
-  if (i == num) { 
-    printWarn(origin, "missing generic galactic B quantity");
-    return BAD_QUANT_NAME;
-  }
-  *realVal=m_numericals[j].at(row);
-  return IS_OK;
-}
 
 /**********************************************************************/
 // for string quantity: the list of different values assumed
@@ -768,6 +860,439 @@ int Catalog::maxVal(const std::string name, double *realVal) {
     if (r > *realVal) *realVal=r;
   }
   return IS_OK;
+}
+
+
+/**********************************************************************/
+/*  ACCESSING the Catalog CONTENTS with in-memory SELECTION CRITERIA  */
+/**********************************************************************/
+// get the number of selected rows in the catalog
+void Catalog::getNumSelRows(long *nrows) {
+
+ *nrows=m_numSelRows;
+}
+
+/**********************************************************************/
+// get the value of given string quantity in given selected row
+int Catalog::getSelSValue(const std::string name, const long srow,
+                          std::string *stringVal) {
+
+  const std::string origin="getSelSValue";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching for srow when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  if (m_quantities.at(num).m_type != Quantity::STRING) {
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of STRING type";
+    printWarn(origin, errText);
+    return BAD_QUANT_TYPE;
+  }
+  num=m_quantities.at(num).m_index;
+  long tot=0;
+  // first bit indicates global selection
+  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    if (tot == srow) { *stringVal=m_strings[num].at(i); break; }
+    tot++;
+    //if (tot == m_numSelRows) break; should not happen
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+/**********************************************************************/
+// get the value of given numerical quantity in given selected row
+int Catalog::getSelNValue(const std::string name, const long srow,
+                          double *realVal) {
+
+  const std::string origin="getSelNValue";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching for srow when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  if (m_quantities.at(num).m_type != Quantity::NUM) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of NUM type";
+    printWarn(origin, errText);
+    return BAD_QUANT_TYPE;
+  }
+  num=m_quantities.at(num).m_index;
+  long tot=0;
+  // first bit indicates global selection
+  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    if (tot == srow) { *realVal=m_numericals[num].at(i); break; }
+    tot++;
+    //if (tot == m_numSelRows) break; should not happen
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+
+/**********************************************************************/
+// get the values of given vector quantity in given selected row
+
+/**********************************************************************/
+// get value of the statistical error of given quantity in given selected row
+int Catalog::getSelStatError(const std::string name, const long srow,
+                             double *realValStat) {
+
+  *realValStat = -1.0;
+  const std::string origin="getSelStatError";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching for srow when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  std::string statName=m_quantities.at(num).m_statError;
+  if (statName == "") {;
+    statName="given Quantity name ("+name+") has no statistical error";
+    printWarn(origin, statName);
+    return NO_QUANT_ERR;
+  }
+  num=checkQuant_name(origin, statName);
+  if (num < 0) return num;
+  num=m_quantities.at(num).m_index;
+  #ifdef DEBUG_CAT
+    std::cout << "!! DEBUG NUM STAT index = " << num << std::endl;
+  #endif
+  long tot=0;
+  // first bit indicates global selection
+  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    if (tot == srow) { *realValStat=m_numericals[num].at(i); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+/**********************************************************************/
+// get value of the systematic error of given quantity in given selected row
+int Catalog::getSelSysError(const std::string name, const long srow,
+                             double *realValSys) {
+
+  *realValSys = -1.0;
+  const std::string origin="getSelSysError";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching for srow when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  std::string sysName=m_quantities.at(num).m_sysError;
+  if (sysName == "") {;
+    sysName="given Quantity name ("+name+") has no systematic error";
+    printWarn(origin, sysName);
+    return NO_QUANT_ERR;
+  }
+  num=checkQuant_name(origin, sysName);
+  if (num < 0) return num;
+  num=m_quantities.at(num).m_index;
+  #ifdef DEBUG_CAT
+    std::cout << "!! DEBUG NUM SYS. index = " << num << std::endl;
+  #endif
+  long tot=0;
+  // first bit indicates global selection
+  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    if (tot == srow) { *realValSys=m_numericals[num].at(i); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+/**********************************************************************/
+// get the values of the statistical error of given vector in given selected row
+
+/**********************************************************************/
+// get the values of the systematic error of given vector in given selected row
+
+
+/**********************************************************************/
+// for string quantity: the list of different selected values assumed
+int Catalog::getSelSValues(const std::string name,
+                           std::vector<std::string> *values) {
+
+  values->clear();
+  const std::string origin="getSelSValues";
+  int num=checkSel_row(origin, 0);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  if (m_quantities.at(num).m_type != Quantity::STRING) {
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of STRING type";
+    printWarn(origin, errText);
+    return BAD_QUANT_TYPE;
+  }
+  num=m_quantities.at(num).m_index;
+  std::string text;
+  try {
+    long j, max=0, tot=0;
+    // first bit indicates global selection
+    for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+      text=m_strings[num].at(i);
+      if (max == 0) {values->assign(1, text); max++;}
+      else {
+        for (j=0; j<max; j++) if (values->at(j) == text) break;
+        if (j == max) {values->push_back(text); max++;}
+      }
+      if (++tot == m_numSelRows) break; // to speed up
+    }
+  }
+  catch (std::exception &err) {
+    text=std::string("EXCEPTION on values: ")+err.what();
+    printErr(origin, text);
+    throw;
+  }
+  return values->size();
+}
+
+/**********************************************************************/
+// for numerical quantity: the minimum value in the selected rows
+int Catalog::minSelVal(const std::string name, double *realVal) {
+
+  *realVal=NO_SEL_CUT;
+  const std::string origin="minSelVal";
+  int num=checkSel_row(origin, 0);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  if (m_quantities.at(num).m_type != Quantity::NUM) {
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of NUM type";
+    printWarn(origin, errText);
+    return BAD_QUANT_TYPE;
+  }
+  num=m_quantities.at(num).m_index;
+
+  long i, tot=0;
+  double r;
+  for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    *realVal=m_numericals[num].at(i);
+    if (!isnan(*realVal)) break;
+    if (++tot == m_numSelRows) break; // to speed up
+  }
+  if (tot == m_numSelRows) return IS_OK;
+  // stop when selection contains only NaN
+  for (; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    r=m_numericals[num].at(i);
+    if (r < *realVal) *realVal=r;
+    if (++tot == m_numSelRows) break; // to speed up
+  }
+  return IS_OK;
+}
+/**********************************************************************/
+// for numerical quantity: the maximum value in the selected rows
+int Catalog::maxSelVal(const std::string name, double *realVal) {
+
+  *realVal=NO_SEL_CUT;
+  const std::string origin="maxSelVal";
+  int num=checkSel_row(origin, 0);
+  if (num <= IS_VOID) return num;
+  // above test avoid searching when no row is selected
+  num=checkQuant_name(origin, name);
+  if (num < 0) return num;
+  if (m_quantities.at(num).m_type != Quantity::NUM) {
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of NUM type";
+    printWarn(origin, errText);
+    return BAD_QUANT_TYPE;
+  }
+  num=m_quantities.at(num).m_index;
+
+  long i, tot=0;
+  double r;
+  for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    *realVal=m_numericals[num].at(i);
+    if (!isnan(*realVal)) break;
+    if (++tot == m_numSelRows) break; // to speed up
+  }
+  if (tot == m_numSelRows) return IS_OK;
+  // stop when selection contains only NaN
+  for (; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    r=m_numericals[num].at(i);
+    if (r > *realVal) *realVal=r;
+    if (++tot == m_numSelRows) break; // to speed up
+  }
+  return IS_OK;
+}
+
+
+/**********************************************************************/
+/*  ACCESSING the Catalog GENERIC CONTENTS                            */
+/**********************************************************************/
+// access to generic quantity for RA  (degrees)
+int Catalog::ra_deg(const long row, double *realVal, const bool inSelection) {
+
+  const std::string origin="ra_deg";
+  if (m_indexRA < 0) {
+    if (m_numRows < 0)
+      printWarn(origin, "must first use one 'import' method");
+    else
+      printWarn(origin, "missing generic RA position quantity");
+    return NO_RA_DEC;
+  }
+  int num;
+  if (!inSelection) {
+    num=checkSize_row(origin, row);
+    if (num <= IS_VOID) return num;
+    num=m_quantities[m_indexRA].m_index;
+    *realVal=m_numericals[num].at(row);
+  }
+  else {
+    num=checkSel_row(origin, row);
+    if (num <= IS_VOID) return num;
+    long tot=0;
+    num=m_quantities[m_indexRA].m_index;
+    // first bit indicates global selection
+    for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+      if (tot == row) { *realVal=m_numericals[num].at(k); break; }
+      tot++;
+    }
+    if (tot >= m_numSelRows) return IS_VOID; // should not happen
+  }
+  return IS_OK;
+}
+/**********************************************************************/
+// access to generic quantity for DEC (degrees)
+int Catalog::dec_deg(const long row, double *realVal, const bool inSelection) {
+
+  const std::string origin="dec_deg";
+  if (m_indexDEC < 0) {
+    if (m_numRows < 0)
+      printWarn(origin, "must first use one 'import' method");
+    else
+      printWarn(origin, "missing generic DEC position quantity");
+    return NO_RA_DEC;
+  }
+  int num;
+  if (!inSelection) {
+    num=checkSize_row(origin, row);
+    if (num <= IS_VOID) return num;
+    num=m_quantities[m_indexDEC].m_index;
+    *realVal=m_numericals[num].at(row);
+  }
+  else {
+    num=checkSel_row(origin, row);
+    if (num <= IS_VOID) return num;
+    long tot=0;
+    num=m_quantities[m_indexDEC].m_index;
+    // first bit indicates global selection
+    for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+      if (tot == row) { *realVal=m_numericals[num].at(k); break; }
+      tot++;
+    }
+    if (tot >= m_numSelRows) return IS_VOID; // should not happen
+  }
+  return IS_OK;
+}
+/**********************************************************************/
+// access to generic quantity for position uncertainty (degrees)
+int Catalog::posError_deg(const long row, double *realVal,
+                          const bool inSelection) {
+
+  const std::string origin="posError_deg";
+  if (m_indexErr < 0) {
+    if (m_numRows < 0)
+      printWarn(origin, "must first use one 'import' method");
+    else
+      printWarn(origin, "missing generic position error quantity");
+    return BAD_QUANT_NAME;
+  }
+  int num;
+  if (!inSelection) {
+    num=checkSize_row(origin, row);
+    if (num <= IS_VOID) return num;
+    num=m_quantities[m_indexErr].m_index;
+    *realVal=m_numericals[num].at(row)/m_posErrFactor;
+  }
+  else {
+    num=checkSel_row(origin, row);
+    if (num <= IS_VOID) return num;
+    long tot=0;
+    num=m_quantities[m_indexErr].m_index;
+    // first bit indicates global selection
+    for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+      if (tot == row) {
+        *realVal=m_numericals[num].at(k)/m_posErrFactor;
+        break;
+      }
+      tot++;
+    }
+    if (tot >= m_numSelRows) return IS_VOID; // should not happen
+  }
+  return IS_OK;
+}
+
+/**********************************************************************/
+// 6 methods returning the name of generic quantities
+std::string Catalog::getNameRA() {
+  if (m_indexRA < 0) {
+    if (m_numRows < 0)
+      printWarn("getNameRA", "must first use one 'import' method");
+    else
+      printWarn("getNameRA", "missing generic RA position quantity");
+    return "";
+  }
+  return m_quantities[m_indexRA].m_name;
+}
+std::string Catalog::getNameDEC() {
+  if (m_indexDEC < 0) {
+    if (m_numRows < 0)
+      printWarn("getNameDEC", "must first use one 'import' method");
+    else
+      printWarn("getNameDEC", "missing generic DEC position quantity");
+    return "";
+  }
+  return m_quantities[m_indexDEC].m_name;
+}
+std::string Catalog::getNamePosErr() {
+  if (m_indexErr< 0) {
+    if (m_numRows < 0)
+      printWarn("getNamePosErr", "must first use one 'import' method");
+    else
+      printWarn("getNamePosErr", "missing generic position error quantity");
+    return "";
+  }
+  return m_quantities[m_indexErr].m_name;
+}
+
+std::string Catalog::getNameL() {
+  const std::string origin="getNameL";
+  int quantSize=checkImport(origin, true);
+  if (quantSize < IS_VOID) return "";
+  int i;
+  for (i=0; i<quantSize; i++) {
+    if ((m_quantities[i].m_isGeneric) &&
+        (m_quantities[i].m_ucd == Catalog::s_genericL))
+      return m_quantities[i].m_name;
+  }
+  return "";
+}
+std::string Catalog::getNameB() {
+  const std::string origin="getNameB";
+  int quantSize=checkImport(origin, true);
+  if (quantSize < IS_VOID) return "";
+  int i;
+  for (i=0; i<quantSize; i++) {
+    if ((m_quantities[i].m_isGeneric) &&
+        (m_quantities[i].m_ucd == Catalog::s_genericB))
+      return m_quantities[i].m_name;
+  }
+  return "";
+}
+
+std::string Catalog::getNameObjName() {
+  const std::string origin="getNameObjName";
+  int quantSize=checkImport(origin, true);
+  if (quantSize < IS_VOID) return "";
+  int i;
+  for (i=0; i<quantSize; i++) {
+    if ((m_quantities[i].m_isGeneric) &&
+        (m_quantities[i].m_type == Quantity::STRING))
+      return m_quantities[i].m_name;
+  }
+  return "";
 }
 
 } // namespace catalogAccess

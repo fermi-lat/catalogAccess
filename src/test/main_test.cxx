@@ -62,7 +62,7 @@ int main(int iargc, char * argv[]) {
             << sizeof(bool) <<", "<< sizeof(int) <<", "<< sizeof(long)
             <<", "<< sizeof(float) <<", "<< sizeof(double)
             <<", "<< sizeof(void *) << std::endl;
-  std::cout << "screen outpout of Nan, +infinite, -infinite: " 
+  std::cout << "screen output of Nan, +infinite, -infinite: " 
             << aNAN << ",  " << 1/0. << ",  " << -1/0. << "\n" << std::endl;
 
   std::cout << "Number to unselect = " << std::setiosflags(outDouble)
@@ -76,7 +76,7 @@ int main(int iargc, char * argv[]) {
             << std::numeric_limits<double>::epsilon() << std::setprecision(3)
             << std::resetiosflags(outDouble) << std::endl;
 /* //not interesting info
-  std::cout << "The epsilon value for float  is " << std::setiosflags(outDouble)
+  std::cout << "The epsilon value for float  is "<< std::setiosflags(outDouble)
             << std::numeric_limits<float>::epsilon() << std::endl;
   std::cout << "The minimum exponent for double is "
             << std::numeric_limits<double>::min_exponent10 << std::endl;
@@ -186,7 +186,7 @@ int main(int iargc, char * argv[]) {
 /****************************************************************************/
   const std::string myPath=st_facilities::Env::getDataDir("catalogAccess");
   if (myPath=="")
-    throw std::runtime_error("Environment variable CATALOGACCESSROOT not set.");
+    throw std::runtime_error("Environment variable CATALOGACCESSROOT not set");
 // const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test/data";
 
   strVal=myPath+"/3EG_test.out"; 
@@ -214,7 +214,7 @@ int main(int iargc, char * argv[]) {
   std::cout << "* Value returned = " << err <<", "<< vecSize
             << " and " << i << std::endl;
 
-  std::cout << "\n* Calling: importSelected (empty function)" << std::endl;
+  std::cout << "\n* Calling: importSelected" << std::endl;
   err=myCat->importSelected();
   std::cout << "* Value returned = " << err << std::endl;
   myCat->getNumRows(&numRows);
@@ -477,7 +477,13 @@ int main(int iargc, char * argv[]) {
   aCat.useOnlyN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.includeN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.setLowerCut("L_Extent", 1);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.useOnlyN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.excludeN("L_Extent", listVal);
@@ -496,7 +502,8 @@ int main(int iargc, char * argv[]) {
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   listVal.clear();
-  aCat.useOnlyN("L_Extent", listVal);
+//  aCat.useOnlyN("L_Extent", listVal);
+  aCat.includeN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
@@ -532,13 +539,14 @@ int main(int iargc, char * argv[]) {
   for (i=0; i<vecSize; i++) std::cout <<"\""<< catNames[i] <<"\"  ";
   std::cout << std::endl;
 
-  std::cout << "\n* Calling: setUpperCut (on MASOL)" << std::endl;
+  std::cout <<"\n* Calling: setUpperCut (same limit 100 on MASOL)"<< std::endl;
   aCat.setUpperCut("MASOL", 100);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
   catNames.resize(1);
-  std::cout << "\n* Calling: useOnlyS (on 1RXS first object)" << std::endl;
+  std::cout << "\n* Calling: useOnlyS (on 1RXS, list is first object)"
+            << std::endl;
   err=aCat.useOnlyS("1RXS", catNames);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
@@ -590,9 +598,12 @@ int main(int iargc, char * argv[]) {
   listVal.assign(2, 1.0);
   listVal.at(1)=aNAN;
   std::cout << "\n* Setting list of values: "<< listVal[0]<<", " << listVal[1]
-            << "\n with default behaviour (reject NaN): "
-            << " NaN not taken into account in list" << std::endl;
+            << "\n with default behaviour (reject NaN), anyway NaN is checked"
+            << " first, before list or cut tests" << std::endl;
   aCat.useOnlyN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.includeN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.excludeN("L_Extent", listVal);
@@ -603,25 +614,19 @@ int main(int iargc, char * argv[]) {
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
-  std::cout << "\n* Accepting NaN, EQUALITY TEST on NaN in list always FAILS:" 
+  std::cout << "\n* Accepting NaN (whatever condition, always select NaN)" 
             << std::endl;
   aCat.setRejectNaN("L_Extent", false);
-  std::cout << " excluding list ==> NaN included" << std::endl;
-  std::cout << " including list ==> NaN excluded" << std::endl;
   aCat.excludeN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.useOnlyN("L_Extent", listVal);
+//  aCat.includeN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
-  std::cout << "\n* Must use upper/lower cut (even if no value in interval)"
-            << " to always accept NaN" << std::endl;
-  aCat.setLowerCut("L_Extent", 40);
-  aCat.getNumSelRows(&numRows);
-  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
-
-  std::cout << "\n* Calling: unsetCuts (all quantities)" << std::endl;
+  std::cout << "\n* Calling: unsetCuts (all quantities, "
+            << "remains only selection ellipse)" << std::endl;
   aCat.unsetCuts();
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
@@ -655,8 +660,8 @@ void show_STEP(const std::string text) {
 void show_quant(const catalogAccess::Quantity &nQ) {
   std::cout << nQ.m_name <<": ucd=\""<< nQ.m_ucd <<"\", type="<< nQ.m_type
            <<", unit=\""<< nQ.m_unit <<"\", format=\""<< nQ.m_format
-          <<"\",\n     index="<< nQ.m_index <<", boolGeneric="<< nQ.m_isGeneric
-         << ", boolLoad="<< nQ.m_toBeLoaded <<", boolNaN="<< nQ.m_rejectNaN
+          <<"\",\n     index="<< nQ.m_index
+         <<", boolGeneric="<< nQ.m_isGeneric <<", boolNaN="<< nQ.m_rejectNaN
         <<"\n     selectList sizes=("<< nQ.m_listValN.size() <<" num, "
        << nQ.m_listValS.size() <<" str), cuts=" << nQ.m_lowerCut <<" to "
       << nQ.m_upperCut << "\ncomment=\""<< nQ.m_comment << "\"" << std::endl;

@@ -47,7 +47,6 @@ Quantity::Quantity(const Quantity & q) {
   m_unit   =q.m_unit;
   m_index  =q.m_index;
   m_isGeneric =q.m_isGeneric;
-  m_toBeLoaded=q.m_toBeLoaded;
   m_statError =q.m_statError;
   m_sysError  =q.m_sysError;
   int vecSize, i;
@@ -66,8 +65,8 @@ Quantity::Quantity(const Quantity & q) {
   m_upperCut    =q.m_upperCut;
   m_precision   =q.m_precision;
   m_rejectNaN   =q.m_rejectNaN;
-  m_includeList =q.m_includeList;
-  m_caselessList=q.m_caselessList;
+  m_cutORed     =q.m_cutORed;
+  m_excludeList =q.m_excludeList;
   try {
     vecSize=q.m_listValS.size();
     for (i=0; i<vecSize; i++) m_listValS.push_back(q.m_listValS.at(i));
