@@ -126,7 +126,8 @@ int main(int iargc, char * argv[]) {
   myCat->unsetCuts();
   err=myCat->setLowerCut("", 1.0);
 
-  myCat->getCatList(&catNames);
+  // two ways to use static members
+  catalogAccess::Catalog::getCatList(&catNames);
   myCat->getCatList(&webSites, false);
   std::cout << "\n* Available catalogs (with their web query name):"
             << std::endl;
@@ -186,9 +187,8 @@ int main(int iargc, char * argv[]) {
   const std::string myPath=st_facilities::Env::getDataDir("catalogAccess");
   if (myPath=="")
     throw std::runtime_error("Environment variable CATALOGACCESSROOT not set.");
-/*
-  const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test/data";
-*/
+// const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test/data";
+
   strVal=myPath+"/3EG_test.out"; 
 
   show_STEP("\nSTEP 3) METHODS when IMPORT WORKS (on EGRET)");

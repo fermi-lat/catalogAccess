@@ -24,8 +24,22 @@
 #define MAX_CAT 7               // number of known catalogs
 #define MAX_GEN 6               // number of generic quantities
 #define MAX_URL 9               // number of known VizieR web address
-#define MAX_LINE 1024           // (maximum number of char)+1 with getline
+#define MAX_LINE 1025           // (maximum number of char)+1 with getline
 namespace catalogAccess {
+
+// BEWARE: the two constant below are UCD1 standard
+//         need to be changed for UCD1+
+
+// the order is important and must be compatible with s_CatalogGeneric
+static const char *UCD_List[MAX_GEN]={
+       "ID_MAIN", "POS_EQ_RA_MAIN", "POS_EQ_DEC_MAIN",
+        "", "POS_GAL_LON", "POS_GAL_LAT"};
+// "ERROR", "POS_GAL_LON", "POS_GAL_LAT"
+// ERROR do not only refer to the position error
+// ERROR is for any "Uncertainty in Measurements"
+
+static const char *UCD_Added[MAX_GEN]={
+       "", "_RAJ2000", "_DEJ2000", "", "_Glon", "_Glat"};
 
 /**
  * @class   Catalog
@@ -51,9 +65,11 @@ public:
   // Methods giving general information
   //-----------------------------------
 
-  void getCatList(std::vector<std::string> *names, const bool isCode=true);
+  static void getCatList(std::vector<std::string> *names,
+                         const bool isCode=true);
       // return a list of all supported catalog names
-  void getWebList(std::vector<std::string> *names, const bool isCode=true);
+  static void getWebList(std::vector<std::string> *names,
+                         const bool isCode=true);
       // return a list of all supported web site names
 
 
@@ -71,7 +87,7 @@ public:
       // other negative number for loading error
 
 
-  int import(const std::string &fileName);
+  int import(const std::string &fileName, const long maxRow=0);
   int importWeb(const std::string catName, const std::string urlCode="cds",
                 const long maxRow=44000, const std::string &fileName="");
       // import method for loading an entire catalog without selection
@@ -176,9 +192,9 @@ public:
   int posError_deg(const long row, double *realVal);
       // access to generic quantity for position uncertainty (degrees)
   int l_deg(const long row, double *realVal);
-      // access to generic quantity for l (degrees)
+      // access to generic quantity for galactic l (degrees)
   int b_deg(const long row, double *realVal);
-      // access to generic quantity for b (degrees)
+      // access to generic quantity for galactic b (degrees)
 
   // possible values or range of a given quantity "name"
 
@@ -364,6 +380,7 @@ private:
   std::string m_catRef;
   std::string m_tableName;
   std::string m_tableRef;
+  double m_positionSysErr;
 
   std::vector<Quantity> m_quantities; // the definition of the catalog
 
@@ -380,6 +397,9 @@ private:
 
   // comment: the number of numerical quantities == m_numericals.size()
 
+  long m_numOriRows;            // maximal number of rows in CDS catalog
+  long m_numReadRows;           // maximal number of rows in file
+  std::fstream myFile;          // input/output file
   long m_numRows;
       // number of catalog rows loaded into memory
       // ( == m_strings[0].size() if m_strings.size() != 0 which should always
@@ -415,6 +435,7 @@ private:
 
   // following four data members needed for efficient selection
   long m_numSelRows;            // for quick test: 0 = nothing selected
+  int m_indexErr;               // index for position error in m_numericals
   int m_indexRA;                // index for RA in m_numericals
   int m_indexDEC;               // index for DEC in m_numericals
   std::vector<double> m_selEllipse;
@@ -445,16 +466,17 @@ private:
       // called just after "import..." to set m_isGeneric, m_indexRA, m_indexDEC
   void create_tables(const int nbQuantAscii);
       // creates a new column in m_strings, m_numericals
-  void add_row();
+  void add_rows();
       // creates a new row in m_strings, m_numericals
   void translate_cell(std::string mot, const int index);
       // loads one quantity at last row (m_numRows);
 
   int analyze_fits(const std::string &fileName, const bool getAll,
                    const std::string origin);
-  int analyze_text(const std::string &fileName, const bool getAll,
-                   const std::string origin);
-      // both methods read file for import or importDescription (getAll=false)
+  int analyze_head(unsigned long *tot, int *what, bool *testCR);
+  int analyze_body(unsigned long *tot, int *what, const bool testCR,
+                   const bool getAll);
+      // 3 methods read file for import or importDescription (getAll=false)
       // returns IS_OK for completion, otherwise BAD_FILETYPE or tip error
 
   void showRAMsize(long numRows=44000);
@@ -509,11 +531,15 @@ inline Catalog::Catalog() {
   m_tableName ="";
   m_tableRef  ="";
   m_numRows   =0;
+  m_numOriRows=0;
+  m_numReadRows=0;
   m_selection ="";
+  m_positionSysErr = -1.0;
   m_criteriaORed=false;
   m_selRegion =false;
   // following four data members needed for efficient selection
   m_numSelRows=0;
+  m_indexErr= -1;
   m_indexRA = -1;
   m_indexDEC= -1;
   try { m_selEllipse.assign(7, 0.0); }
@@ -619,7 +645,7 @@ inline int Catalog::checkSel_row(const std::string origin, const long srow) {
     printWarn(origin, "catalog is empty");
     return IS_VOID;
   }
-    if (m_numSelRows == 0) {
+  if (m_numSelRows == 0) {
     printWarn(origin, "no row is selected");
     return IS_VOID;
   }

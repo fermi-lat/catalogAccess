@@ -96,10 +96,160 @@ int Catalog::getSelNValue(const std::string name, const long srow,
 
 /**********************************************************************/
 // access to generic quantity for object name in given selected row
+int Catalog::getSelObjName(const long srow, std::string *stringVal) {
+
+  const std::string origin="getSelObjName";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+
+  // objectName is the only generic string
+  num=m_quantities.size();
+  int i, j;
+  for (i=0; i<num; i++) {
+    if ( (m_quantities[i].m_isGeneric) 
+        && (m_quantities[i].m_type == Quantity::STRING) ) {
+      j=m_quantities[i].m_index; break;
+    }
+  }
+  if (i == num) { 
+    printWarn(origin, "missing generic object name quantity");
+    return BAD_QUANT_NAME;
+  }
+  long tot=0;
+  // first bit indicates global selection
+  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+    if (tot == srow) { *stringVal=m_strings[j].at(k); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
 
 /**********************************************************************/
+// access to generic quantity for RA  (degrees) in given selected row
+int Catalog::selRA_deg(const long srow, double *realVal) {
 
+  const std::string origin="selRA_deg";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
 
+  if (m_indexRA < 0) { 
+    printWarn(origin, "missing generic RA position quantity");
+    return NO_RA_DEC;
+  }
+  long tot=0;
+  // first bit indicates global selection
+  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+    if (tot == srow) { *realVal=m_numericals[m_indexRA].at(k); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+/**********************************************************************/
+// access to generic quantity for DEC (degrees) in given selected row
+int Catalog::selDEC_deg(const long srow, double *realVal) {
+
+  const std::string origin="selDEC_deg";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+
+  if (m_indexDEC < 0) { 
+    printWarn(origin, "missing generic DEC position quantity");
+    return NO_RA_DEC;
+  }
+  long tot=0;
+  // first bit indicates global selection
+  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+    if (tot == srow) { *realVal=m_numericals[m_indexDEC].at(k); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+/**********************************************************************/
+// access to generic quantity for position uncertainty (degrees)
+//in given selected row
+int Catalog::selPosError_deg(const long srow, double *realVal) {
+
+  const std::string origin="selPosError_deg";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+
+  if (m_indexErr < 0) { 
+    printWarn(origin, "missing generic position error quantity");
+    return BAD_QUANT_NAME;
+  }
+  long tot=0;
+  // first bit indicates global selection
+  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+    if (tot == srow) { *realVal=m_numericals[m_indexErr].at(k); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+
+/**********************************************************************/
+// access to generic quantity for galactic L (degrees) in given selected row
+int Catalog::selL_deg(const long srow, double *realVal) {
+  
+  const std::string origin="selL_deg";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+
+  num=m_quantities.size();
+  std::string text=UCD_List[4];
+  int i, j;
+  for (i=0; i<num; i++) {
+    if ( (m_quantities[i].m_isGeneric) 
+        && (m_quantities[i].m_ucd == text) ) {
+      j=m_quantities[i].m_index; break;
+    }
+  }
+  if (i == num) { 
+    printWarn(origin, "missing generic galactic L quantity");
+    return BAD_QUANT_NAME;
+  }
+  long tot=0;
+  // first bit indicates global selection
+  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+    if (tot == srow) { *realVal=m_numericals[j].at(k); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
+/**********************************************************************/
+// access to generic quantity for galactic B (degrees) in given selected row
+int Catalog::selB_deg(const long srow, double *realVal) {
+  
+  const std::string origin="selB_deg";
+  int num=checkSel_row(origin, srow);
+  if (num <= IS_VOID) return num;
+
+  num=m_quantities.size();
+  std::string text=UCD_List[5];
+  int i, j;
+  for (i=0; i<num; i++) {
+    if ( (m_quantities[i].m_isGeneric) 
+        && (m_quantities[i].m_ucd == text) ) {
+      j=m_quantities[i].m_index; break;
+    }
+  }
+  if (i == num) { 
+    printWarn(origin, "missing generic galactic B quantity");
+    return BAD_QUANT_NAME;
+  }
+  long tot=0;
+  // first bit indicates global selection
+  for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+    if (tot == srow) { *realVal=m_numericals[j].at(k); break; }
+    tot++;
+  }
+  if (tot < m_numSelRows) return IS_OK;
+  return IS_VOID; // should not happen
+}
 
 /**********************************************************************/
 // for string quantity: the list of different selected values assumed

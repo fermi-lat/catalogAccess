@@ -87,6 +87,10 @@ void Catalog::deleteDescription() {
   m_catRef="";
   m_tableName="";
   m_tableRef="";
+  m_numOriRows=0;
+  m_numReadRows=0;
+  if ( myFile.is_open() ) myFile.close();
+  m_positionSysErr = -1.0;
   m_quantities.clear();
   m_selection="";
   m_selRegion=false;
@@ -100,6 +104,7 @@ Catalog::Catalog(const Catalog & myCat) {
   std::cout << "!! DEBUG Catalog COPY constructor on: "
             << myCat.m_tableName << std::endl;
   #endif  
+  std::string errText;
   // copying values
   m_code=myCat.m_code;
   m_URL =myCat.m_URL;
@@ -108,10 +113,18 @@ Catalog::Catalog(const Catalog & myCat) {
   m_tableName =myCat.m_tableName;
   m_tableRef  =myCat.m_tableRef;
   m_numRows   =myCat.m_numRows;
+  m_numOriRows=myCat.m_numOriRows;
+  m_numReadRows=myCat.m_numReadRows;
+  if ( myFile.is_open() ) {
+    errText="FILE should be CLOSED (in this version), pointer NOT copied";
+    printErr("Catalog copy constructor", errText);
+  }
+  m_positionSysErr=myCat.m_positionSysErr;
   m_selection =myCat.m_selection;
   m_criteriaORed=myCat.m_criteriaORed;
   // following three data members needed for efficient selection
   m_numSelRows=myCat.m_numSelRows;
+  m_indexErr  =myCat.m_indexErr;
   m_indexRA   =myCat.m_indexRA;
   m_indexDEC  =myCat.m_indexDEC;
 
@@ -127,7 +140,6 @@ Catalog::Catalog(const Catalog & myCat) {
 //try {
   long i;
   int vecSize, j;
-  std::string errText;
   // following data member m_selEllipse[] needed for efficient selection
   try {
     vecSize=myCat.m_selEllipse.size();
@@ -544,10 +556,124 @@ int Catalog::getStatError(const std::string name, const long row,
 
 /**********************************************************************/
 // access to generic quantity for object name
+int Catalog::getObjName(const long row, std::string *stringVal) {
+ 
+  const std::string origin="getObjName";
+  int num=checkSize_row(origin, row);
+  if (num <= IS_VOID) return num; 
+
+  // objectName is the only generic string
+  num=m_quantities.size();
+  int i, j;
+  for (i=0; i<num; i++) {
+    if ( (m_quantities[i].m_isGeneric) 
+        && (m_quantities[i].m_type == Quantity::STRING) ) {
+      j=m_quantities[i].m_index; break;
+    }
+  }
+  if (i == num) { 
+    printWarn(origin, "missing generic object name quantity");
+    return BAD_QUANT_NAME;
+  }
+  *stringVal=m_strings[j].at(row);
+  return IS_OK;
+}
+ 
+/**********************************************************************/
+// access to generic quantity for RA  (degrees)
+int Catalog::ra_deg(const long row, double *realVal) {
+
+  const std::string origin="ra_deg";
+  int num=checkSize_row(origin, row);
+  if (num <= IS_VOID) return num;
+
+  if (m_indexRA < 0) { 
+    printWarn(origin, "missing generic RA position quantity");
+    return NO_RA_DEC;
+  }
+  *realVal=m_numericals[m_indexRA].at(row);
+  return IS_OK;
+}
+/**********************************************************************/
+// access to generic quantity for DEC (degrees)
+int Catalog::dec_deg(const long row, double *realVal) {
+
+  const std::string origin="dec_deg";
+  int num=checkSize_row(origin, row);
+  if (num <= IS_VOID) return num;
+
+  if (m_indexDEC < 0) { 
+    printWarn(origin, "missing generic DEC position quantity");
+    return NO_RA_DEC;
+  }
+  *realVal=m_numericals[m_indexDEC].at(row);
+  return IS_OK;
+}
+/**********************************************************************/
+// access to generic quantity for position uncertainty (degrees)
+int Catalog::posError_deg(const long row, double *realVal) {
+
+  const std::string origin="posError_deg";
+  int num=checkSize_row(origin, row);
+  if (num <= IS_VOID) return num;
+
+  if (m_indexErr < 0) { 
+    printWarn(origin, "missing generic position error quantity");
+    return BAD_QUANT_NAME;
+  }
+  *realVal=m_numericals[m_indexErr].at(row);
+  return IS_OK;
+}
 
 /**********************************************************************/
+// access to generic quantity for galactic L (degrees)
+int Catalog::l_deg(const long row, double *realVal) {
 
+  const std::string origin="l_deg";
+  int num=checkSize_row(origin, row);
+  if (num <= IS_VOID) return num;
 
+  num=m_quantities.size();
+  std::string text=UCD_List[4];
+  int i, j;
+  for (i=0; i<num; i++) {
+    if ( (m_quantities[i].m_isGeneric) 
+        && (m_quantities[i].m_ucd == text) ) {
+      j=m_quantities[i].m_index; break;
+    }
+  }
+  if (i == num) { 
+    printWarn(origin, "missing generic galactic L quantity");
+    return BAD_QUANT_NAME;
+  }
+  *realVal=m_numericals[j].at(row);
+  return IS_OK;
+}
+
+/**********************************************************************/
+// access to generic quantity for galactic B (degrees)
+int Catalog::b_deg(const long row, double *realVal) {
+
+  const std::string origin="b_deg";
+  int num=checkSize_row(origin, row);
+  if (num <= IS_VOID) return num;
+
+  num=m_quantities.size();
+  std::string text=UCD_List[5];
+  int i, j;
+  for (i=0; i<num; i++) {
+    if ( (m_quantities[i].m_isGeneric) 
+        && (m_quantities[i].m_ucd == text) ) {
+      j=m_quantities[i].m_index; break;
+    }
+  }
+  if (i == num) { 
+    printWarn(origin, "missing generic galactic B quantity");
+    return BAD_QUANT_NAME;
+  }
+  *realVal=m_numericals[j].at(row);
+  return IS_OK;
+}
 
 /**********************************************************************/
 // for string quantity: the list of different values assumed
