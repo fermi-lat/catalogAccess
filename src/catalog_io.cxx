@@ -82,7 +82,7 @@ void Catalog::setGeneric(const int whichCat) {
 
 /**********************************************************************/
 // output the estimation of RAM needed per data row
-void Catalog::showRAMsize() {
+void Catalog::showRAMsize(long numRows) {
 
   std::string mot, text;
   int quantSize=m_quantities.size();
@@ -102,13 +102,16 @@ void Catalog::showRAMsize() {
     }
   }
   char buffer[50];
-  long sizeD=nD*sizeof(double)*44000;
-  long sizeS=nchar*sizeof(char)*44000;
+  long sizeD=nD*sizeof(double)*numRows;
+  long sizeS=nchar*sizeof(char)*numRows;
   i=1+(quantSize+1)/(sizeof(long)*8);
-  long sizeB=i*sizeof(long)*44000;
-  sprintf(buffer, "%5.1f" , (sizeD+sizeS+sizeB)/(1024.*1024.));
+  long sizeB=i*sizeof(long)*numRows;
+  sprintf(buffer, "%6ld", numRows);
   mot=buffer; /* convert C string to C++ string */
-  text="Needed RAM space (Mo) for 44000 data rows = "+mot+"\n";
+  text="Needed RAM space (Mo) for "+mot;
+  sprintf(buffer, "%5.1f", (sizeD+sizeS+sizeB)/(1024.*1024.));
+  mot=buffer;
+  text=text+" data rows = "+mot+"\n";
   sprintf(buffer, "%5.0f Ko for numericals (%3d double per row)",
                  sizeD/1024., nD);
   mot=buffer;
@@ -546,7 +549,7 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
         sortie.str(""); // Will empty the string.
       }
       err=0;
-      found++;
+      //found++;
       break;
     }
     // to have only 1 test when reading all file
@@ -865,38 +868,39 @@ int Catalog::save(const std::string fileName, bool no_replace) {
     return BAD_FILENAME;
   }
 
-  char sep=0x09;
-  int i, j, vecSize;
+  char tab=0x09, sep=';';
+  int j, vecSize;
   unsigned long tot=0ul;
   file << "#RESOURCE=catalogAccess(" << m_code << ")" << std::endl;
   file << "#Name: " << m_catName << std::endl;
-  file << "#Title:" << sep <<  m_catRef << std::endl;
+  file << "#Title:" << tab <<  m_catRef << std::endl;
   file << "#Name: " << m_tableName << std::endl;
-  file << "#Title:" << sep <<  m_tableRef << std::endl;
+  file << "#Title:" << tab <<  m_tableRef << std::endl;
   tot+=5;
   vecSize=m_quantities.size();
-  for (i=0; i<vecSize; i++) {
-    file << "#Column" << sep << m_quantities[i].m_name << sep << "("
-         << m_quantities[i].m_format << ")" << sep << "       "
-         << m_quantities[i].m_comment << "     " << sep << "[ucd="
-         << m_quantities[i].m_ucd << "]"
+  for (j=0; j<vecSize; j++) {
+    file << "#Column" << tab << m_quantities[j].m_name << tab << "("
+         << m_quantities[j].m_format << ")" << tab;
+    if (m_quantities[j].m_name.length() < 8) file << "        ";
+    file << m_quantities[j].m_comment << tab << "[ucd="
+         << m_quantities[j].m_ucd << "]"
          << std::endl;
   }
   file << std::endl;
   tot+=vecSize+1;
   // line do NOT end with separator
-  for (i=0; i<vecSize-1; i++) {
-    file << m_quantities[i].m_name << sep;
+  for (j=0; j<vecSize-1; j++) {
+    file << m_quantities[j].m_name << sep;
   }
-  file << m_quantities[i].m_name << std::endl;
-  for (i=0; i<vecSize-1; i++) {
-    file << m_quantities[i].m_unit << sep;
+  file << m_quantities[j].m_name << std::endl;
+  for (j=0; j<vecSize-1; j++) {
+    file << m_quantities[j].m_unit << sep;
   }
-  file << m_quantities[i].m_unit << std::endl;
+  file << m_quantities[j].m_unit << std::endl;
   file << "---" << std::endl;
   tot+=3;
   try {
-    int len, bufSize=0;
+    int i, len, bufSize=0;
     char first, *buffer=NULL;
     std::vector<std::string> formats(vecSize, "%s");
     std::vector<int>         lengths(vecSize, 0);
@@ -943,30 +947,30 @@ int Catalog::save(const std::string fileName, bool no_replace) {
     }
     // all the quantities have their sprintf format
     // IF their lengths[] is positive
-    for (j=0; j<m_numRows; j++) for (i=0; i<vecSize; ) {   
+    for (long k=0; k<m_numRows; k++) for (j=0; j<vecSize; ) {   
 
-      if (m_quantities[i].m_type == Quantity::NUM) {
-        r=m_numericals[m_quantities[i].m_index].at(j);
+      if (m_quantities[j].m_type == Quantity::NUM) {
+        r=m_numericals[m_quantities[j].m_index].at(k);
         if (isnan(r)) {
-          len=lengths[i];
+          len=lengths[j];
           if (len == 0) len=1;
           file << std::setw(len+1) << std::setfill(' ');
         }
-        else if (lengths[i] > 0) {
-          sprintf(buffer, formats[i].c_str(), r);
-          file.write(buffer, lengths[i]);
+        else if (lengths[j] > 0) {
+          sprintf(buffer, formats[j].c_str(), r);
+          file.write(buffer, lengths[j]);
         }
         else file << r;
       }
-      else if (m_quantities[i].m_type == Quantity::STRING) {
-        text=m_strings[m_quantities[i].m_index].at(j);
-        if (lengths[i] > 0) {
-          sprintf(buffer, formats[i].c_str(), text.c_str());
-          file.write(buffer, lengths[i]);
+      else if (m_quantities[j].m_type == Quantity::STRING) {
+        text=m_strings[m_quantities[j].m_index].at(k);
+        if (lengths[j] > 0) {
+          sprintf(buffer, formats[j].c_str(), text.c_str());
+          file.write(buffer, lengths[j]);
         }
         else file << text;
       }
-      if (++i == vecSize) file << std::endl; else file << sep;
+      if (++j == vecSize) file << std::endl; else file << sep;
 
     } // loop on rows and quantities
     tot+=m_numRows;

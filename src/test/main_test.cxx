@@ -66,7 +66,7 @@ int main(int iargc, char * argv[]) {
 
   std::cout << "Number to unselect = " << std::setiosflags(outDouble)
             << NO_SEL_CUT << "\nConstant arcsecond = "
-	    << catalogAccess::Min_Axis << "\n" << std::endl;
+            << catalogAccess::Min_Axis << "\n" << std::endl;
   std::cout << "The minimum value for double is "
             << std::numeric_limits<double>::min() << std::endl;
   std::cout << "The maximum value for double is "
@@ -93,7 +93,7 @@ int main(int iargc, char * argv[]) {
             << std::numeric_limits<double>::signaling_NaN()
             << std::resetiosflags(outDouble) << std::endl;
 */
-  int numRows=1;
+  long numRows=1;
   int vecSize, i, err;
   std::vector<std::string> catNames, webSites;
   std::string strVal;
@@ -187,7 +187,7 @@ int main(int iargc, char * argv[]) {
   if (myPath=="")
     throw std::runtime_error("Environment variable CATALOGACCESSROOT not set.");
 /*
-  const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test";
+  const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test/data";
 */
   strVal=myPath+"/3EG_test.out"; 
 
@@ -497,9 +497,8 @@ int main(int iargc, char * argv[]) {
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
-  //bool keep=false;
   std::cout << "\n* Calling: eraseNonSelected()" << std::endl;
-  err=aCat.eraseNonSelected(); //(keep);
+  err=aCat.eraseNonSelected();
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
@@ -513,7 +512,7 @@ int main(int iargc, char * argv[]) {
   err=aCat.save(strVal, false);
 
   std::cout << "\n* Calling: eraseSelected()" << std::endl;
-  err=aCat.eraseSelected(); //(keep);
+  err=aCat.eraseSelected();
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.getNumRows(&numRows);
@@ -543,8 +542,8 @@ void show_quant(const catalogAccess::Quantity &nQ) {
            <<", unit=\""<< nQ.m_unit <<"\", format=\""<< nQ.m_format
           <<"\",\n     index="<< nQ.m_index <<", boolGeneric="<< nQ.m_isGeneric
          << ", boolLoad="<< nQ.m_toBeLoaded <<", boolNaN="<< nQ.m_rejectNaN
-        <<"\n     selString sizes=("<< nQ.m_excludedS.size()
-       <<","<< nQ.m_necessaryS.size() <<"), cuts=" << nQ.m_lowerCut <<" to "
+        <<"\n     selectList sizes=("<< nQ.m_listValN.size() <<" num, "
+       << nQ.m_listValS.size() <<" str), cuts=" << nQ.m_lowerCut <<" to "
       << nQ.m_upperCut << "\ncomment=\""<< nQ.m_comment << "\"" << std::endl;
 }
 void show_string(const std::string name, const std::string val) {

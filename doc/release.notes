@@ -3,6 +3,9 @@
     @author A. Sauvageon
 
 @verbatim
+07-oct-2004  v0r0p1  AS  Add string selection (in list).
+                         Optimization of eraseNonSelected, eraseSelected.
+
 29-sep-2004  v0      AS  Import only ASCII file without selection.
                          Once imported, selection: on circular region,
                          upper/lower cut on any numerical quantity.

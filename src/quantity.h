@@ -64,13 +64,15 @@ public:
   typedef enum {NUM=1, STRING=2, VECTOR=0} QuantityType;
 
   Quantity() {                  // Default constructor
-    m_type=VECTOR;
+    m_type =VECTOR;
     m_index=-1;
-    m_isGeneric=false;
-    m_toBeLoaded=true;
+    m_isGeneric   =false;
+    m_toBeLoaded  =true;
     m_lowerCut=NO_SEL_CUT; m_upperCut=NO_SEL_CUT;
-    m_precision=10*Min_Prec;
-    m_rejectNaN=true;
+    m_precision   =10*Min_Prec;
+    m_rejectNaN   =true;
+    m_includeList =true;
+    m_caselessList=true;
   }
   Quantity(std::string name, std::string comm, std::string ucd,
            QuantityType type, std::string unit, int index=-1,
@@ -119,26 +121,22 @@ public:
   // selection criteria
   //-------------------
 
-  std::vector<std::string> m_excludedS;
-      // for numerical: empty
-      // for string   : stores the list of values leading to exclusion of a row
-  std::vector<std::string> m_necessaryS;
-      // for numerical: empty
-      // for string   : stores the list of values neccessary for row inclusion
+  std::vector<std::string> m_listValS;
+      // for numerical: undefined; default: empty
+      // for string   : stores the list of values to be tested
   double m_lowerCut;  
-      // for string   : undefined; default == 1E-99
+      // for string   : undefined; default == NO_SEL_CUT
       // for numerical: stores the minimum value neccessary for row inclusion
   double m_upperCut;
-      // for string   : undefined; default == 1E99
+      // for string   : undefined; default == NO_SEL_CUT
       // for numerical: stores the maximum value necessary for row inclusion
-  std::vector<double> m_excludedN;
+  std::vector<double> m_listValN;
      // for string   : undefined; default: empty
-     // for numerical: stores the list of values leading to exclusion of a row
-  std::vector<double> m_necessaryN;
-     // for string   : empty; default: empty
-     // for numerical: stores the list of values necessary for row inclusion
+     // for numerical: stores the list of values to be tested
 
-  double m_precision;  // test for equality used for m_excludedN, m_necessaryN
+  bool   m_includeList;// if true the values in the list lead to row inclusion
+  bool   m_caselessList;//if true the string is matched whatever case
+  double m_precision;  // test for equality used for m_excludedN, listValN
   bool   m_rejectNaN;  // if true the NaN values are not selected
 
 }; // end class definition 
@@ -156,10 +154,8 @@ inline Quantity::~Quantity() {
             << m_name <<" (ucd="<< m_ucd <<")"<< std::endl;
   #endif
   m_vectorQs.clear();
-  m_excludedS.clear();
-  m_necessaryS.clear();
-  m_excludedN.clear();
-  m_necessaryN.clear();
+  m_listValS.clear();
+  m_listValN.clear();
 }
 
 } // namespace catalogAccess

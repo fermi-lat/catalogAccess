@@ -1,51 +1,51 @@
-#  
-#   VizieR Astronomical Server: http://vizier.u-strasbg.fr	2004-09-08T09:44:35
+#
+#   VizieR Astronomical Server: http://vizier.u-strasbg.fr	2004-09-27T15:10:05
 #   Explanations and Statistics of UCDs:			See LINK below
 #   In case of problem, please report to:	question@simbad.u-strasbg.fr
 #    (link)
-#   
-#Coosys	J2000:	eq_FK5 2000 
-#INFO	Ref=Vxml72
+#
+#Coosys	J2000:	eq_FK5 2000
+#INFO	Ref=Vxml17109
 
-#RESOURCE=9010   
-#Name: IX/10A   
-#Title:	ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)   
-#Table	IX_10A_1rxs:      
-#Name: IX/10A/1rxs     
-#Title:	The 1RXS catalogue               
-#Column	_Glon	(F6)	       Galactic longitude (computed by VizieR, not part of the original data)     	[ucd=POS_GAL_LON]     
-#Column	_Glat	(F6)	       Galactic latitude (computed by VizieR, not part of the original data)     	[ucd=POS_GAL_LAT]     
-#Column	recno	(I8)	       Record number within the original table (starting from 1)        (link)     	[ucd=RECORD]     
-#Column	1RXS	(A21)	       ROSAT All-Sky Survey Catalogue source name (1)        (link)     	[ucd=ID_MAIN]     
-#Column	n_1RXS	(A1)	       [*] Names modified from previous version     	[ucd=NOTE]     
-#Column	RAJ2000	(F9)	       Right ascension (J2000), decimal degrees     	[ucd=POS_EQ_RA_MAIN]     
-#Column	DEJ2000	(F9)	       Declination (J2000), decimal degrees     	[ucd=POS_EQ_DEC_MAIN]     
-#Column	PosErr	(I2)	       ? Total positional error (including 6" systematic error)     	[ucd=ERROR]     
-#Column	ScrFlags	(A5)	       [T_] screening flags (2)     	[ucd=CODE_MISC]     
-#Column	NewFlag	(A4)	       [T._] 'new data' flags (3)            	[ucd=CODE_MISC]     
-#Column	Count	(E9)	       ? Source countrate (4)     	[ucd=PHOT_COUNT-RATE_X]     
-#Column	e_Count	(E9)	       ? Error on Count (4)     	[ucd=ERROR]     
-#Column	bgCt	(E9)	       ? Background countrate (4)     	[ucd=INST_BACKGROUND]     
-#Column	ExpTime	(I6)	       ? Exposure time     	[ucd=TIME_EXPTIME]     
-#Column	HR1	(F5)	       [-1/1]? Hardness ratio 1 (5)     	[ucd=SPECT_HARDNESS-RATIO]     
-#Column	e_HR1	(F5)	       ? Error on HR1 (6)     	[ucd=ERROR]     
-#Column	HR2	(F5)	       [-1/1]? hardness ratio 2 (5)     	[ucd=SPECT_HARDNESS-RATIO]     
-#Column	e_HR2	(F5)	       ? Error on HR2 (6)     	[ucd=ERROR]     
-#Column	Extent	(I5)	       Source extent, by which the source image exceeds the point spread function.     	[ucd=EXTENSION_DIAM]     
-#Column	L_Extent	(I4)	       ? Likelihood of source extent (7)     	[ucd=STAT_LIKELIHOOD]     
-#Column	Ldetect	(I4)	       ? Likelihood of source detection algorithm (7)     	[ucd=STAT_LIKELIHOOD]     
-#Column	ExtRad	(I5)	       ? Extraction radius     	[ucd=REDUCT_EXTR-RAD]     
-#Column	PrioFlags	(A6)	       [01] priority flags (8)     	[ucd=CODE_MISC]     
-#Column	PHA	(A1)	       [ABCDb] PHA range of best detection (9)     	[ucd=CODE_MISC]     
-#Column	VigFactor	(F5)	       ? Vignetting factor     	[ucd=INST_CORR-FACTOR]     
-#Column	IncDate	(A10)	       ? Date when source was included (10)     	[ucd=TIME_DATE]     
-#Column	UpdDate	(A10)	       ? Date when source properties changed (11)     	[ucd=TIME_DATE]     
-#Column	Ncand	(I3)	       Number of identification candidates in the correlation catalogue     	[ucd=NUMBER]     
-#Column	SASS	(I8)	       Identification number of SASS field (12)     	[ucd=ID_FIELD]     
-#Column	MASOL	(I4)	       SASS source number (MASOL number) in SASS field (mainly for internal use)     	[ucd=ID_NUMBER]
+#RESOURCE=9010
+#Name: IX/10A
+#Title:	ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)
+#Table	IX_10A_1rxs:
+#Name: IX/10A/1rxs
+#Title:	The 1RXS catalogue
+#Column	_Glon	(F6.2)	Galactic longitude (computed by VizieR, not part of the original data)	[ucd=POS_GAL_LON]
+#Column	_Glat	(F6.2)	Galactic latitude (computed by VizieR, not part of the original data)	[ucd=POS_GAL_LAT]
+#Column	recno	(I8)	Record number within the original table (starting from 1)        (link)	[ucd=RECORD]
+#Column	1RXS	(A21)	ROSAT All-Sky Survey Catalogue source name (1)        (link)	[ucd=ID_MAIN]
+#Column	n_1RXS	(A1)	[*] Names modified from previous version	[ucd=NOTE]
+#Column	RAJ2000	(F9.5)	Right ascension (J2000), decimal degrees	[ucd=POS_EQ_RA_MAIN]
+#Column	DEJ2000	(F9.5)	Declination (J2000), decimal degrees	[ucd=POS_EQ_DEC_MAIN]
+#Column	PosErr	(I2)	? Total positional error (including 6" systematic error)	[ucd=ERROR]
+#Column	ScrFlags	(A5)	[T_] screening flags (2)	[ucd=CODE_MISC]
+#Column	NewFlag	(A4)	[T._] 'new data' flags (3)	[ucd=CODE_MISC]
+#Column	Count	(E9.2)	? Source countrate (4)	[ucd=PHOT_COUNT-RATE_X]
+#Column	e_Count	(E9.2)	? Error on Count (4)	[ucd=ERROR]
+#Column	bgCt	(E9.2)	? Background countrate (4)	[ucd=INST_BACKGROUND]
+#Column	ExpTime	(I6)	? Exposure time	[ucd=TIME_EXPTIME]
+#Column	HR1	(F5.2)	[-1/1]? Hardness ratio 1 (5)	[ucd=SPECT_HARDNESS-RATIO]
+#Column	e_HR1	(F5.2)	? Error on HR1 (6)	[ucd=ERROR]
+#Column	HR2	(F5.2)	[-1/1]? hardness ratio 2 (5)	[ucd=SPECT_HARDNESS-RATIO]
+#Column	e_HR2	(F5.2)	? Error on HR2 (6)	[ucd=ERROR]
+#Column	Extent	(I5)	Source extent, by which the source image exceeds the point spread function.	[ucd=EXTENSION_DIAM]
+#Column	L_Extent	(I4)	? Likelihood of source extent (7)	[ucd=STAT_LIKELIHOOD]
+#Column	Ldetect	(I4)	? Likelihood of source detection algorithm (7)	[ucd=STAT_LIKELIHOOD]
+#Column	ExtRad	(I5)	? Extraction radius	[ucd=REDUCT_EXTR-RAD]
+#Column	PrioFlags	(A6)	[01] priority flags (8)	[ucd=CODE_MISC]
+#Column	PHA	(A1)	[ABCDb] PHA range of best detection (9)	[ucd=CODE_MISC]
+#Column	VigFactor	(F5.2)	? Vignetting factor	[ucd=INST_CORR-FACTOR]
+#Column	IncDate	(A10)	? Date when source was included (10)	[ucd=TIME_DATE]
+#Column	UpdDate	(A10)	? Date when source properties changed (11)	[ucd=TIME_DATE]
+#Column	Ncand	(I3)	Number of identification candidates in the correlation catalogue	[ucd=NUMBER]
+#Column	SASS	(I8)	Identification number of SASS field (12)	[ucd=ID_FIELD]
+#Column	MASOL	(I4)	SASS source number (MASOL number) in SASS field (mainly for internal use)	[ucd=ID_NUMBER]
 
 _Glon	_Glat	recno	1RXS	n_1RXS	RAJ2000	DEJ2000	PosErr	ScrFlags	NewFlag	Count	e_Count	bgCt	ExpTime	HR1	e_HR1	HR2	e_HR2	Extent	L_Extent	Ldetect	ExtRad	PrioFlags	PHA	VigFactor	IncDate	UpdDate	Ncand	SASS	MASOL
-deg	deg				deg	deg	arcsec			ct/s	ct/s	ct/s/arcmin2	s					arcsec			arcsec				"Y:M:D"	"Y:M:D"			
+deg	deg				deg	deg	arcsec			ct/s	ct/s	ct/s/arcmin2	s					arcsec			arcsec				"Y:M:D"	"Y:M:D"
 ------	------	--------	---------------------	-	---------	---------	--	-----	----	---------	---------	---------	------	-----	-----	-----	-----	-----	----	----	-----	------	-	-----	----------	----------	---	--------	----
 340.56	-73.66	       1	1RXS J000000.0-392902	 	000.00000	-39.48403	19	_____	__..	 1.31e-01	 3.50e-02	 1.18e-03	   147	 0.69	 0.25	 0.28	 0.24	    0	    	  25	  300	111110	b	 0.73	1996-06-14	          	 13	33024001	0092
 101.79	-52.47	       2	1RXS J000007.0+081653	 	000.02917	+08.28153	10	__T__	TT..	 1.87e-01	 2.05e-02	 1.07e-03	   418	 0.89	 0.10	 0.24	 0.13	    0	    	  87	  360	111110	b	 0.71	1996-06-14	          	 14	33016001	0020

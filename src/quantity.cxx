@@ -62,22 +62,20 @@ Quantity::Quantity(const Quantity & q) {
     throw;
   }
   // selection criteria
-  m_lowerCut=q.m_lowerCut;
-  m_upperCut=q.m_upperCut;
-  m_precision=q.m_precision;
-  m_rejectNaN=q.m_rejectNaN;
+  m_lowerCut    =q.m_lowerCut;
+  m_upperCut    =q.m_upperCut;
+  m_precision   =q.m_precision;
+  m_rejectNaN   =q.m_rejectNaN;
+  m_includeList =q.m_includeList;
+  m_caselessList=q.m_caselessList;
   try {
-    vecSize=q.m_excludedS.size();
-    for (i=0; i<vecSize; i++) m_excludedS.push_back(q.m_excludedS.at(i));
-    vecSize=q.m_necessaryS.size();
-    for (i=0; i<vecSize; i++) m_necessaryS.push_back(q.m_necessaryS.at(i));
-    vecSize=q.m_excludedN.size();
-    for (i=0; i<vecSize; i++) m_excludedN.push_back(q.m_excludedN.at(i));
-    vecSize=q.m_necessaryN.size();
-    for (i=0; i<vecSize; i++) m_necessaryN.push_back(q.m_necessaryN.at(i));
+    vecSize=q.m_listValS.size();
+    for (i=0; i<vecSize; i++) m_listValS.push_back(q.m_listValS.at(i));
+    vecSize=q.m_listValN.size();
+    for (i=0; i<vecSize; i++) m_listValN.push_back(q.m_listValN.at(i));
   }
   catch (std::exception &err) {
-    errText=std::string("EXCEPTION on selection criteria: ")+err.what();
+    errText=std::string("EXCEPTION on selection list: ")+err.what();
     printErr("Quantity copy constructor", errText);
     throw;
   }

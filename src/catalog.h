@@ -140,44 +140,44 @@ public:
   // accessing all the Catalog contents in memory
   //       (ignoring in-memory selection criteria)
 
-  void getNumRows(int *nrows);  // get the number of rows in the catalog
-  int getSValue(const std::string name, const int row, std::string *stringVal);
+  void getNumRows(long *nrows);  // get the number of rows in the catalog
+  int getSValue(const std::string name, const long row, std::string *stringVal);
       // get the value of the given string quantity "name"
       // in the given catalog row
-  int getNValue(const std::string name, const int row, double *realVal);
+  int getNValue(const std::string name, const long row, double *realVal);
       // get the value of the given numerical quantity "name"
       // in the given catalog row
 /*  int getVecValues(const std::string name, const  int row,
                    std::vector<double> *vecVal);*/
       // get the values of the given vector quantity "name"
       // in the given catalog row
-  int getStatError(const std::string name, const int row, double *realValStat);
+  int getStatError(const std::string name, const long row, double *realValStat);
       // get the value of the statistical error associated with quantity "name"
       // in the given catalog row;
       // value is negative if unavailable
-  int getSysError(const std::string name, const int row, double *realValSys);
+  int getSysError(const std::string name, const long row, double *realValSys);
       // get the value of the sytematic error associated with quantity "name"
       // in the given catalog row;
       // value is negative if unavailable
-/*  int getVecStatErrors(const std::string name, const int row,
+/*  int getVecStatErrors(const std::string name, const long row,
                        std::vector<double> *vecValStat);*/
       // get the statistical errors associated with vector quantity "name"
       // in the given catalog row
-/*  int getVecSysErrors(const std::string name, const int row,
+/*  int getVecSysErrors(const std::string name, const long row,
                       std::vector<double> *vecValSys);*/
       // get the systematic errors associated with vector quantity "name"
       // in the given catalog row
-  int getObjName(const int row, std::string *stringVal);
+  int getObjName(const long row, std::string *stringVal);
       // access to generic quantity for object name
-  int ra_deg(const int row, double *realVal);
+  int ra_deg(const long row, double *realVal);
       // access to generic quantity for RA  (degrees)
-  int dec_deg(const int row, double *realVal);
+  int dec_deg(const long row, double *realVal);
       // access to generic quantity for DEC (degrees)
-  int posError_deg(const int row, double *realVal);
+  int posError_deg(const long row, double *realVal);
       // access to generic quantity for position uncertainty (degrees)
-  int l_deg(const int row, double *realVal);
+  int l_deg(const long row, double *realVal);
       // access to generic quantity for l (degrees)
-  int b_deg(const int row, double *realVal);
+  int b_deg(const long row, double *realVal);
       // access to generic quantity for b (degrees)
 
   // possible values or range of a given quantity "name"
@@ -196,27 +196,27 @@ public:
   // accessing the Catalog contents with in-memory selection criteria applied
   // the row index relates to the selected rows, i.e. is continuous!
 
-  void getNumSelRows(int *nrows);
+  void getNumSelRows(long *nrows);
       // get the number of selected rows in the catalog
-  int getSelSValue(const std::string name, const int srow,
+  int getSelSValue(const std::string name, const long srow,
                    std::string *stringVal);
-  int getSelNValue(const std::string name, const int srow, double *realVal);
-/*  int getSelVecValues(const std::string name, const int srow,
+  int getSelNValue(const std::string name, const long srow, double *realVal);
+/*  int getSelVecValues(const std::string name, const long srow,
                       std::vector<double> *vecVal);*/
-  int getSelStatError(const std::string name, const int srow,
+  int getSelStatError(const std::string name, const long srow,
                       double *realValStat);
-  int getSelSysError(const std::string name, const int srow,
+  int getSelSysError(const std::string name, const long srow,
                      double *realValSys);
-/*  int getSelVecStatErrors(const std::string name, const int srow,
+/*  int getSelVecStatErrors(const std::string name, const long srow,
                           std::vector<double> *vecValStat);
-  int getSelVecSysErrors(const std::string name, const int srow,
+  int getSelVecSysErrors(const std::string name, const long srow,
                        std::vector<double> *vecValSys);*/
-  int getSelObjName(const int srow, std::string *stringVal);
-  int selRA_deg(const int srow, double *realVal);
-  int selDEC_deg(const int srow, double *realVal);
-  int selPosError_deg(const int srow, double *realVal);
-  int selL_deg(const int srow, double *realVal);
-  int selB_deg(const int srow, double *realVal);
+  int getSelObjName(const long srow, std::string *stringVal);
+  int selRA_deg(const long srow, double *realVal);
+  int selDEC_deg(const long srow, double *realVal);
+  int selPosError_deg(const long srow, double *realVal);
+  int selL_deg(const long srow, double *realVal);
+  int selB_deg(const long srow, double *realVal);
   // more quantities here? (the same as above of course)
 
 
@@ -258,10 +258,12 @@ public:
                       const std::vector<double> &cutValues);*/
       // set and apply a cut on quantities in VECTOR type quantity "name"
       // such that all values <= cutValues[i] pass
-  int excludeS(const std::string name, const std::string stringVal);
-      // exclude all rows which have string quantity "name" == stringVal
-  int useOnlyS(const std::string name, const std::string stringVal);
-      // only include all rows which have string quantity "name" == stringVal
+  int excludeS(const std::string name,
+               const std::vector<std::string> &stringList, bool exact=false);
+      // exclude all rows which have string value in the given list
+  int useOnlyS(const std::string name,
+               const std::vector<std::string> &stringList, bool exact=false);
+      // only include rows which have string value in the given list
   int excludeN(const std::string name, const double realVal);
       // exclude all rows which have numerical quantity "name" == realVal
   int useOnlyN(const std::string name, const double realVal);
@@ -272,9 +274,9 @@ public:
      // set and apply an elliptical selection region
      // (box cuts of constant size CANNOT be achieved)
   int unsetSelEllipse();        // remove the effects of the ellipse selection
-  int eraseNonSelected(const bool keepCriteria=true);
+  int eraseNonSelected();
      // erase all non-selected rows from memory
-  int eraseSelected(const bool keepCriteria=true);
+  int eraseSelected();
     // erase all selected rows from memory
 
   // for convenience: methods for cutting on the generic quantities
@@ -325,7 +327,7 @@ public:
 /*  void getCutString(std::string *stringVal);*/
       // get a copy of m_selection
     
-/*  int selStringTrue(const int row, bool *isSelected);*/
+/*  int selStringTrue(const long row, bool *isSelected);*/
       // returns true if the condition described by m_selection is true
       // for the given row, otherwise false
 
@@ -369,7 +371,7 @@ private:
 
   // comment: the number of numerical quantities == m_numericals.size()
 
-  int m_numRows;
+  long m_numRows;
       // number of catalog rows loaded into memory
       // ( == m_strings[0].size() if m_strings.size() != 0 which should always
       //   be true due to the existence of generic quantities )
@@ -403,19 +405,24 @@ private:
       // celestial equator (degrees); default == 0
 
   // following four data members needed for efficient selection
-  int m_numSelRows;             // for quick test: 0 = nothing selected
+  long m_numSelRows;            // for quick test: 0 = nothing selected
   int m_indexRA;                // index for RA in m_numericals
   int m_indexDEC;               // index for DEC in m_numericals
   std::vector<double> m_selEllipse;
       // the sinus and cosinus of the 2 spherical angles + ellipse size
 
-  bool checkRegion(const int row, const int nRA, const int nDEC);
+  bool checkRegion(const long row, const int nRA, const int nDEC);
       // to check if given row is inside the elliptical region,
       // nRA and nDEC are the position inside m_quantities.
   bool checkNUM(const double r, const int index, const bool reject);
       // to check if given value pass 4 criteria for given quantity index
-  bool rowSelect(const int row, const std::vector<bool> &quantSel);
+  bool checkSTR(const std::string s, const int index, const int code);
+      // to check if given value pass list criteria for given quantity index
+  bool rowSelect(const long row, const std::vector<bool> &quantSel);
       // computes the global row selection from bits in m_rowIsSelected
+  int doSelS(const std::string name, const std::string origin,
+             const std::vector<std::string> &stringList, bool exact);
+      // select rows depending on the given string list
 
   void deleteDescription();
       // erase the changes made by "importDescription"
@@ -437,7 +444,7 @@ private:
       // both methods read file for import or importDescription (getAll=false)
       // returns IS_OK for completion, otherwise BAD_FILETYPE or tip error
 
-  void showRAMsize();
+  void showRAMsize(long numRows=44000);
       // output the estimation of RAM needed per data row
   int load(const std::string &fileName, const bool getAll);
       // common code between import and importDescription
@@ -454,11 +461,11 @@ private:
       // if isDone is false and import NOT done, return 0
   int checkCatName(const std::string origin, const std::string catName);
       // return -3 if catName do not exist, its index otherwise
-  int checkSize_row(const std::string origin, const int row);
+  int checkSize_row(const std::string origin, const long row);
       // return strictly positive number (m_numRows) if row exist
   int checkQuant_name(const std::string origin, const std::string name);
       // return negative number if problem, quantity index otherwise
-  int checkSel_row(const std::string origin, const int srow);
+  int checkSel_row(const std::string origin, const long srow);
       // return strictly positive number (m_numSelRows) if selected row exist
 
   bool existCriteria(std::vector<bool> *quantSel);
@@ -561,7 +568,7 @@ inline int Catalog::checkCatName(const std::string origin,
 
 /**********************************************************************/
 // To check if catalog was succesfully loaded and row exist
-inline int Catalog::checkSize_row(const std::string origin, const int row) {
+inline int Catalog::checkSize_row(const std::string origin, const long row) {
 
   if (m_numRows <= 0) {
     printWarn(origin, "catalog is empty");
@@ -593,7 +600,7 @@ inline int Catalog::checkQuant_name(const std::string origin,
 
 /**********************************************************************/
 // To check if catalog was succesfully loaded and selected row exist
-inline int Catalog::checkSel_row(const std::string origin, const int srow) {
+inline int Catalog::checkSel_row(const std::string origin, const long srow) {
 
   if (m_numRows <= 0) {
     printWarn(origin, "catalog is empty");
@@ -625,7 +632,7 @@ inline bool Catalog::existCriteria(std::vector<bool> *quantSel) {
     for (itQ=m_quantities.begin(); itQ != m_quantities.end(); itQ++) {
 
       if (itQ->m_type == Quantity::STRING) {
-        if ((itQ->m_excludedS.size() > 0) || (itQ->m_necessaryS.size() > 0)) {
+        if (itQ->m_listValS.size() > 0) {
           all=true;
           quantSel->push_back(true);
        }
@@ -633,8 +640,8 @@ inline bool Catalog::existCriteria(std::vector<bool> *quantSel) {
       }
 
       else if (itQ->m_type == Quantity::NUM) { //check real
-        if ((itQ->m_excludedN.size() > 0) || (itQ->m_necessaryN.size() > 0) 
-            ||(itQ->m_lowerCut < NO_SEL_CUT)||(itQ->m_upperCut < NO_SEL_CUT)) {
+        if ( (itQ->m_lowerCut < NO_SEL_CUT)||(itQ->m_upperCut < NO_SEL_CUT)
+            || (itQ->m_listValN.size() > 0) ) {
           all=true;
           quantSel->push_back(true);
         }
