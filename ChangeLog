@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Thu Dec 23 02:45:38 PST 2004
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx catalog_sel.cxx 
+Log Message:
+Add generic functions
+    *
+------------------------------------------------------------
+User: landriu  Thu Dec 23 02:45:38 PST 2004
 catalogAccess/doc
 
 Modified Files:
