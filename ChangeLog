@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Tue Oct 12 02:36:39 PDT 2004
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx catalog_sel.cxx 
+Log Message:
+Add numerical list selection
+    *
+------------------------------------------------------------
+User: landriu  Tue Oct 12 02:36:39 PDT 2004
 catalogAccess/doc
 
 Modified Files:
