@@ -21,7 +21,7 @@
 #include <iomanip>    //for setprecision, _Ios_Fmtflags, ...
 #include <stdexcept>  //for std::runtime_error
 
-#define MAX_CAT 4               // number of known catalogs
+#define MAX_CAT 7               // number of known catalogs
 #define MAX_GEN 6               // number of generic quantities
 #define MAX_URL 9               // number of known VizieR web address
 #define MAX_LINE 1024           // (maximum number of char)+1 with getline
@@ -264,10 +264,19 @@ public:
   int useOnlyS(const std::string name,
                const std::vector<std::string> &stringList, bool exact=false);
       // only include rows which have string value in the given list
-  int excludeN(const std::string name, const double realVal);
-      // exclude all rows which have numerical quantity "name" == realVal
-  int useOnlyN(const std::string name, const double realVal);
-      // only include all rows which have numerical quantity "name" == realVal
+
+  int excludeN(const std::string name, const std::vector<double> &listVal);
+      // exclude all rows which have value around one numerical in list
+  int useOnlyN(const std::string name, const std::vector<double> &listVal);
+      // only include all rows which value around one numerical in list
+  int setRejectNaN(const std::string name, const bool rejectNaN);
+      // set quantity member m_rejectNaN and apply
+      // (if different from previous and quantity is selected)  
+  int setMatchPercent(const std::string name, double percent);
+  int setMatchEpsilon(const std::string name, const unsigned long step);
+      // set quantity member m_precision and apply
+      // (if quantity has a non empty selection list)   
+
   int setSelEllipse(const double centRA_deg, const double centDEC_deg,
                     const double majAxis_deg, const double minAxis_deg,
                     const double rot_deg=0.);
@@ -414,15 +423,19 @@ private:
   bool checkRegion(const long row, const int nRA, const int nDEC);
       // to check if given row is inside the elliptical region,
       // nRA and nDEC are the position inside m_quantities.
-  bool checkNUM(const double r, const int index, const bool reject);
-      // to check if given value pass 4 criteria for given quantity index
   bool checkSTR(const std::string s, const int index, const int code);
       // to check if given value pass list criteria for given quantity index
+  bool checkNUM(const double r, const int index, const bool reject,
+                const double precis);
+      // to check if given value pass 3 criteria for given quantity index
   bool rowSelect(const long row, const std::vector<bool> &quantSel);
       // computes the global row selection from bits in m_rowIsSelected
   int doSelS(const std::string name, const std::string origin,
              const std::vector<std::string> &stringList, bool exact);
       // select rows depending on the given string list
+  int doSelN(const std::string name, const std::string origin,
+             const std::vector<double> &listVal);
+      // select rows depending on the given numerical list
 
   void deleteDescription();
       // erase the changes made by "importDescription"
@@ -635,11 +648,11 @@ inline bool Catalog::existCriteria(std::vector<bool> *quantSel) {
         if (itQ->m_listValS.size() > 0) {
           all=true;
           quantSel->push_back(true);
-       }
+        }
         else quantSel->push_back(false);
       }
 
-      else if (itQ->m_type == Quantity::NUM) { //check real
+      else if (itQ->m_type == Quantity::NUM) {
         if ( (itQ->m_lowerCut < NO_SEL_CUT)||(itQ->m_upperCut < NO_SEL_CUT)
             || (itQ->m_listValN.size() > 0) ) {
           all=true;

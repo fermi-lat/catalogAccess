@@ -36,13 +36,21 @@ const char *Catalog::s_CatalogList[2*MAX_CAT]={
       "EGRET3 sources", "J/ApJS/123/79/3eg",    //   271 rows (18 columns)
       "EGRET3 fluxes",  "J/ApJS/123/79/fluxes", //  5245 rows (10 columns)
       "EGRET3 periods", "J/ApJS/123/79/table1", //   169 rows ( 6 columns)
-      "ROSAT 1RXS" , "IX/10A/1rxs"};            // 18806 rows (28 columns)
+      "ROSAT 1RXS",     "IX/10A/1rxs",          // 18806 rows (28 columns)
+      "Veron (11th) quasar", "VII/235/table1",  // 48921 rows (25 columns)
+      "Veron (11th) BL Lac", "VII/235/table2",  //   876 rows (25 columns)
+      "Veron (11th) AGN",    "VII/235/table3"   // 15069 rows (25 columns)
+      };
+
 
 const char *Catalog::s_CatalogGeneric[MAX_CAT][MAX_GEN]={
      {"3EG", "RAJ2000", "DEJ2000", "theta95", "GLON", "GLAT"},
      {"3EG", "", "", "", "", ""},
      {"",    "", "", "", "GLON", "GLAT"},
-     {"1RXS", "RAJ2000", "DEJ2000", "PosErr", "+", "+"}
+     {"1RXS", "RAJ2000", "DEJ2000", "PosErr", "+", "+"},
+     {"Name", "+", "+", "", "+", "+"},   // original format of RA/DEC
+     {"Name", "+", "+", "", "+", "+"},   // is in sexagesimal
+     {"Name", "+", "+", "", "+", "+"}    // ==> need to be added in decimal
 };
 
 

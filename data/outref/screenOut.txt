@@ -39,6 +39,9 @@ EGRET3 sources       (J/ApJS/123/79/3eg)
 EGRET3 fluxes        (J/ApJS/123/79/fluxes)
 EGRET3 periods       (J/ApJS/123/79/table1)
 ROSAT 1RXS           (IX/10A/1rxs)
+Veron (11th) quasar  (VII/235/table1)
+Veron (11th) BL Lac  (VII/235/table2)
+Veron (11th) AGN     (VII/235/table3)
 
 
 =================================
@@ -387,8 +390,8 @@ LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =  10.2
 * 'aCat' info (size 6):
 code="ROSAT 1RXS"
 URL=""
-catalog="IX/10A" (ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999))
-table  ="IX/10A/1rxs" (The 1RXS catalogue)
+catalog="IX/10A" [ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)]
+table  ="IX/10A/1rxs" [The 1RXS catalogue]
 
 * Calling: getQuantityDescription, results:
 _Glon: ucd="POS_GAL_LON", type=1, unit="deg", format="F6.2",
@@ -529,11 +532,21 @@ LOG_1 (catalogAccess): selection ellipse center RA=0 , DEC=90 with radius 90 * 9
 * Calling: set cut (on L_Extent)
 LOG_1 (catalogAccess): Enabling lower cut (1.1 on L_Extent)
 * Number of SELECTED rows = 6
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (1 elements)
+* Number of SELECTED rows = 16
 LOG_1 (catalogAccess): Enabling lower cut (1 on L_Extent)
 * Number of SELECTED rows = 16
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (1 elements)
+* Number of SELECTED rows = 6
+LOG_1 (catalogAccess): NaN values are now  accepted (on L_Extent)
+* Number of SELECTED rows = 17
 LOG_1 (catalogAccess): Enabling upper cut (30 on L_Extent)
-* Number of SELECTED rows = 15
+* Number of SELECTED rows = 16
+LOG_1 (catalogAccess): NaN values are now  rejected (on L_Extent)
+* Number of SELECTED rows = 5
 LOG_1 (catalogAccess): Disabling upper cut (on L_Extent)
+* Number of SELECTED rows = 6
+LOG_1 (catalogAccess): Disabling list selection (on L_Extent)
 * Number of SELECTED rows = 16
 
 * Calling: set cut (on MASOL)
@@ -546,11 +559,31 @@ LOG_1 (catalogAccess): Enabling upper cut (100 on MASOL)
 LOG_1 (catalogAccess): Enabling upper cut (100 on MASOL)
 * Number of SELECTED rows = 13
 
+* Calling: getSelSValues (on NewFlag)
+* String vector (size=1) contains: "__.."  
+
 * Calling: eraseNonSelected()
 LOG_0 (catalogAccess): 37 row(s) deleted
 * Number of SELECTED rows = 13
 
+* Calling: getSelSValues (on 1RXS)
+* String vector (size=13) contains: "1RXS J000012.6+014621"  "1RXS J000055.5+172346"  "1RXS J000123.3+272241"  "1RXS J000124.2+393648"  "1RXS J000143.9+521246"  "1RXS J000150.9+111705"  "1RXS J000155.1+120323"  "1RXS J000209.4+672503"  "1RXS J000256.7+444027"  "1RXS J000259.6+395743"  "1RXS J000342.8+180828"  "1RXS J000350.4+020340"  "1RXS J000409.2+452618"  
+
 * Calling: setUpperCut (on MASOL)
+* Number of SELECTED rows = 13
+
+* Calling: useOnlyS (on 1RXS first object)
+LOG_1 (catalogAccess): Include rows with "1RXS" string in list (1 elements, caseless match)
+* Number of SELECTED rows = 1
+* Calling: useOnlyS to unselect 1RXS
+LOG_1 (catalogAccess): Disabling list selection (on 1RXS)
+* Number of SELECTED rows = 13
+
+* Calling: excludeS (on NewFlag unique value)
+LOG_1 (catalogAccess): Exclude rows with "NewFlag" string in list (1 elements, caseless match)
+* Number of SELECTED rows = 0
+* Calling: useOnlyS with same value
+LOG_1 (catalogAccess): Include rows with "NewFlag" string in list (1 elements, caseless match)
 * Number of SELECTED rows = 13
 
 * Calling: save(/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.out.txt)
@@ -558,8 +591,56 @@ LOG_0 (catalogAccess): output text file is closed ( 54 lines written)
 
 * Calling: eraseSelected()
 LOG_2 (catalogAccess): all rows selected, calling deleteContent()
-* Number of SELECTED rows = 0
 * Number of rows = 0
+
+* Calling: import on file "/1rxs_50.out"
+LOG_2 (catalogAccess): deleting previous Catalog description
+LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
+LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =  10.2
+ 7562 Ko for numericals ( 22 double per row)
+ 2535 Ko for  9 strings ( 59 char per row)
+  344 Ko for select bits ( 2 long per row)
+* Value returned = 50
+* Number of rows = 50
+
+* Calling: setSelEllipse (selecting object in North hemisphere)
+LOG_1 (catalogAccess): selection ellipse center RA=0 , DEC=90 with radius 90 * 90 (degrees) orientated at 0 (with respect to North pole)
+* Number of SELECTED rows = 27
+
+* Limits on "L_Extent":
+Quantity L_Extent minimum =   1.000e+00
+Quantity L_Extent maximum =   3.700e+01
+
+* Setting list of values: 1.00, NaN
+ with default behaviour (reject NaN):  NaN not taken into account in list
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements)
+* Number of SELECTED rows = 10
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements)
+* Number of SELECTED rows = 6
+
+* Calling: unsetCuts (on L_Extent)
+* Number of SELECTED rows = 27
+
+* Accepting NaN, EQUALITY TEST on NaN in list always FAILS:
+ excluding list ==> NaN included
+ including list ==> NaN excluded
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements)
+* Number of SELECTED rows = 17
+LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements)
+* Number of SELECTED rows = 10
+
+* Must use upper/lower cut (even if no value in interval) to always accept NaN
+LOG_1 (catalogAccess): Enabling lower cut (40 on L_Extent)
+* Number of SELECTED rows = 21
+
+* Calling: unsetCuts (all quantities)
+* Number of SELECTED rows = 27
+
+* Calling: eraseSelected()
+LOG_0 (catalogAccess): 27 row(s) deleted
+* Number of SELECTED rows = 0
+* Number of rows = 23
 
 !END PROGRAM!
 (as pointers are already deleted, only free the Quantity and Catalog copies).

@@ -17,6 +17,7 @@ void show_string(const std::string name, const std::string val);
 void show_double(const std::string name, const double val);
 
 static const std::_Ios_Fmtflags outDouble=std::ios::right|std::ios::scientific;
+static const double aNAN = 0/0.;
 
 int main(int iargc, char * argv[]) {
 
@@ -62,7 +63,7 @@ int main(int iargc, char * argv[]) {
             <<", "<< sizeof(float) <<", "<< sizeof(double)
             <<", "<< sizeof(void *) << std::endl;
   std::cout << "screen outpout of Nan, +infinite, -infinite: " 
-            << 0/0. << ",  " << 1/0. << ",  " << -1/0. << "\n" << std::endl;
+            << aNAN << ",  " << 1/0. << ",  " << -1/0. << "\n" << std::endl;
 
   std::cout << "Number to unselect = " << std::setiosflags(outDouble)
             << NO_SEL_CUT << "\nConstant arcsecond = "
@@ -124,7 +125,6 @@ int main(int iargc, char * argv[]) {
   err=myCat->getSValue("quant", 0, &strVal);
   myCat->unsetCuts();
   err=myCat->setLowerCut("", 1.0);
-
 
   myCat->getCatList(&catNames);
   myCat->getCatList(&webSites, false);
@@ -442,9 +442,9 @@ int main(int iargc, char * argv[]) {
             << "\ncode=\"" << catNames[0] << "\""
             << "\nURL=\"" <<  catNames[1] << "\""
             << "\ncatalog=\"" <<  catNames[2] << "\"" 
-            << " (" <<  catNames[3] << ")" 
+            << " [" <<  catNames[3] << "]" 
             << "\ntable  =\"" <<  catNames[4] << "\"" 
-            << " (" <<  catNames[5] << ")" 
+            << " [" <<  catNames[5] << "]" 
             << std::endl;
   
   std::cout << "\n* Calling: getQuantityDescription, results:" << std::endl;
@@ -468,17 +468,35 @@ int main(int iargc, char * argv[]) {
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
+  std::vector<double> listVal;
   std::cout << "\n* Calling: set cut (on L_Extent)" << std::endl;
   aCat.setLowerCut("L_Extent", 1.1);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  listVal.assign(1, 1.0);
+  aCat.useOnlyN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.setLowerCut("L_Extent", 1);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.excludeN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.setRejectNaN("L_Extent", false);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.setUpperCut("L_Extent", 30);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.setRejectNaN("L_Extent", true);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
   aCat.setUpperCut("L_Extent", NO_SEL_CUT);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  listVal.clear();
+  aCat.useOnlyN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
@@ -497,19 +515,116 @@ int main(int iargc, char * argv[]) {
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
+  std::cout << "\n* Calling: getSelSValues (on NewFlag)" << std::endl;
+  vecSize=aCat.getSelSValues("NewFlag", &catNames);
+  std::cout << "* String vector (size=" << vecSize << ") contains: ";
+  for (i=0; i<vecSize; i++) std::cout <<"\""<< catNames[i] <<"\"  ";
+  std::cout << std::endl;
+
   std::cout << "\n* Calling: eraseNonSelected()" << std::endl;
   err=aCat.eraseNonSelected();
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  std::cout << "\n* Calling: getSelSValues (on 1RXS)" << std::endl;
+  vecSize=aCat.getSelSValues("1RXS", &catNames);
+  std::cout << "* String vector (size=" << vecSize << ") contains: ";
+  for (i=0; i<vecSize; i++) std::cout <<"\""<< catNames[i] <<"\"  ";
+  std::cout << std::endl;
 
   std::cout << "\n* Calling: setUpperCut (on MASOL)" << std::endl;
   aCat.setUpperCut("MASOL", 100);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
+  catNames.resize(1);
+  std::cout << "\n* Calling: useOnlyS (on 1RXS first object)" << std::endl;
+  err=aCat.useOnlyS("1RXS", catNames);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  std::cout << "* Calling: useOnlyS to unselect 1RXS" << std::endl;
+  catNames.clear();
+  err=aCat.useOnlyS("1RXS", catNames);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  catNames.assign(1, "__..");
+  std::cout << "\n* Calling: excludeS (on NewFlag unique value)" << std::endl;
+  err=aCat.excludeS("NewFlag", catNames);  
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  std::cout << "* Calling: useOnlyS with same value" << std::endl;
+  err=aCat.useOnlyS("NewFlag", catNames);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
   strVal=myPath+argString+".txt";
   std::cout << "\n* Calling: save(" << strVal << ")" << std::endl;
   err=aCat.save(strVal, false);
+
+  std::cout << "\n* Calling: eraseSelected()" << std::endl;
+  err=aCat.eraseSelected();
+  aCat.getNumRows(&numRows);
+  std::cout << "* Number of rows = " << numRows << std::endl;
+
+  std::cout << "\n* Calling: import on file \"" << argString
+             << "\""<< std::endl;
+  strVal=myPath+argString;
+  err=aCat.import(strVal);
+  std::cout << "* Value returned = " << err << std::endl;
+  aCat.getNumRows(&numRows);
+  std::cout << "* Number of rows = " << numRows << std::endl;
+
+  std::cout << "\n* Calling: setSelEllipse "
+            << "(selecting object in North hemisphere)" << std::endl;
+  err=aCat.setSelEllipse(0, 90., 90, 90);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  std::cout << "\n* Limits on \"L_Extent\":" << std::endl;
+  err=aCat.minVal("L_Extent", &rVal);
+  if (err > 0) show_double("L_Extent minimum", rVal);
+  err=aCat.maxVal("L_Extent", &rVal);
+  if (err > 0) show_double("L_Extent maximum", rVal);
+
+  listVal.assign(2, 1.0);
+  listVal.at(1)=aNAN;
+  std::cout << "\n* Setting list of values: "<< listVal[0]<<", " << listVal[1]
+            << "\n with default behaviour (reject NaN): "
+            << " NaN not taken into account in list" << std::endl;
+  aCat.useOnlyN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.excludeN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  std::cout << "\n* Calling: unsetCuts (on L_Extent)" << std::endl;
+  aCat.unsetCuts("L_Extent");
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  std::cout << "\n* Accepting NaN, EQUALITY TEST on NaN in list always FAILS:" 
+            << std::endl;
+  aCat.setRejectNaN("L_Extent", false);
+  std::cout << " excluding list ==> NaN included" << std::endl;
+  std::cout << " including list ==> NaN excluded" << std::endl;
+  aCat.excludeN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.useOnlyN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  std::cout << "\n* Must use upper/lower cut (even if no value in interval)"
+            << " to always accept NaN" << std::endl;
+  aCat.setLowerCut("L_Extent", 40);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  std::cout << "\n* Calling: unsetCuts (all quantities)" << std::endl;
+  aCat.unsetCuts();
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
   std::cout << "\n* Calling: eraseSelected()" << std::endl;
   err=aCat.eraseSelected();
