@@ -1,0 +1,68 @@
+#RESOURCE=catalogAccess(ROSAT 1RXS)
+#Name: IX/10A
+#Title:	ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)
+#Name: IX/10A/1rxs
+#Title:	The 1RXS catalogue
+#Column	_Glon	(F6.2)	       Galactic longitude (computed by VizieR, not part of the original data)     	[ucd=POS_GAL_LON]
+#Column	_Glat	(F6.2)	       Galactic latitude (computed by VizieR, not part of the original data)     	[ucd=POS_GAL_LAT]
+#Column	recno	(I8)	       Record number within the original table (starting from 1)        (link)     	[ucd=RECORD]
+#Column	1RXS	(A21)	       ROSAT All-Sky Survey Catalogue source name (1)        (link)     	[ucd=ID_MAIN]
+#Column	n_1RXS	(A1)	       [*] Names modified from previous version     	[ucd=NOTE]
+#Column	RAJ2000	(F9.5)	       Right ascension (J2000), decimal degrees     	[ucd=POS_EQ_RA_MAIN]
+#Column	DEJ2000	(F9.5)	       Declination (J2000), decimal degrees     	[ucd=POS_EQ_DEC_MAIN]
+#Column	PosErr	(I2)	       ? Total positional error (including 6" systematic error)     	[ucd=ERROR]
+#Column	ScrFlags	(A5)	       [T_] screening flags (2)     	[ucd=CODE_MISC]
+#Column	NewFlag	(A4)	       [T._] 'new data' flags (3)     	[ucd=CODE_MISC]
+#Column	Count	(E9.2)	       ? Source countrate (4)     	[ucd=PHOT_COUNT-RATE_X]
+#Column	e_Count	(E9.2)	       ? Error on Count (4)     	[ucd=ERROR]
+#Column	bgCt	(E9.2)	       ? Background countrate (4)     	[ucd=INST_BACKGROUND]
+#Column	ExpTime	(I6)	       ? Exposure time     	[ucd=TIME_EXPTIME]
+#Column	HR1	(F5.2)	       [-1/1]? Hardness ratio 1 (5)     	[ucd=SPECT_HARDNESS-RATIO]
+#Column	e_HR1	(F5.2)	       ? Error on HR1 (6)     	[ucd=ERROR]
+#Column	HR2	(F5.2)	       [-1/1]? hardness ratio 2 (5)     	[ucd=SPECT_HARDNESS-RATIO]
+#Column	e_HR2	(F5.2)	       ? Error on HR2 (6)     	[ucd=ERROR]
+#Column	Extent	(I5)	       Source extent, by which the source image exceeds the point spread function.     	[ucd=EXTENSION_DIAM]
+#Column	L_Extent	(I4)	       ? Likelihood of source extent (7)     	[ucd=STAT_LIKELIHOOD]
+#Column	Ldetect	(I4)	       ? Likelihood of source detection algorithm (7)     	[ucd=STAT_LIKELIHOOD]
+#Column	ExtRad	(I5)	       ? Extraction radius     	[ucd=REDUCT_EXTR-RAD]
+#Column	PrioFlags	(A6)	       [01] priority flags (8)     	[ucd=CODE_MISC]
+#Column	PHA	(A1)	       [ABCDb] PHA range of best detection (9)     	[ucd=CODE_MISC]
+#Column	VigFactor	(F5.2)	       ? Vignetting factor     	[ucd=INST_CORR-FACTOR]
+#Column	IncDate	(A10)	       ? Date when source was included (10)     	[ucd=TIME_DATE]
+#Column	UpdDate	(A10)	       ? Date when source properties changed (11)     	[ucd=TIME_DATE]
+#Column	Ncand	(I3)	       Number of identification candidates in the correlation catalogue     	[ucd=NUMBER]
+#Column	SASS	(I8)	       Identification number of SASS field (12)     	[ucd=ID_FIELD]
+#Column	---	(A1)	       original useless data field     	[ucd=]
+#Column	MASOL	(I4)	       SASS source number (MASOL number) in SASS field (mainly for internal use)     	[ucd=ID_NUMBER]
+
+_Glon	_Glat	recno	1RXS	n_1RXS	RAJ2000	DEJ2000	PosErr	ScrFlags	NewFlag	Count	e_Count	bgCt	ExpTime	HR1	e_HR1	HR2	e_HR2	Extent	L_Extent	Ldetect	ExtRad	PrioFlags	PHA	VigFactor	IncDate	UpdDate	Ncand	SASS	---	MASOL
+deg	deg				deg	deg	arcsec			ct/s	ct/s	ct/s/arcmin2	s					arcsec			arcsec				"Y:M:D"	"Y:M:D"			toto	
+---
+101.79	-52.47	       2	1RXS J000007.0+081653	 	000.02917	+08.28153	10	__T__	TT..	 1.87e-01	 2.05e-02	 1.07e-03	   418	 0.89	 0.10	 0.24	 0.13	    0	    	  87	  360	111110	b	 0.71	1996-06-14	          	 14	33016001	-	  20
+100.18	-55.20	       4	1RXS J000011.9+052318	 	000.04958	+05.38833	 7	_____	__..	 2.64e-01	 2.59e-02	 1.01e-03	   429	 0.24	 0.10	 0.00	 0.13	    0	    	 279	  300	111111	b	 0.74	1996-06-14	          	  8	33016001	-	 106
+ 97.78	-58.58	       5	1RXS J000012.6+014621	 	000.05250	+01.77250	11	_____	__..	 8.11e-02	 1.61e-02	 9.05e-04	   398	 0.05	 0.20	 0.00	 0.26	   14	   1	  54	  300	111111	b	 0.73	1996-06-14	          	 13	33017001	-	  45
+116.16	 -4.26	       6	1RXS J000013.5+575628	 	000.05625	+57.94125	 8	_____	__..	 1.18e-01	 1.73e-02	 6.87e-04	   503	 0.57	 0.12	 0.32	 0.14	    0	    	 126	  300	111111	b	 0.73	1996-06-14	          	  5	33007001	-	  25
+120.57	 17.04	       9	1RXS J000038.4+794037	 	000.16000	+79.67694	 8	_____	__..	 1.01e-01	 1.27e-02	 9.14e-04	   819	 0.09	 0.11	 0.12	 0.15	    0	    	 136	  300	111111	b	 0.74	1996-06-14	          	  4	33003001	-	  64
+117.05	 -0.11	      10	1RXS J000042.5+621034	 	000.17708	+62.17611	 8	_____	__..	 1.59e-01	 1.86e-02	 1.14e-03	   516	-0.03	 0.11	-0.23	 0.16	    0	    	 150	  300	111111	b	 0.74	1996-06-14	          	 19	33006001	-	  56
+106.12	-43.82	      13	1RXS J000055.5+172346	 	000.23125	+17.39611	12	_____	__..	 6.48e-02	 1.45e-02	 7.33e-04	   393	 0.10	 0.22	-0.13	 0.29	   14	   2	  43	  300	111111	b	 0.75	1996-06-14	          	  4	33014001	-	  53
+118.82	  8.46	      14	1RXS J000115.6+705535	 	000.31500	+70.92653	11	_____	__..	 6.85e-02	 1.42e-02	 1.27e-03	   442	 0.86	 0.12	-0.01	 0.19	    9	   1	  51	  300	111101	b	 0.75	1996-06-14	          	 12	33004001	-	 165
+114.79	-11.80	      16	1RXS J000119.8+501659	 	000.33250	+50.28305	16	_____	__..	 8.07e-02	 1.63e-02	 1.00e-03	   416	 0.74	 0.15	 0.81	 0.13	    0	    	  45	  300	111100	b	 0.71	1996-06-14	          	  6	33008001	-	  88
+109.48	-34.18	      17	1RXS J000123.3+272241	 	000.34708	+27.37806	14	_____	__..	 6.55e-02	 1.59e-02	 8.67e-04	   366	-0.64	 0.17	-0.85	 0.93	   15	   1	  29	  300	111011	b	 0.74	1996-06-14	          	  6	33012001	-	  78
+112.55	-22.25	      18	1RXS J000124.2+393648	 	000.35083	+39.61333	16	_____	__..	 5.38e-02	 1.45e-02	 6.84e-04	   337	-0.03	 0.26	-0.26	 0.37	    9	   1	  23	  300	111111	b	 0.73	1996-06-14	          	 16	33010001	-	  63
+107.66	-40.16	      20	1RXS J000132.8+211339	 	000.38667	+21.22764	12	_____	__..	 9.07e-02	 1.94e-02	 8.44e-04	   290	 0.68	 0.19	 0.18	 0.23	    0	    	  52	  300	111100	b	 0.73	1996-06-14	          	 21	33013001	-	  51
+115.24	 -9.92	      22	1RXS J000143.9+521246	 	000.43292	+52.21278	12	_____	__..	 8.36e-02	 1.49e-02	 8.22e-04	   490	-0.38	 0.15	-0.24	 0.31	   18	   2	  58	  300	111011	b	 0.74	1996-06-14	          	  5	33008001	-	  30
+103.92	-49.75	      23	1RXS J000150.9+111705	 	000.46208	+11.28486	10	_____	__..	 7.75e-02	 1.48e-02	 6.04e-04	   429	 0.43	 0.17	 0.06	 0.23	    7	   1	  64	  300	111110	b	 0.73	1996-06-14	          	  6	33015001	-	  71
+104.29	-49.01	      25	1RXS J000155.1+120323	 	000.47958	+12.05639	24	_____	__..	 7.08e-02	 1.30e-02	 5.03e-04	   430	 0.80	 0.13	 0.61	 0.17	   58	  14	  51	  300	111100	b	 0.70	1996-06-14	          	 11	33015001	-	  48
+118.21	  5.00	      28	1RXS J000209.4+672503	 	000.53917	+67.41764	27	_____	__..	 9.76e-02	 1.68e-02	 9.04e-04	   462	 1.00	 0.12	 0.77	 0.16	   85	  21	  33	  300	111100	b	 0.71	1996-06-14	          	 44	33005001	-	  60
+ 99.85	-57.31	      30	1RXS J000226.6+032105	 	000.61083	+03.35153	 8	_____	__..	 2.26e-01	 2.67e-02	 1.04e-03	   402	 0.22	 0.11	 0.34	 0.13	    0	    	 188	  300	111111	b	 0.72	1996-06-14	          	 13	33016001	-	 149
+102.82	-52.46	      31	1RXS J000231.0+082931	 	000.62917	+08.49208	12	_____	__..	 7.71e-02	 1.57e-02	 8.32e-04	   415	-0.47	 0.18	 0.30	 0.39	    9	   1	  43	  300	111111	b	 0.72	1996-06-14	          	 18	33015001	-	 151
+107.10	-42.67	      32	1RXS J000232.0+184125	 	000.63333	+18.69028	17	_____	__..	 5.42e-02	 1.40e-02	 7.51e-04	   384	-0.13	 0.24	-0.73	 0.63	    0	    	  29	  300	111111	b	 0.71	1996-06-14	          	 10	33014001	-	  29
+119.04	  8.86	      36	1RXS J000256.6+712207	 	000.73583	+71.36861	 9	_____	__..	 8.47e-02	 1.39e-02	 1.16e-03	   582	 1.00	 0.04	 0.32	 0.13	   13	   1	  94	  300	111100	b	 0.74	1996-06-14	          	 10	33004001	-	 156
+113.93	-17.35	      37	1RXS J000256.7+444027	 	000.73625	+44.67417	12	_____	__..	 7.05e-02	 1.58e-02	 7.40e-04	   350	 0.76	 0.18	 0.25	 0.22	   18	   1	  54	  300	111100	b	 0.76	1996-06-14	          	  5	33009001	-	  52
+112.95	-21.97	      38	1RXS J000259.6+395743	 	000.74833	+39.96208	17	_____	__..	 5.67e-02	 1.48e-02	 6.64e-04	   347	-0.90	 0.14	 1.00	 2.62	   15	   1	  27	  300	010011	b	 0.77	1996-06-14	          	 10	33010001	-	  58
+108.36	-39.54	      41	1RXS J000308.6+215728	 	000.78583	+21.95778	13	_____	__..	 9.64e-02	 1.97e-02	 7.37e-04	   293	 1.00	 0.12	 0.52	 0.18	    0	    	  57	  300	111100	b	 0.68	1996-06-14	          	 19	33013001	-	  39
+107.28	-43.28	      47	1RXS J000342.8+180828	 	000.92833	+18.14125	15	_____	__..	 1.03e-01	 1.80e-02	 7.70e-04	   374	 0.81	 0.13	 0.15	 0.19	   29	   5	  66	  300	111101	b	 0.73	1996-06-14	          	  9	33014001	-	  34
+ 99.61	-58.64	      48	1RXS J000350.4+020340	 	000.96000	+02.06125	19	_____	__..	 2.05e-01	 2.61e-02	 9.55e-04	   362	 0.79	 0.13	 0.33	 0.14	   73	  33	  82	  300	111100	b	 0.73	1996-06-14	          	 18	33017001	-	  30
+113.90	-18.44	      49	1RXS J000359.1+433600	 	000.99625	+43.60000	 9	_____	__..	 3.20e-01	 3.16e-02	 8.11e-04	   373	-1.00	 0.02	 1.00	 7.77	    0	    	 215	  300	110111	b	 0.74	1996-06-14	          	 13	33009001	-	  76
+114.30	-16.64	      50	1RXS J000409.2+452618	 	001.03833	+45.43847	11	_____	__..	 1.35e-01	 2.09e-02	 7.97e-04	   343	 1.00	 0.04	 0.25	 0.15	   12	   1	  99	  300	111100	b	 0.72	1996-06-14	          	  5	33009001	-	  37
+

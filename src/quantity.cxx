@@ -1,0 +1,89 @@
+/**
+ * @file   quantity.cxx
+ * @brief  Implementation for the Quantity class.
+ * Contains only the copy constructor definition and the 3 methods
+ * to print results (error, warning or log) on screen (via cout
+ * for log, or cerr).
+ *
+ * @author A. Sauvageon
+ *
+ * $Header $
+ */
+
+#include "quantity.h"
+
+namespace catalogAccess {
+
+/**********************************************************************/
+/*  GLOBAL FUNCTION for catalogAccess                                 */
+/**********************************************************************/
+void printErr(const std::string origin, const std::string text) {
+  std::cerr << "ERROR catalogAccess (IN " << origin << ") "
+            << text << std::endl;
+}
+void printWarn(const std::string origin, const std::string text) {
+  std::cerr << "WARNING catalogAccess (IN " << origin << "): "
+            << text << std::endl;
+}
+void printLog(const unsigned char level, const std::string text) {
+  std::cout << "LOG_" << (int)level << " (catalogAccess): "
+            << text << std::endl;
+}
+
+/**********************************************************************/
+// Copy constructor needed to allocate arrays in copy
+Quantity::Quantity(const Quantity & q) {
+
+  #ifdef DEBUG_CAT
+  std::cout << "!! DEBUG Quantity COPY constructor on: "
+            << q.m_name <<" (ucd="<< q.m_ucd <<")"<< std::endl;
+  #endif
+//try {
+  m_name   =q.m_name;
+  m_comment=q.m_comment;
+  m_ucd    =q.m_ucd;
+  m_format =q.m_format;
+  m_type   =q.m_type;
+  m_unit   =q.m_unit;
+  m_index  =q.m_index;
+  m_isGeneric =q.m_isGeneric;
+  m_toBeLoaded=q.m_toBeLoaded;
+  m_statError =q.m_statError;
+  m_sysError  =q.m_sysError;
+  int vecSize, i;
+  std::string errText;
+  try {
+    vecSize=q.m_vectorQs.size();
+    for (i=0; i<vecSize; i++) m_vectorQs.push_back(q.m_vectorQs.at(i));
+  }
+  catch (std::exception &err) {
+    errText=std::string("EXCEPTION on m_vectorQs[]: ")+err.what();
+    printErr("Quantity copy constructor", errText);
+    throw;
+  }
+  // selection criteria
+  m_lowerCut=q.m_lowerCut;
+  m_upperCut=q.m_upperCut;
+  m_precision=q.m_precision;
+  m_rejectNaN=q.m_rejectNaN;
+  try {
+    vecSize=q.m_excludedS.size();
+    for (i=0; i<vecSize; i++) m_excludedS.push_back(q.m_excludedS.at(i));
+    vecSize=q.m_necessaryS.size();
+    for (i=0; i<vecSize; i++) m_necessaryS.push_back(q.m_necessaryS.at(i));
+    vecSize=q.m_excludedN.size();
+    for (i=0; i<vecSize; i++) m_excludedN.push_back(q.m_excludedN.at(i));
+    vecSize=q.m_necessaryN.size();
+    for (i=0; i<vecSize; i++) m_necessaryN.push_back(q.m_necessaryN.at(i));
+  }
+  catch (std::exception &err) {
+    errText=std::string("EXCEPTION on selection criteria: ")+err.what();
+    printErr("Quantity copy constructor", errText);
+    throw;
+  }
+/* line is commented on purpose to TEMINATE the program on EXCEPTION */
+//} catch (...) { printErr("copy constructor", ""); }
+}
+
+
+} // namespace catalogAccess

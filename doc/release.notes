@@ -1,0 +1,10 @@
+/** @file release.notes
+    @brief package catalogAccess
+    @author A. Sauvageon
+
+@verbatim
+29-sep-2004  v0      AS  Import only ASCII file without selection.
+                         Once imported, selection: on circular region,
+                         upper/lower cut on any numerical quantity.
+@endverbatim
+*/

@@ -1,0 +1,566 @@
+*********************************************************************
+0 given argument(s)
+Argument #1 (default): 5.0000e+00
+Argument #2 (default): /data/1rxs_50.out
+
+sizeof bool, int, long, float, double, pointer = 1, 4, 4, 4, 8, 4
+screen outpout of Nan, +infinite, -infinite: NaN,  Inf,  -Inf
+
+Number to unselect = 1.7900e+308
+Constant arcsecond = 2.7778e-04
+
+The minimum value for double is 2.2251e-308
+The maximum value for double is 1.7977e+308
+The epsilon value for double is 2.2204e-16
+
+
+=====================================
+STEP 1) METHODS when NOTHING IMPORTED
+=====================================
+* Number of rows in 'myCat' (new catalog pointer) = 0
+
+* Calling: getQuantityDescription
+WARNING catalogAccess (IN getQuantityDescription): must first use one 'import' method
+WARNING catalogAccess (IN getQuantityDescription): returning unchanged vector.
+* Value returned = -2 (with vector of size 1)
+
+* Calling: getQuantityNames
+WARNING catalogAccess (IN getQuantityNames): must first use one 'import' method
+WARNING catalogAccess (IN getQuantityNames): returning empty vector.
+* Value returned = -2 (with vector of size 0)
+
+* Calling: getSValue, unsetCuts, setLowerCut
+WARNING catalogAccess (IN getSValue): catalog is empty
+WARNING catalogAccess (IN unsetCuts): must first use one 'import' method
+WARNING catalogAccess (IN setLowerCut): must first use one 'import' method
+
+* Available catalogs (with their web query name):
+EGRET3 sources       (J/ApJS/123/79/3eg)
+EGRET3 fluxes        (J/ApJS/123/79/fluxes)
+EGRET3 periods       (J/ApJS/123/79/table1)
+ROSAT 1RXS           (IX/10A/1rxs)
+
+
+=================================
+STEP 2) METHODS when IMPORT FAILS
+=================================
+* Try to load via Web the unknown catalog "toto" (pointer 'myCat')
+WARNING catalogAccess (IN importDescriptionWeb): given Catalog name (toto) do not exist
+WARNING catalogAccess (IN importWeb): given Catalog name (toto) do not exist
+* Values returned = -3 then -3
+* Number of rows in 'myCat' = 0
+
+* Try to load via Web catalog "ROSAT 1RXS" (pointer 'myCat')
+ERROR catalogAccess (IN importDescriptionWeb) : CODE for URL (web http address) is empty
+WARNING catalogAccess (IN importWeb): trying to query whole catalog
+ERROR catalogAccess (IN importWeb) : CODE for URL (web http address) do not exist
+* Values returned = -7 then -7
+* Number of rows in 'myCat' = 0
+
+* Calling: importSelected
+WARNING catalogAccess (IN importSelected): must first use one 'import' method
+* Value returned = -2
+
+* Calling: getQuantityNames
+WARNING catalogAccess (IN getQuantityNames): must first use one 'import' method
+WARNING catalogAccess (IN getQuantityNames): returning empty vector.
+* Value returned = -2 (with vector of size 0)
+
+* Calling: getSValue, unsetCuts, setLowerCut
+WARNING catalogAccess (IN getSValue): catalog is empty
+WARNING catalogAccess (IN unsetCuts): must first use one 'import' method
+WARNING catalogAccess (IN setLowerCut): must first use one 'import' method
+
+* Possible sites (with their http address):
+cds              (vizier.u-strasbg.fr/)
+cfa              (vizier.cfa.harvard.edu/)
+cadc             (vizier.hia.nrc.ca/)
+adac             (vizier.nao.ac.jp/)
+ukirt            (www.ukirt.jach.hawaii.edu/)
+cambridge        (archive.ast.cam.ac.uk/)
+iucaa            (urania.iucaa.ernet.in/)
+moscow           (www.inasan.rssi.ru/)
+bejing           (data.bao.ac.cn/)
+
+
+============================================
+STEP 3) METHODS when IMPORT WORKS (on EGRET)
+============================================
+* Calling: importDescription on file "3EG_test.out" (pointer 'myCat')
+WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
+LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
+LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_1 (catalogAccess): Needed RAM space (Mo) for 44000 data rows =   6.1
+ 2406 Ko for numericals (  7 double per row)
+ 3695 Ko for  4 strings ( 86 char per row)
+  172 Ko for select bits ( 1 long per row)
+* Value returned = 11
+* Calling: getQuantityNames, get 11 quantities:
+recno
+3EG
+RAJ2000
+DEJ2000
+GLON
+GLAT
+theta95
+n_theta95
+z
+u_z
+OtherNames
+* Number of rows = 0
+
+* Calling: getQuantityDescription, results: 
+recno: ucd="", type=1, unit="", format="I8",
+     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Record number within the original table (starting from 1)        (link)"
+3EG: ucd="", type=2, unit="", format="A14",
+     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="3EG name (3EG Jhhmm+ddmm)"
+RAJ2000: ucd="", type=1, unit="deg", format="F6.2",
+     index=1, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Right ascension (J2000)"
+DEJ2000: ucd="", type=1, unit="deg", format="F6.2",
+     index=2, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Declination (J2000)"
+GLON: ucd="", type=1, unit="deg", format="F6.2",
+     index=3, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Galactic longitude"
+GLAT: ucd="", type=1, unit="deg", format="F6.2",
+     index=4, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Galactic latitude"
+theta95: ucd="", type=1, unit="deg", format="F6.3",
+     index=5, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Radius of the circle containing the same solid angle as the 95% confidence contour"
+n_theta95: ucd="", type=2, unit="", format="A1",
+     index=1, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[*] *: value was obtained by multiplying the 68% radius by 1.62. This was necessary in cases of unclosed or extremely irregular 95% contours."
+z: ucd="", type=1, unit="", format="F7.4",
+     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Redshift (AGNs only)"
+u_z: ucd="", type=2, unit="", format="A1",
+     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[?] Uncertainty flag on z"
+OtherNames: ucd="", type=2, unit="", format="A70",
+     index=3, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Other names (3)"
+
+* Calling: getSValue, unsetCuts, setLowerCut
+WARNING catalogAccess (IN getSValue): catalog is empty
+WARNING catalogAccess (IN setLowerCut): given Quantity name () do not exist
+* Value returned = 0, 1 and -11
+
+* Calling: importSelected (empty function)
+* Value returned = 0
+* Number of rows = 0
+
+* Calling again: importDescription on file "3EG_test.out"
+LOG_2 (catalogAccess): deleting previous Catalog description
+WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
+LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
+LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_1 (catalogAccess): Needed RAM space (Mo) for 44000 data rows =   6.1
+ 2406 Ko for numericals (  7 double per row)
+ 3695 Ko for  4 strings ( 86 char per row)
+  172 Ko for select bits ( 1 long per row)
+* Value returned = 11
+
+* Calling: import on file "3EG_test.out" (with 5 rows)
+LOG_2 (catalogAccess): deleting previous Catalog description
+WARNING catalogAccess (IN import): more units than quantities, ignoring last unit(s)
+WARNING catalogAccess (IN import): line #32 does not contain all quantities
+WARNING catalogAccess (IN private translate_cell): one quantity has no character (row #5)
+WARNING catalogAccess (IN import): line #35 contains too many quantities
+LOG_0 (catalogAccess): input text file is closed ( 36 lines read)
+LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_1 (catalogAccess): Needed RAM space (Mo) for 44000 data rows =   6.1
+ 2406 Ko for numericals (  7 double per row)
+ 3695 Ko for  4 strings ( 86 char per row)
+  172 Ko for select bits ( 1 long per row)
+* Value returned = 5
+* Number of quantities & rows = 11 & 5
+
+* Calling: importSelected
+WARNING catalogAccess (IN importSelected): call 'deleteContent' before 'importSelected'
+* Value returned = -1
+
+* Calling: getSValue, three times on row 9
+WARNING catalogAccess (IN getSValue): row must be within [ 0, 4]
+WARNING catalogAccess (IN getSValue): row must be within [ 0, 4]
+WARNING catalogAccess (IN getSValue): row must be within [ 0, 4]
+* Values returned = -10, -10 and -10
+
+* Calling: getSValue, three times on row 0
+WARNING catalogAccess (IN getSValue): given Quantity name (quant) do not exist
+Quantity 3EG: "3EG J0010+7309"
+WARNING catalogAccess (IN getSValue): given Quantity name (DEJ2000) is not of STRING type
+* Values returned = -11, 1 and -12
+
+* Calling: getNValue, three times on row 1
+WARNING catalogAccess (IN getNValue): given Quantity name (3EG) is not of NUM type
+Quantity DEJ2000 =  -9.820e+00
+Quantity z =         NaN
+* Values returned = -12, 1 and 1
+
+* Calling: getStatErrorName on "3EG"
+Quantity 3EG stat error name: ""
+* Calling: getSysErrorName on "DEJ2000"
+Quantity DEJ2000 sys. error name: ""
+
+* Calling: getStatError on "3EG" row 0
+WARNING catalogAccess (IN getStatError): given Quantity name (3EG) has no statistical error
+* Calling: getSysError on "DEJ2000" row 0
+WARNING catalogAccess (IN getSysError): given Quantity name (DEJ2000) has no systematic error
+
+* Calling: getSvalues on "DEJ2000"
+WARNING catalogAccess (IN getSValues): given Quantity name (DEJ2000) is not of STRING type
+* Calling: getSvalues on "n_theta95"
+* Value returned = 2, equal to size of vector containing: ""  "*"  
+
+* Limits on "3EG", "DEJ2000", "z":
+WARNING catalogAccess (IN minVal): given Quantity name (3EG) is not of NUM type
+WARNING catalogAccess (IN maxVal): given Quantity name (3EG) is not of NUM type
+Quantity DEJ2000 minimum =  -1.797e+01
+Quantity DEJ2000 maximum =   7.317e+01
+Quantity z minimum =   6.370e-01
+Quantity z maximum =   1.022e+00
+
+
+=======================================
+STEP 4) COPY CONSTRUCTOR and QUANTITIES
+=======================================
+* Default Quantity constructor, changing m_name to: toto
+toto: ucd="", type=0, unit="", format="",
+     index=-1, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment=""
+
+* Quantity constructor, changing m_name (time), m_ucd, m_type (NUM), m_unit, m_index (0)
+time: ucd="IJD", type=1, unit="sec", format="",
+     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment=""
+
+* Quantity COPY constructor, changing m_ucd to: IJDelapsed
+time: ucd="IJDelapsed", type=1, unit="sec", format="",
+     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment=""
+
+* COPY 'myCat' to 'aCat' then DELETE 'myCat
+* Number of rows in 'aCat' = 5
+
+* 'aCat' info (size 3):
+code="EGRET3 sources"
+URL =""
+catalog="J/ApJS/123/79"
+
+* Getting all quantities from 'aCat':
+recno: ucd="", type=1, unit="", format="I8",
+     index=0, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Record number within the original table (starting from 1)        (link)"
+3EG: ucd="", type=2, unit="", format="A14",
+     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="3EG name (3EG Jhhmm+ddmm)"
+RAJ2000: ucd="", type=1, unit="deg", format="F6.2",
+     index=1, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Right ascension (J2000)"
+DEJ2000: ucd="", type=1, unit="deg", format="F6.2",
+     index=2, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Declination (J2000)"
+GLON: ucd="", type=1, unit="deg", format="F6.2",
+     index=3, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Galactic longitude"
+GLAT: ucd="", type=1, unit="deg", format="F6.2",
+     index=4, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Galactic latitude"
+theta95: ucd="", type=1, unit="deg", format="F6.3",
+     index=5, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Radius of the circle containing the same solid angle as the 95% confidence contour"
+n_theta95: ucd="", type=2, unit="", format="A1",
+     index=1, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[*] *: value was obtained by multiplying the 68% radius by 1.62. This was necessary in cases of unclosed or extremely irregular 95% contours."
+z: ucd="", type=1, unit="", format="F7.4",
+     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Redshift (AGNs only)"
+u_z: ucd="", type=2, unit="", format="A1",
+     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[?] Uncertainty flag on z"
+OtherNames: ucd="", type=2, unit="", format="A70",
+     index=3, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Other names (3)"
+
+
+======================================================
+STEP 5) SELECTING REGION after IMPORT (in copy 'aCat')
+======================================================
+* Number of selected rows = 0
+
+* Calling: getSelSValue, getSelNValue on unknown quantity:
+WARNING catalogAccess (IN getSelSValue): no row is selected
+WARNING catalogAccess (IN getSelNValue): no row is selected
+
+* Calling: unsetCuts(), then setSelEllipse four times with forbidden parameters:
+LOG_0 (catalogAccess): All rows unselected
+WARNING catalogAccess (IN setSelEllipse): bad ellipse position (impossible RA, DEC or rotation)
+WARNING catalogAccess (IN setSelEllipse): bad ellipse position (impossible RA, DEC or rotation)
+WARNING catalogAccess (IN setSelEllipse): bad ellipse position (impossible RA, DEC or rotation)
+WARNING catalogAccess (IN setSelEllipse): bad ellipse size, radius from 0.28E-3 to 90 (in RA or DEC)
+
+* Calling: setSelEllipse, with first main argument as rotation:
+WARNING catalogAccess (IN setSelEllipse): whatever orientation, using 0
+WARNING catalogAccess (IN setSelEllipse): axis sizes differ, taking only major axis
+LOG_1 (catalogAccess): selection ellipse center RA=1e-05 , DEC=73.12 with radius 8.3 * 8.3 (degrees) orientated at 0 (with respect to North pole)
+* Number of SELECTED rows = 1
+
+* String values or limits on "zu", "z", "RAJ2000", "n_theta95":
+WARNING catalogAccess (IN minSelVal): given Quantity name (zu) do not exist
+Quantity z minimum (selected) =         NaN
+Quantity RAJ2000 minimum (selected) =   2.560e+00
+Quantity RAJ2000 maximum (selected) =   2.560e+00
+* String vector (size=1) contains: ""  
+
+* Calling: setSelEllipse, with first main argument as circle axis:
+LOG_1 (catalogAccess): selection ellipse center RA=0 , DEC=-90 with radius 5 * 5 (degrees) orientated at 0 (with respect to North pole)
+* Number of SELECTED rows = 0
+
+* String values or limits on "zu", "RAJ2000", "n_theta95":
+WARNING catalogAccess (IN minSelVal): no row is selected
+WARNING catalogAccess (IN minSelVal): no row is selected
+WARNING catalogAccess (IN maxSelVal): no row is selected
+WARNING catalogAccess (IN getSelSValues): no row is selected
+* String vector (size=0)
+
+
+================================================
+STEP 6) READING FILE for IMPORT (in copy 'aCat')
+================================================
+* Calling: importDescription(""):
+WARNING catalogAccess (IN importDescription): call 'deleteContent' before importing again
+* Same call after deleteContent():
+LOG_2 (catalogAccess): deleting previous Catalog description
+ERROR catalogAccess (IN importDescription) : FILENAME is EMPTY
+
+* Calling: importDescription("totoX") then  importDescription("../..")
+ERROR catalogAccess (IN importDescription) : FILENAME "totoX" cannot be opened
+ERROR catalogAccess (IN importDescription) : FILENAME "../.." is a directory
+* Values returned = -4, -5
+
+* Calling: importDescription on file "1rxs_50.fits"
+ERROR catalogAccess (IN importDescription) : FILENAME "/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.fits" is fits without extension[] specified
+* Value returned = -4
+
+* Calling: importDescription on "1rxs_50.fits[1]"
+ERROR catalogAccess (IN importDescription) : fits FILE not handled now
+* Value returned = -5
+
+* Calling: import on file "/data/1rxs_50.out"
+LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
+LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_1 (catalogAccess): Needed RAM space (Mo) for 44000 data rows =  10.2
+ 7562 Ko for numericals ( 22 double per row)
+ 2535 Ko for  9 strings ( 59 char per row)
+  344 Ko for select bits ( 2 long per row)
+* Value returned = 50
+* Number of quantities & rows = 31 & 50
+* 'aCat' info (size 6):
+code="ROSAT 1RXS"
+URL=""
+catalog="IX/10A" (ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999))
+table  ="IX/10A/1rxs" (The 1RXS catalogue)
+
+* Calling: getQuantityDescription, results:
+_Glon: ucd="POS_GAL_LON", type=1, unit="deg", format="F6.2",
+     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Galactic longitude (computed by VizieR, not part of the original data)"
+_Glat: ucd="POS_GAL_LAT", type=1, unit="deg", format="F6.2",
+     index=1, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Galactic latitude (computed by VizieR, not part of the original data)"
+recno: ucd="RECORD", type=1, unit="", format="I8",
+     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Record number within the original table (starting from 1)        (link)"
+1RXS: ucd="ID_MAIN", type=2, unit="", format="A21",
+     index=0, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="ROSAT All-Sky Survey Catalogue source name (1)        (link)"
+n_1RXS: ucd="NOTE", type=2, unit="", format="A1",
+     index=1, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[*] Names modified from previous version"
+RAJ2000: ucd="POS_EQ_RA_MAIN", type=1, unit="deg", format="F9.5",
+     index=3, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Right ascension (J2000), decimal degrees"
+DEJ2000: ucd="POS_EQ_DEC_MAIN", type=1, unit="deg", format="F9.5",
+     index=4, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Declination (J2000), decimal degrees"
+PosErr: ucd="ERROR", type=1, unit="arcsec", format="I2",
+     index=5, boolGeneric=1, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Total positional error (including 6" systematic error)"
+ScrFlags: ucd="CODE_MISC", type=2, unit="", format="A5",
+     index=2, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[T_] screening flags (2)"
+NewFlag: ucd="CODE_MISC", type=2, unit="", format="A4",
+     index=3, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[T._] 'new data' flags (3)"
+Count: ucd="PHOT_COUNT-RATE_X", type=1, unit="ct/s", format="E9.2",
+     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Source countrate (4)"
+e_Count: ucd="ERROR", type=1, unit="ct/s", format="E9.2",
+     index=7, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Error on Count (4)"
+bgCt: ucd="INST_BACKGROUND", type=1, unit="ct/s/arcmin2", format="E9.2",
+     index=8, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Background countrate (4)"
+ExpTime: ucd="TIME_EXPTIME", type=1, unit="s", format="I6",
+     index=9, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Exposure time"
+HR1: ucd="SPECT_HARDNESS-RATIO", type=1, unit="", format="F5.2",
+     index=10, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[-1/1]? Hardness ratio 1 (5)"
+e_HR1: ucd="ERROR", type=1, unit="", format="F5.2",
+     index=11, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Error on HR1 (6)"
+HR2: ucd="SPECT_HARDNESS-RATIO", type=1, unit="", format="F5.2",
+     index=12, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[-1/1]? hardness ratio 2 (5)"
+e_HR2: ucd="ERROR", type=1, unit="", format="F5.2",
+     index=13, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Error on HR2 (6)"
+Extent: ucd="EXTENSION_DIAM", type=1, unit="arcsec", format="I5",
+     index=14, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Source extent, by which the source image exceeds the point spread function."
+L_Extent: ucd="STAT_LIKELIHOOD", type=1, unit="", format="I4",
+     index=15, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Likelihood of source extent (7)"
+Ldetect: ucd="STAT_LIKELIHOOD", type=1, unit="", format="I4",
+     index=16, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Likelihood of source detection algorithm (7)"
+ExtRad: ucd="REDUCT_EXTR-RAD", type=1, unit="arcsec", format="I5",
+     index=17, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Extraction radius"
+PrioFlags: ucd="CODE_MISC", type=2, unit="", format="A6",
+     index=4, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[01] priority flags (8)"
+PHA: ucd="CODE_MISC", type=2, unit="", format="A1",
+     index=5, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="[ABCDb] PHA range of best detection (9)"
+VigFactor: ucd="INST_CORR-FACTOR", type=1, unit="", format="F5.2",
+     index=18, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Vignetting factor"
+IncDate: ucd="TIME_DATE", type=2, unit=""Y:M:D"", format="A10",
+     index=6, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Date when source was included (10)"
+UpdDate: ucd="TIME_DATE", type=2, unit=""Y:M:D"", format="A10",
+     index=7, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="? Date when source properties changed (11)"
+Ncand: ucd="NUMBER", type=1, unit="", format="I3",
+     index=19, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Number of identification candidates in the correlation catalogue"
+SASS: ucd="ID_FIELD", type=1, unit="", format="I8",
+     index=20, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="Identification number of SASS field (12)"
+---: ucd="", type=2, unit="toto", format="A1",
+     index=8, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="original useless data field"
+MASOL: ucd="ID_NUMBER", type=1, unit="", format="I4",
+     index=21, boolGeneric=0, boolLoad=1, boolNaN=1
+     selString sizes=(0,0), cuts=1.79e+308 to 1.79e+308
+comment="SASS source number (MASOL number) in SASS field (mainly for internal use)"
+
+
+==================================
+STEP 7) SELECTING (in copy 'aCat')
+==================================
+* Number of rows = 50
+
+* Calling: setSelEllipse (selecting object in North hemisphere)
+LOG_1 (catalogAccess): selection ellipse center RA=0 , DEC=90 with radius 90 * 90 (degrees) orientated at 0 (with respect to North pole)
+* Number of SELECTED rows = 27
+
+* Calling: set cut (on L_Extent)
+LOG_1 (catalogAccess): Enabling lower cut (1.1 on L_Extent)
+* Number of SELECTED rows = 6
+LOG_1 (catalogAccess): Enabling lower cut (1 on L_Extent)
+* Number of SELECTED rows = 16
+LOG_1 (catalogAccess): Enabling upper cut (30 on L_Extent)
+* Number of SELECTED rows = 15
+LOG_1 (catalogAccess): Disabling upper cut (on L_Extent)
+* Number of SELECTED rows = 16
+
+* Calling: set cut (on MASOL)
+LOG_1 (catalogAccess): Enabling lower cut (31 on MASOL)
+* Number of SELECTED rows = 14
+LOG_1 (catalogAccess): Enabling upper cut (100 on MASOL)
+* Number of SELECTED rows = 11
+* Calling: unsetCuts (on MASOL)
+* Number of SELECTED rows = 16
+LOG_1 (catalogAccess): Enabling upper cut (100 on MASOL)
+* Number of SELECTED rows = 13
+
+* Calling: eraseNonSelected()
+LOG_0 (catalogAccess): 37 row(s) deleted
+* Number of SELECTED rows = 13
+
+* Calling: setUpperCut (on MASOL)
+* Number of SELECTED rows = 13
+
+* Calling: save(/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.out.txt)
+LOG_0 (catalogAccess): output text file is closed ( 54 lines written)
+
+* Calling: eraseSelected()
+LOG_2 (catalogAccess): all rows selected, same as deleteContent()
+LOG_0 (catalogAccess): 13 row(s) deleted
+* Number of SELECTED rows = 0
+* Number of rows = 0
+
+!END PROGRAM!
+(as pointers are already deleted, only free the Quantity and Catalog copies).
