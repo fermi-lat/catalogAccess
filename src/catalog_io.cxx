@@ -65,7 +65,8 @@ void Catalog::setGeneric(const int whichCat) {
             // check that epoch is J2000
             name=m_quantities.at(i).m_name;
             name.erase(0, name.length()-epoch.length());
-            if (name == epoch) {
+            // format contains at least 1 char
+            if ((name == epoch) && (m_quantities.at(i).m_format[0] == 'F')) {
               if (j == 1) m_indexRA=m_quantities[i].m_index;
               else        m_indexDEC=m_quantities[i].m_index;
             }
@@ -363,6 +364,8 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       mot="#Column";
       pos=text.find(mot);
       if (pos == 0) {
+        Quantity readQ;
+        do {
         // column NAME, FORMAT, DESCR, UCD separated by only 1 TAB
         last=text.length();
         for (i=mot.length(); i<last; i++) {
@@ -373,7 +376,6 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
         pos=mot.find(0x09);
         if (pos == std::string::npos) break;  // lack end of data
 
-        Quantity readQ;
         readQ.m_name=mot.substr(0, pos);
         text=mot;
         text.erase(0, pos+1);
@@ -420,6 +422,14 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
           text=std::string("EXCEPTION filling m_quantities: ")+prob.what();
           printErr(origin, text);
           throw;
+        }
+      }while(0);
+        if (readQ.m_type == Quantity::VECTOR) {
+          sortie << "line #" << tot << " wrong column description";
+          printErr(origin, sortie.str());
+          sortie.str(""); // Will empty the string.
+          m_quantities.clear();
+          found++; break; // to stop reading file
         }
       }
       else found++;
