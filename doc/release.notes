@@ -3,6 +3,9 @@
     @author A. Sauvageon
 
 @verbatim
+23-dec-2004  v0r0p3  AS  Add generic functions.
+                         Optimize catalog text file reading.
+
 11-oct-2004  v0r0p2  AS  Add numerical selection (in list).
                          Add 3 catalogs from Veron (11th Ed.).
                          Corrected bug in unsetCuts().

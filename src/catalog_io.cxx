@@ -14,19 +14,6 @@
 #include "catalog.h"
 
 namespace catalogAccess {
-// BEWARE: the two constant below are UCD1 standard
-//         need to be changed for UCD1+
-
-// the order is important and must be compatible with s_CatalogGeneric
-static const char *UCD_List[MAX_GEN]={
-       "ID_MAIN", "POS_EQ_RA_MAIN", "POS_EQ_DEC_MAIN",
-        "", "POS_GAL_LON", "POS_GAL_LAT"};
-// "ERROR", "POS_GAL_LON", "POS_GAL_LAT"
-// ERROR do not only refer to the position error
-// ERROR is for any "Uncertainty in Measurements"
-
-static const char *UCD_Added[MAX_GEN]={
-       "", "_RAJ2000", "_DEJ2000", "", "_Glon", "_Glat"};
 
 /**********************************************************************/
 /*  METHODS for IMPORTING, SAVING, LOADING                            */
@@ -41,18 +28,25 @@ void Catalog::setGeneric(const int whichCat) {
   for (int i=0; i<max; i++)  {
 
     if ((whichCat >= 0) && (whichCat < MAX_CAT)) {
-     // if it is a known catalog, the generic are defined
+      // if it is a known catalog, the generic are defined
       text=m_quantities.at(i).m_name;
       for (j=0; j<MAX_GEN; j++) {
         name=Catalog::s_CatalogGeneric[whichCat][j];
         if (name == "+") name=UCD_Added[j];
         if (text == name) {
           m_quantities.at(i).m_isGeneric=true;
-          if (j == 1)      m_indexRA=m_quantities[i].m_index;
-          else if (j == 2) m_indexDEC=m_quantities[i].m_index;
-          break;
+          switch (j) {
+            case 1: m_indexRA=m_quantities[i].m_index;
+            break;
+            case 2: m_indexDEC=m_quantities[i].m_index;
+            break;
+            case 3: m_indexErr=m_quantities[i].m_index;
+            break;
+            default: break;
+          }
         }
       }// loop on generic
+      text=m_quantities.at(i).m_ucd;
     }
 
     else {
@@ -70,11 +64,31 @@ void Catalog::setGeneric(const int whichCat) {
               if (j == 1) m_indexRA=m_quantities[i].m_index;
               else        m_indexDEC=m_quantities[i].m_index;
             }
-            //else m_quantities.at(i).m_isGeneric= keep it generic ?
+            else m_quantities.at(i).m_isGeneric=false;
           }
           break;
         }
       }// loop on generic
+    }
+
+    // flag error quantities, useless for already found generic
+    if ((text == "ERROR") && (!m_quantities.at(i).m_isGeneric)) {
+      // error column name is e_"associated column" except for position error
+      text=m_quantities.at(i).m_name;
+      if (text.find("e_") == 0) {
+        text.erase(0, 2);
+        #ifdef DEBUG_CAT
+        std::cout << "ERROR column (" << text << ")" << std::endl;
+        #endif
+        for (j=0; j<max; j++) if (m_quantities.at(j).m_name == text) {
+          m_quantities.at(i).m_statError=text;
+          break;
+        }
+      }
+      else if (text == "PosErr") {
+        m_quantities.at(i).m_isGeneric=true;
+        m_indexErr=m_quantities[i].m_index;
+      }
     }
 
   }// loop on quantities
@@ -107,6 +121,12 @@ void Catalog::showRAMsize(long numRows) {
   long sizeS=nchar*sizeof(char)*numRows;
   i=1+(quantSize+1)/(sizeof(long)*8);
   long sizeB=i*sizeof(long)*numRows;
+  if (m_numOriRows > 0) {
+    sprintf(buffer, "%6ld", m_numOriRows);
+    mot=buffer; /* convert C string to C++ string */
+    text="Original whole catalog number of rows = "+mot;
+    printLog(1, text);
+  }
   sprintf(buffer, "%6ld", numRows);
   mot=buffer; /* convert C string to C++ string */
   text="Needed RAM space (Mo) for "+mot;
@@ -155,34 +175,37 @@ void Catalog::create_tables(const int nbQuantAscii) {
       throw;
     }
   }
+  add_rows();
 
 }
 /**********************************************************************/
 // creates a new row in m_strings, m_numericals
-void Catalog::add_row() {
+void Catalog::add_rows() {
 
   int i, vecSize;
   std::string errText;
-  m_numRows++;
   vecSize=m_strings.size();
   if (vecSize > 0 ) {
     try {
-      for (i=0; i<vecSize; i++) m_strings[i].resize(m_numRows);
+      for (i=0; i<vecSize; i++) {
+        m_strings[i].resize(m_numReadRows);
+//        for (j=0; j<m_numReadRows; j++) m_strings[i].at(j).resize(20);
+      }
     }
     catch (std::exception &err) {
       errText=std::string("EXCEPTION on m_strings: ")+err.what();
-      printErr("private add_row", errText);
+      printErr("private add_rows", errText);
       throw;
     }
   }
   vecSize=m_numericals.size();
   if (vecSize > 0 ) {
     try {
-      for (i=0; i<vecSize; i++) m_numericals[i].resize(m_numRows);
+      for (i=0; i<vecSize; i++) m_numericals[i].resize(m_numReadRows);
     }
     catch (std::exception &err) {
       errText=std::string("EXCEPTION on m_numericals: ")+err.what();
-      printErr("private add_row", errText);
+      printErr("private add_rows", errText);
       throw;
     }
   } 
@@ -194,37 +217,32 @@ void Catalog::add_row() {
 // 0 <= index < m_quantities.size()
 void Catalog::translate_cell(std::string mot, const int index) {
 
-  int i, last;
-  std::string form;
-  std::ostringstream sortie; 
+  int  j, last;
+  char form; 
 
   // remove trailing spaces
-  i=mot.length();
-  if (i == 0) {
-    sortie << "one quantity has no character (row #" << m_numRows << ")";
+  last=mot.length();
+  if (last == 0) {
+    std::ostringstream sortie;
+    sortie << "one quantity has no character (row #" << m_numRows+1 << ")";
     printWarn("private translate_cell", sortie.str());
   }
   else {
-    do i--;
-    while (mot[i] == ' ');
-    mot.erase(i+1);
+    do last--;
+    while ( (last >= 0) && (mot.at(last) == ' ') );
   }
-  form=m_quantities[index].m_format;
-  if (form[0] == 'A') {
-    i=m_quantities[index].m_index;
-    m_strings[i].at(m_numRows-1)=mot;
+  last++;
+  j=m_quantities[index].m_index;
+  form=m_quantities[index].m_format.at(0);
+  if (form == 'A') {
+    m_strings[j].at(m_numRows)=mot.substr(0, last);
   }
   else {
-    last=mot.length();
-    for (i=0; i<last; i++) {
-      if (mot[i] != ' ') break;
+    if (last) {
+      m_numericals[j].at(m_numRows)=std::atof(mot.c_str());
     }
-    mot.erase(0, i);  
-    i=m_quantities[index].m_index;
-    if (mot == "")
-      m_numericals[i].at(m_numRows-1)=0./0.;
-      //nan(""); does not compile under Sun/Solaris
-    else  m_numericals[i].at(m_numRows-1)=std::atof(mot.c_str());
+    else
+      m_numericals[j].at(m_numRows)=0./0.;
   }
 
 }
@@ -238,58 +256,38 @@ int Catalog::analyze_fits(const std::string &fileName, const bool getAll,
 
   return IS_OK;
 }
+
+
 /**********************************************************************/
-// read the catalog from text file (only description if getAll is false)
-int Catalog::analyze_text(const std::string &fileName, const bool getAll,
-                          const std::string origin) {
+// read the catalog header from text file
+int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 
   std::string text, mot;
   unsigned int pos;
-
-  // file can be opened ?
-  std::ifstream file(fileName.c_str());
-  //if ( !file.is_open() ) {
-  if (!file) {
-    text=": FILENAME \""+fileName+"\" cannot be opened";
-    printErr(origin, text);
-    return BAD_FILENAME;
-  }
-  DIR *testDir=opendir(fileName.c_str());
-  pos=(testDir != NULL);
-  if (pos) {
-    closedir(testDir);
-    file.close();
-    text=": FILENAME \""+fileName+"\" is a directory";
-    printErr(origin, text);
-    return BAD_FILETYPE;
-  }
-
-  std::ostringstream sortie;
-  int  i, last, err=0,
-       nbQuantAscii=0,
+  char line[MAX_LINE];
+  int  i, last,
        found=0,
-       what=0; /* error if stays 0 ==> fits or unknown type of file */
-  bool testCR=false;  // true if lines ends with CR (on windows)
-  char line[MAX_LINE], sep=';';
-  unsigned long tot=0ul;
-  int (*pfunc)(int)=toupper; // function used by transform
+       err=IS_OK;
 
   // must use good instead eof, because eof is still false
   // if getline reads MAX_LINE char ==> infinite loop
-  while ( file.good() ) {
+  myFile.clear();  
+  // to reset the state flags (checked by the previous load call)
+  while ( myFile.good() ) {
 
     // extract line with delimiter \n which is discarded
-    file.getline(line, MAX_LINE);
+    myFile.getline(line, MAX_LINE);
     text=line; /* convert C string to C++ string */
-    if (!tot) {
+    if (*tot == 0) {
       pos=text.find(' ');
       if (pos != std::string::npos) {
         mot=text.substr(0, pos);
         // fits starts with "SIMPLE  ="
-        if (mot == "SIMPLE") break;
+        if (mot == "SIMPLE") return BAD_FILENAME;
       }
     }
-    tot++;
+    (*tot)++;
+
     /* should find something like:
 #RESOURCE=21230079
 #Name: J/ApJS/123/79
@@ -298,26 +296,53 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
 #Name: J/ApJS/123/79/3eg
 #Title: Third EGRET Source Catalog (table 4)
 #Column
-*/
 // Column must follow Title without separation line
 // Column must be followed by at least one separation line 
+
+    OR (-meta.all for description)
+
+#RESOURCE=J/ApJS/123/79/3eg
+#INFO   =271Total number of tuples (rows) in the table
+#INFO   =CGRO
+#INFO   =Gamma-ray
+#    Third EGRET catalog (3EG) (Hartman+, 1999)
+#    Third EGRET Source Catalog (table 4)
+#
+*/
     switch (found) {
     case 0:
-      pos=text.find("#RESOURCE");
-      if (pos == 0) found++;
-      break;
-
-    case 1: case 3:
-      mot="#Name:";
-      pos=text.find(mot);
+      pos=text.find("#RESOURCE=");
       if (pos == 0) {
         found++;
         last=text.length();
         if (text[last-1] == 0x0D) {
-          testCR=true;
+          *testCR=true;
           last--;
           text.erase(last);
         }
+        mot=text.substr(10);
+        pos=mot.find('/');
+        if (pos == std::string::npos) {
+          // standard desciption  printf("|%s|\n", mot.c_str());
+          *what=1;
+        }
+        else {
+          // -meta.all OR -meta QUERY
+          *what=2;
+          pos=mot.rfind('/');
+          m_catName=mot.substr(0,pos);
+          m_tableName=mot;
+        }
+      }
+      break;
+
+    case 1: case 3:
+      if (*what < 2) mot="#Name:";  else mot="#INFO"; 
+      pos=text.find(mot);
+      if (pos == 0) {
+        found++;
+        last=text.length();
+        if (*testCR) text.erase(--last);
         // remove heading spaces
         for (i=mot.length(); i<last; i++) {
           if ((text[i] != ' ') && (text[i] != 0x09)) break;
@@ -331,18 +356,28 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
           while ((mot[pos] == ' ') || (mot[pos] == 0x09));
           mot.erase(pos+1);
         }
-        if (found > 2) m_tableName=mot; else m_catName=mot;
+        if (*what < 2) {
+          if (found > 2) m_tableName=mot; else m_catName=mot;
+        }
+        else if (found == 2) {
+          if ((!m_numOriRows) && ((last=mot.length()) > 1)) {
+            if (mot[0] == '=') mot[0]=' ';
+            for (i=1; i<last; i++) { if (!isdigit(mot[i])) break; } 
+            mot.erase(i);
+            m_numOriRows=atol(mot.c_str());
+          }
+        }
       }
       break;
 
-
     case 2: case 4:
-      mot="#Title:";
+      if (*what < 2) mot="#Title:";  else mot="#INFO";
       pos=text.find(mot);
       if (pos == 0) {
+        if (*what >= 2) break; // read lines until do not start with #INFO
         found++;
         last=text.length();
-        if (testCR) text.erase(--last);
+        if (*testCR) text.erase(--last);
         // remove heading spaces
         for (i=mot.length(); i<last; i++) {
           if ((text[i] != ' ') && (text[i] != 0x09)) break;
@@ -358,14 +393,89 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
         }
         if (found > 3) m_tableRef=mot; else m_catRef=mot;
       }
+      else if (*what >= 2) {
+        // separation '#' found,
+        if ((last=text.length()) < 2) { found=5; break;}
+        found++;
+        if (*testCR) text.erase(--last);
+        // remove heading spaces
+        for (i=1; i<last; i++) {
+          if ((text[i] != ' ') && (text[i] != 0x09)) break;
+        }
+        if (i == last) mot="";
+        else {
+          mot=text.substr(i, last-i);
+          // remove trailing spaces
+          pos=mot.length();
+          do pos--;
+          while ((mot[pos] == ' ') || (mot[pos] == 0x09));
+          mot.erase(pos+1);
+        }
+        if (found > 3)  m_tableRef=mot; 
+        else { found=4; m_catRef=mot; }
+      }
       break;
 
-    case 5:
+    default:
+      // case only for metaALL file, read until # [ucd=]
+      if ((last=text.length()) > 7) {
+        if (*testCR) text.erase(--last);
+        // remove heading spaces
+        for (i=1; i<last; i++) {
+          if ((text[i] != ' ') && (text[i] != 0x09)) break;
+        }
+        mot=text.substr(i, last-i);
+        if (mot == "[ucd=]") found++;
+      }
+      break;
+    }
+    #ifdef DEBUG_CAT
+    std::cout << *tot <<",";
+    if (*tot < 60ul) std::cout << line <<"|\n";
+    #endif
+    err=-1*found;
+    if (*what < 2) {
+      if (found == 5) { err=IS_OK; break; }
+    }
+    else if (found > 5) { err=IS_OK; break; }
+
+  }// loop on inFile lines
+  #ifdef DEBUG_CAT
+  std::cout << std::endl;
+  #endif
+
+  return err;
+}
+
+/**********************************************************************/
+// read catalog data from text file (only description if getAll is false)
+int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
+                          const bool getAll) {
+
+  std::string origin, text, mot;
+  unsigned int pos;
+  char sep=';',
+       line[MAX_LINE];
+  std::ostringstream sortie;
+  int  i, last, err=IS_OK,
+       found=0,
+       nbQuantAscii=0;
+  int (*pfunc)(int)=toupper; // function used by transform
+
+  if (getAll) origin="import"; else origin="importDescription";
+  while ( myFile.good() ) {
+
+    // extract line with delimiter \n which is discarded
+    myFile.getline(line, MAX_LINE);
+    text=line; /* convert C string to C++ string */
+    (*tot)++;
+    switch (found) {
+    case 0:
       mot="#Column";
       pos=text.find(mot);
       if (pos == 0) {
         Quantity readQ;
-        do {
+      do {
         // column NAME, FORMAT, DESCR, UCD separated by only 1 TAB
         last=text.length();
         for (i=mot.length(); i<last; i++) {
@@ -425,7 +535,7 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
         }
       }while(0);
         if (readQ.m_type == Quantity::VECTOR) {
-          sortie << "line #" << tot << " wrong column description";
+          sortie << "line #" << *tot << " wrong column description";
           printErr(origin, sortie.str());
           sortie.str(""); // Will empty the string.
           m_quantities.clear();
@@ -436,31 +546,28 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       //at least one line without any information
       break;
 
-    case 6:
-      // If lines are separated by  ;  ==> CSV (what = 1)
-      // If lines are separated by TAB ==> TSV (what = -1)
+    case 1:
+      // If lines are separated by  ;  ==> CSV (what unchanged)
+      // If lines are separated by TAB ==> TSV (what * -1)
       // Check that first word match first quantity,
-      // if not: considered as separation line and loop on case 6.
+      // if not: considered as separation line and loop on case 1.
       pos=text.find(sep);
       if (pos != std::string::npos) {
         mot=text.substr(0, pos);
-        if (mot == m_quantities.at(0).m_name) {
-          what=1;
-          found++;
-        }
+        if (mot == m_quantities.at(0).m_name) found++;
       }
       else if ((pos=text.find(0x09)) != std::string::npos) {
         // suppose there is at least 2 columns
         mot=text.substr(0, pos);
         if (mot == m_quantities.at(0).m_name) {
-          what=-1;
+          (*what)*=-1;
           found++;
           sep=0x09;
         }
       }
       break;
 
-    case 7:
+    case 2:
       // most of decription is read, units follow Quantity names
       last=text.length();
       if (testCR) text.erase(--last);
@@ -491,7 +598,7 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       }
       break;
 
-    case 8:
+    case 3:
       // decription is read, only used if getAll is true
       // separation line starting with ---
       last=text.length();
@@ -499,6 +606,18 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       if ((last > 0) && (text[0] == '-')) {
         found++;
         m_numRows=0;
+        if ( !m_numReadRows ) {
+          // read the total number of rows to have a maximal value
+          // to allocate m_strings, m_numericals buffers.
+          long filePos=myFile.tellg();
+          while ( myFile.good() ) {
+            myFile.getline(line, MAX_LINE);
+            m_numReadRows++;
+          }
+          // go back to initial position printf("%ld ReadRows\n", m_numReadRows);
+          myFile.clear(); // needed to reset flags before seekg
+          myFile.seekg(filePos);
+        }
         create_tables(nbQuantAscii);
       }
       break;
@@ -508,7 +627,7 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       if ((last == 0) || (text[0] == 0x0D)) break;
       // string max size is MAX_LINE-1;
       if (last >= MAX_LINE-1) {
-        sortie << "line #" << tot << " exceeds maximal size ("
+        sortie << "line #" << *tot << " exceeds maximal size ("
                << MAX_LINE << ")";
         printErr(origin, sortie.str());
         sortie.str(""); // Will empty the string.
@@ -519,7 +638,7 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       mot="#Table";
       pos=text.find(mot);
       if (pos != std::string::npos) {
-        sortie << "line #" << tot << ": second table start (not read)";
+        sortie << "line #" << *tot << ": second table start (not read)";
         printWarn(origin, sortie.str());
         sortie.str(""); // Will empty the string.
         err=BAD_ROW;
@@ -527,99 +646,77 @@ int Catalog::analyze_text(const std::string &fileName, const bool getAll,
       }
       pos=text.find(sep);
       if (pos == std::string::npos) {
-        sortie << "line #" << tot << " without separator, line skipped";
+        sortie << "line #" << *tot << " without separator, line skipped";
         printWarn(origin, sortie.str());
         sortie.str(""); // Will empty the string.
         break;
       }
+      if (m_numRows == m_numReadRows) {
+        err=BAD_ROW;
+        break;
+      }
       i=0;
-      add_row();
       err=m_quantities.size();
-      last=text.find(sep);
       do {
-        pos=last;
         mot=text.substr(0, pos);
-        if (pos != std::string::npos) {
-          text.erase(0, pos+1);
-          last=text.find(sep);
-        }
-        if (i >= err) {
-          sortie << "line #" << tot << " contains too many quantities";
+        if (i < err) translate_cell(mot, i);
+        else {
+          sortie << "line #" << *tot << " contains too many quantities";
           printWarn(origin, sortie.str());
           sortie.str(""); // Will empty the string.
           break;
         }
-        else translate_cell(mot, i);
         i++;
+        if (pos != std::string::npos) {
+          text.erase(0, pos+1);
+          pos=text.find(sep);
+        }
+        else break;
       }
-      while (pos != std::string::npos);
+      while (1);
       if (i <  err) {
-        sortie << "line #" << tot << " does not contain all quantities";
+        sortie << "line #" << *tot << " does not contain all quantities";
         printWarn(origin, sortie.str());
         sortie.str(""); // Will empty the string.
       }
-      err=0;
+      err=IS_OK;
+      m_numRows++;
       //found++;
       break;
     }
     // to have only 1 test when reading all file
-    if (found < 9) {
+    if (found < 4) {
       // when separation line after Column is found,
       // Quantities must be set.
-      if ((found==6) && (m_quantities.size() == 0)) break;
+      if (found == 1) {
+        if (m_quantities.size() == 0) { found--; break; }
+        if (*what >= 2) { found=3; break; }
+      }
       // all description is read, now read data (if required)
-      if ((found==8) && (!getAll)) break;
+      else if ((found == 3) && (!getAll)) break;
     }
     else if (err == BAD_ROW) break; // just stop, error not taken into account
-    #ifdef DEBUG_CAT
-    std::cout << tot <<",";
-    if (tot < 60ul) std::cout << line <<"|\n";
-    #endif
 
   }// loop on file lines
-  #ifdef DEBUG_CAT
-  std::cout << std::endl;
-  #endif
-  file.close();
-  if (!tot) {
-    text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
-    printErr(origin, text);
-    return BAD_FILENAME;
-  }
-  if (err == BAD_FILELINE) {
-    // stopped before reading needed stuff (all or description)
-    text=": FILENAME \""+fileName+"\" couldn't be read (line too long)";
-    printErr(origin, text);
-    return err;
-  }
-  if (what == 0) {
-    sortie << ": FILENAME \"" << fileName
-           << "\" is empty or has unknown type (stopped step " << found << ")";
-    printErr(origin, sortie.str());
-    return BAD_FILETYPE;
-  }
-  //what is -1 or 1
-  sortie << "input text file is closed ( " << tot << " lines read)";
-  printLog(0, sortie.str());
-  if (what == 1) text="input text file is CSV type (; separator)";
-  else text="input text file is TSV type (Tab=0x09 separator)";
-  printLog(1, text);
+  //only possible errors: BAD_FILELINE or BAD_ROW
+  if (err == BAD_ROW) err=IS_OK;
+  else if (err == BAD_FILELINE) return err;
+  else if (found < 3) return (-1*found);
 
-  return IS_OK;
+  if ((getAll) && (found < 4)) return (-1*found);
+  
+  return err;
 }
-
 
 /**********************************************************************/
 // common code between import and importDescription
 int Catalog::load(const std::string &fileName, const bool getAll) {
 
+  int i, err=IS_OK;
   std::string origin, text;
-  int err;
   if (getAll) origin="import"; else origin="importDescription";
 
-  int i=checkImport(origin, false);
-  if (i < IS_VOID) return i;
-
+  m_numRows=0;
   i=fileName.length();
   if (i == 0) {
     text=": FILENAME is EMPTY";
@@ -638,16 +735,90 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
     m_numRows=err;
     return err;
   }
-  else err=analyze_text(fileName, getAll, origin);
-  if (err < 0) {
-    m_numRows=err;
-    return err;
-  }
+  else {
+
+    std::ostringstream sortie;
+    unsigned long tot=0ul; // number of lines read
+    bool testCR=false; // true if lines ends with CR (on windows)
+    int what=0;        // 0 for unkwown, >0 for csv, <0 to tsv
+                       // fabs()=1 for standard, =2 for meta QUERY
+    if ( myFile.is_open() ) myFile.close();
+    myFile.open(fileName.c_str(), std::ios::in);
+    // file can be opened ?
+    if ( !myFile.is_open() ) {
+      text=": FILENAME \""+fileName+"\" cannot be opened";
+      printErr(origin, text);
+      err=BAD_FILENAME;
+      m_numRows=err;
+      return err;
+    }
+    DIR *testDir=opendir(fileName.c_str());
+    if (testDir != NULL) {
+      closedir(testDir);
+      myFile.close();
+      text=": FILENAME \""+fileName+"\" is a directory";
+      printErr(origin, text);
+      err=BAD_FILETYPE;
+      m_numRows=err;
+      return err;
+    }
+    err=analyze_head(&tot, &what, &testCR);
+    if (!tot) {
+      text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
+      printErr(origin, text);
+      if (err == IS_OK) err=BAD_FILENAME;
+      // in case, for strange reason, file.good() fails at first time
+    }
+    else if (err < IS_OK) {
+      sortie << ": FILENAME \"" << fileName << "\" is empty or "
+             << "has unknown structure (stopped step " << -1*err << ")";
+      printErr(origin, sortie.str());
+      sortie.str(""); // Will empty the string.
+      err=BAD_FILETYPE;
+    }
+    else {
+
+      //what is 1 or 2, then negate if TSV type
+      if (what == 1) text="input text file";
+      else text="input META file";
+
+      // get columns description and units, data
+      err=analyze_body(&tot, &what, testCR, getAll);
+      if (err == BAD_FILELINE) {
+        // stopped before reading needed stuff (with getAll true)
+        text=": FILENAME \""+fileName+"\" couldn't be read (line too long)";
+        printErr(origin, text);
+      }
+      else if (err < IS_OK) {
+        sortie << ": FILENAME \"" << fileName
+             << "\" has unknown type (stopped step " << 5-1*err << ")";
+        printErr(origin, sortie.str());
+        sortie.str(""); // Will empty the string.
+        err=BAD_FILETYPE;
+      }
+      else {
+        if (what > 0) text=text + " is CSV type (; separator)";
+        else text=text + " is TSV type (Tab=0x09 separator)";
+        printLog(1, text);
+      }
+
+    }
+    myFile.close();  // to be commented to let file opened
+    sortie << "input text file is closed ( " << tot << " lines read)";
+    printLog(0, sortie.str());
+
+  }// file is read
   try { m_selEllipse.assign(7, 0.0); }
   catch (std::exception &prob) {
     text=std::string("EXCEPTION on creating m_selEllipse: ")+prob.what();
     printErr(origin, text);
     throw;
+  }
+  if (err < 0) {
+    deleteContent(); // to erase data already loaded in memory
+    m_numRows=err;
+    // exit only if nothing is read
+    if (err == BAD_FILENAME) return err;
   }
   // check if tableName is known to set generic
   for (i=0; i<MAX_CAT; i++) {
@@ -659,29 +830,49 @@ int Catalog::load(const std::string &fileName, const bool getAll) {
   }
   else m_code=Catalog::s_CatalogList[2*i];
   setGeneric(i);
-  showRAMsize();
-  return IS_OK;
+  if (err == IS_OK) showRAMsize();
+  return err;
 }
 /**********************************************************************/
 // read only the catalog description from file
 int Catalog::importDescription(const std::string &fileName) {
 
   int err;
+  err=checkImport("importDescription", false);
+  // must be called before load() which set m_numRows to 0
+  if (err < IS_VOID) return err;
+
   err=load(fileName, false);
   if (err < IS_OK) return err;
 
-  m_numRows=0;
   return m_quantities.size();
 }
 /**********************************************************************/
 // read from file an entire catalog without selection
-int Catalog::import(const std::string &fileName) {
+int Catalog::import(const std::string &fileName, const long maxRow) {
 
   int err;
+  err=checkImport("import", false);
+  // this check can set m_numReadRows to 0
+  if (err < IS_VOID) return err;
+
+  if (maxRow <= 0) {
+    printWarn("import", "trying to get whole catalog file");
+    m_numReadRows=0;
+  }
+  else m_numReadRows=maxRow;
   err=load(fileName, true);
   if (err < IS_OK) return err;
 
   try {
+    if (m_numRows < m_numReadRows) {
+      int i;
+      err=m_strings.size();
+      // erase unused memory  printf("ERASING\n");
+      for (i=0; i<err; i++) m_strings[i].resize(m_numRows);
+      err=m_numericals.size();
+      for (i=0; i<err; i++) m_numericals[i].resize(m_numRows);
+    }
     err=m_quantities.size()+2;
     // number of required bits including global and region
     err=1+(err-1)/(sizeof(long)*8);

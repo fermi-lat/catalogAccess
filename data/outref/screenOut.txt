@@ -91,8 +91,8 @@ STEP 3) METHODS when IMPORT WORKS (on EGRET)
 ============================================
 * Calling: importDescription on file "3EG_test.out" (pointer 'myCat')
 WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
-LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
 LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
  2406 Ko for numericals (  7 double per row)
  3695 Ko for  4 strings ( 86 char per row)
@@ -170,8 +170,8 @@ WARNING catalogAccess (IN setLowerCut): given Quantity name () do not exist
 * Calling again: importDescription on file "3EG_test.out"
 LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
-LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_0 (catalogAccess): input text file is closed ( 29 lines read)
 LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
  2406 Ko for numericals (  7 double per row)
  3695 Ko for  4 strings ( 86 char per row)
@@ -180,12 +180,13 @@ LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
 
 * Calling: import on file "3EG_test.out" (with 5 rows)
 LOG_2 (catalogAccess): deleting previous Catalog description
+WARNING catalogAccess (IN import): trying to get whole catalog file
 WARNING catalogAccess (IN import): more units than quantities, ignoring last unit(s)
 WARNING catalogAccess (IN import): line #32 does not contain all quantities
 WARNING catalogAccess (IN private translate_cell): one quantity has no character (row #5)
 WARNING catalogAccess (IN import): line #35 contains too many quantities
-LOG_0 (catalogAccess): input text file is closed ( 36 lines read)
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_0 (catalogAccess): input text file is closed ( 36 lines read)
 LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =   6.1
  2406 Ko for numericals (  7 double per row)
  3695 Ko for  4 strings ( 86 char per row)
@@ -372,6 +373,7 @@ ERROR catalogAccess (IN importDescription) : FILENAME "../.." is a directory
 
 * Calling: importDescription on file "1rxs_50.fits"
 ERROR catalogAccess (IN importDescription) : FILENAME "/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.fits" is fits without extension[] specified
+LOG_0 (catalogAccess): input text file is closed ( 0 lines read)
 * Value returned = -4
 
 * Calling: importDescription on "1rxs_50.fits[1]"
@@ -379,8 +381,9 @@ ERROR catalogAccess (IN importDescription) : fits FILE not handled now
 * Value returned = -5
 
 * Calling: import on file "/1rxs_50.out"
-LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
+WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
 LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =  10.2
  7562 Ko for numericals ( 22 double per row)
  2535 Ko for  9 strings ( 59 char per row)
@@ -595,8 +598,9 @@ LOG_2 (catalogAccess): all rows selected, calling deleteContent()
 
 * Calling: import on file "/1rxs_50.out"
 LOG_2 (catalogAccess): deleting previous Catalog description
-LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
+WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
+LOG_0 (catalogAccess): input text file is closed ( 102 lines read)
 LOG_1 (catalogAccess): Needed RAM space (Mo) for  44000 data rows =  10.2
  7562 Ko for numericals ( 22 double per row)
  2535 Ko for  9 strings ( 59 char per row)
