@@ -117,7 +117,7 @@ Catalog::Catalog(const Catalog & myCat) {
 
   // copying vectors
 //try {
-  int i;
+  long i;
   int vecSize, j;
   std::string errText;
   // following data member m_selEllipse[] needed for efficient selection
@@ -419,7 +419,7 @@ int Catalog::getSysErrorName(const std::string name,
 /*  ACCESSING ALL Catalog CONTENTS in MEMORY (IGNORING SELECTION)     */
 /**********************************************************************/
 // get the number of rows in the catalog
-void Catalog::getNumRows(int *nrows) {
+void Catalog::getNumRows(long *nrows) {
 
   if (m_numRows < 0) *nrows=0;
   else *nrows=m_numRows;
@@ -427,7 +427,7 @@ void Catalog::getNumRows(int *nrows) {
 
 /**********************************************************************/
 // get the value of given string quantity in given row
-int Catalog::getSValue(const std::string name, const int row,
+int Catalog::getSValue(const std::string name, const long row,
                        std::string *stringVal) {
 
   const std::string origin="getSValue";
@@ -450,7 +450,7 @@ int Catalog::getSValue(const std::string name, const int row,
 }
 /**********************************************************************/
 // get the value of given numerical quantity in given row
-int Catalog::getNValue(const std::string name, const int row,
+int Catalog::getNValue(const std::string name, const long row,
                        double *realVal) {
 
   const std::string origin="getNValue";
@@ -477,7 +477,7 @@ int Catalog::getNValue(const std::string name, const int row,
 
 /**********************************************************************/
 // get the value of the statistical error of given quantity in given row
-int Catalog::getStatError(const std::string name, const int row,
+int Catalog::getStatError(const std::string name, const long row,
                           double *realValStat) {
 
   *realValStat = -1.0;
@@ -503,7 +503,7 @@ int Catalog::getStatError(const std::string name, const int row,
 }
 /**********************************************************************/
 // get the value of the systematic error of given quantity in given row
-  int Catalog::getSysError(const std::string name, const int row,
+  int Catalog::getSysError(const std::string name, const long row,
                            double *realValStat) {
 
   *realValStat = -1.0;
@@ -562,7 +562,7 @@ int Catalog::getSValues(const std::string name,
   std::string text;
   try {
     values->assign(1, m_strings[num].at(0));
-    int i, j, max;
+    long i, j, max;
     for (i=1; i<m_numRows; i++) {
       text=m_strings[num].at(i);
       max=values->size();
@@ -595,7 +595,7 @@ int Catalog::minVal(const std::string name, double *realVal) {
     return BAD_QUANT_TYPE;
   }
   num=m_quantities.at(num).m_index;
-  int i=0;
+  long i=0;
   double r;
   do { *realVal=m_numericals[num].at(i);
 /*  std::cout << "NaN == NaN ? " << (*realVal == m_numericals[num].at(0))
@@ -625,7 +625,7 @@ int Catalog::maxVal(const std::string name, double *realVal) {
     return BAD_QUANT_TYPE;
   }
   num=m_quantities.at(num).m_index;
-  int i=0;
+  long i=0;
   double r;
   do { *realVal=m_numericals[num].at(i); }
   while ((isnan(*realVal)) && (++i < m_numRows));

@@ -18,14 +18,14 @@ namespace catalogAccess {
 /*  ACCESSING the Catalog CONTENTS with in-memory SELECTION CRITERIA  */
 /**********************************************************************/
 // get the number of selected rows in the catalog
-void Catalog::getNumSelRows(int *nrows) {
+void Catalog::getNumSelRows(long *nrows) {
 
  *nrows=m_numSelRows;
 }
 
 /**********************************************************************/
 // get the value of given string quantity in given selected row
-int Catalog::getSelSValue(const std::string name, const int srow,
+int Catalog::getSelSValue(const std::string name, const long srow,
                           std::string *stringVal) {
 
   const std::string origin="getSelSValue";
@@ -41,9 +41,9 @@ int Catalog::getSelSValue(const std::string name, const int srow,
     return BAD_QUANT_TYPE;
   }
   num=m_quantities.at(num).m_index;
-  int tot=0;
+  long tot=0;
   // first bit indicates global selection
-  for (int i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     if (tot == srow) { *stringVal=m_strings[num].at(i); break; }
     tot++;
     //if (tot == m_numSelRows) break; should not happen
@@ -53,7 +53,7 @@ int Catalog::getSelSValue(const std::string name, const int srow,
 }
 /**********************************************************************/
 // get the value of given numerical quantity in given selected row
-int Catalog::getSelNValue(const std::string name, const int srow,
+int Catalog::getSelNValue(const std::string name, const long srow,
                           double *realVal) {
 
   const std::string origin="getSelNValue";
@@ -69,9 +69,9 @@ int Catalog::getSelNValue(const std::string name, const int srow,
     return BAD_QUANT_TYPE;
   }
   num=m_quantities.at(num).m_index;
-  int tot=0;
+  long tot=0;
   // first bit indicates global selection
-  for (int i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+  for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     if (tot == srow) { *realVal=m_numericals[num].at(i); break; }
     tot++;
   }
@@ -122,9 +122,9 @@ int Catalog::getSelSValues(const std::string name,
   num=m_quantities.at(num).m_index;
   std::string text;
   try {
-    int j, max=0, tot=0;
+    long j, max=0, tot=0;
     // first bit indicates global selection
-    for (int i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
+    for (long i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
       text=m_strings[num].at(i);
       if (max == 0) {values->assign(1, text); max++;}
       else {
@@ -161,13 +161,15 @@ int Catalog::minSelVal(const std::string name, double *realVal) {
   }
   num=m_quantities.at(num).m_index;
 
-  int i, tot=0;
+  long i, tot=0;
   double r;
   for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     *realVal=m_numericals[num].at(i);
     if (!isnan(*realVal)) break;
     if (++tot == m_numSelRows) break; // to speed up
   }
+  if (tot == m_numSelRows) return IS_OK;
+  // stop when selection contains only NaN
   for (; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     r=m_numericals[num].at(i);
     if (r < *realVal) *realVal=r;
@@ -194,13 +196,15 @@ int Catalog::maxSelVal(const std::string name, double *realVal) {
   }
   num=m_quantities.at(num).m_index;
 
-  int i, tot=0;
+  long i, tot=0;
   double r;
   for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     *realVal=m_numericals[num].at(i);
     if (!isnan(*realVal)) break;
     if (++tot == m_numSelRows) break; // to speed up
   }
+  if (tot == m_numSelRows) return IS_OK;
+  // stop when selection contains only NaN
   for (; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     r=m_numericals[num].at(i);
     if (r > *realVal) *realVal=r;
@@ -214,7 +218,7 @@ int Catalog::maxSelVal(const std::string name, double *realVal) {
 /*  METHODS for SELECTING DATA (BEFORE or AFTER IMPORT)               */
 /**********************************************************************/
 // private method, suppose given row exist
-bool Catalog::checkRegion(const int row, const int nRA, const int nDEC) {
+bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
 
   /* for the moment, only circle
     if angle phi=RA and t=PI/2 - DEC then:
@@ -245,35 +249,39 @@ bool Catalog::checkRegion(const int row, const int nRA, const int nDEC) {
 // private method, suppose given quantity index exist
 bool Catalog::checkNUM(const double r, const int index, const bool reject) {
 
+  bool isNull=isnan(r);
+  int i, vecSize=m_quantities[index].m_listValN.size();
+  for (i=0; i<vecSize; i++) {
+  }
   double myLimit=m_quantities[index].m_lowerCut;
   if (myLimit < NO_SEL_CUT) {
-    if (isnan(r) && reject) return false;
+    if (isNull && reject) return false;
     else if (r < myLimit) return false;
   }
 
   myLimit=m_quantities[index].m_upperCut;
   if (myLimit < NO_SEL_CUT) {
-    if (isnan(r) && reject) return false;
+    if (isNull && reject) return false;
     else if (r > myLimit) return false;
-  }
-
-  int vecSize=m_quantities[index].m_excludedN.size(); 
-  vecSize=m_quantities[index].m_necessaryN.size();
+  } 
   return true;
 }
-/* if (m_quantities[index].m_type == Quantity::STRING) {
+/**********************************************************************/
+// private method, suppose given quantity index exist
+bool Catalog::checkSTR(const std::string s, const int index, const int code) {
 
-    i=m_quantities[index].m_index;
-    std::string text=m_strings[i].at(row);
-    vecSize=m_quantities[index].m_excludedS.size(); 
-    for (i=0; i<vecSize; i++)
-   vecSize=m_quantities[index].m_necessaryS.size(); 
-   for (i=0; i<vecSize; i++)
-*/
+  int i, vecSize=m_quantities[index].m_listValS.size();
+  bool check=(code & 1);
+  // true for equality, false otherwise
+  for (i=0; i<vecSize; i++) {
+    if (s == m_quantities[index].m_listValS[i]) return check;
+  }
+  return !check;
+}
 
 /**********************************************************************/
 // private method, suppose given row exist and m_rowIsSelected set
-bool Catalog::rowSelect(const int row, const std::vector<bool> &quantSel) {
+bool Catalog::rowSelect(const long row, const std::vector<bool> &quantSel) {
 
   int  numBit=sizeof(long)*8,
        vecSize=quantSel.size();
@@ -385,15 +393,14 @@ int Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
   std::vector<bool> isSelected;
   existCriteria(&isSelected); // returns true (m_selRegion is true)
   bool check;
-  int i,
-      nRA=0, nDEC=0; // should be useless to initialize 
+  int j, nRA=0, nDEC=0; // should be useless to initialize 
   unsigned long currSel;
-  for (i=0; i<quantSize; i++) {
-    if (m_quantities[i].m_index == m_indexRA) nRA=i;
-    else if (m_quantities[i].m_index == m_indexDEC) nDEC=i;
+  for (j=0; j<quantSize; j++) {
+    if (m_quantities[j].m_index == m_indexRA) nRA=j;
+    else if (m_quantities[j].m_index == m_indexDEC) nDEC=j;
   }
   m_numSelRows=0;
-  for (i=0; i<m_numRows; i++) {
+  for (long i=0; i<m_numRows; i++) {
 
     check=checkRegion(i, nRA, nDEC);
     currSel=m_rowIsSelected[0].at(i);
@@ -422,10 +429,9 @@ int Catalog::unsetSelEllipse() {
   // now, must check criteria on other quantities
   std::vector<bool> isSelected;
   bool oneCriteria=existCriteria(&isSelected);
-  int i;
   if (oneCriteria) {
     m_numSelRows=0;
-    for (i=0; i<m_numRows; i++) {
+    for (long i=0; i<m_numRows; i++) {
 
       // setting 2nd bit to 0
       m_rowIsSelected[0].at(i)&= (Max_Test-2ul);
@@ -436,7 +442,7 @@ int Catalog::unsetSelEllipse() {
   else {
     if (m_numSelRows > 0) {
       quantSize=m_rowIsSelected.size();
-      for (i=0; i<quantSize; i++) m_rowIsSelected[i].assign(m_numRows, 0);
+      for (int j=0; j<quantSize; j++) m_rowIsSelected[j].assign(m_numRows, 0);
     }
     m_numSelRows=0;
     printLog(0, "All rows unselected");
@@ -451,16 +457,14 @@ int Catalog::unsetCuts() {
 
   int quantSize=checkImport("unsetCuts", true);
   if (quantSize < IS_VOID) return quantSize;
-  int i;
-  /*for (i=0; i<quantSize; i++) unsetCuts(m_quantities.at(i).m_name);*/
+  int j;
+  /*for (j=0; j<quantSize; j++) unsetCuts(m_quantities.at(j).m_name);*/
   //quicker to just check for selection ellipse
-  for (i=0; i<quantSize; i++) {
-    m_quantities.at(i).m_excludedS.clear();
-    m_quantities.at(i).m_necessaryS.clear();
-    m_quantities.at(i).m_lowerCut=NO_SEL_CUT;
-    m_quantities.at(i).m_upperCut=NO_SEL_CUT;
-    m_quantities.at(i).m_excludedN.clear();
-    m_quantities.at(i).m_necessaryN.clear();
+  for (j=0; j<quantSize; j++) {
+    m_quantities.at(j).m_listValS.clear();
+    m_quantities.at(j).m_lowerCut=NO_SEL_CUT;
+    m_quantities.at(j).m_upperCut=NO_SEL_CUT;
+    m_quantities.at(j).m_listValN.clear();
   }
   /* if no data: exit */
   if (m_numRows == 0) return IS_OK;
@@ -468,10 +472,9 @@ int Catalog::unsetCuts() {
   // now, must check criteria on region
   quantSize=m_rowIsSelected.size();
   if (m_selRegion) {
-    int j;
     unsigned long currSel;
     m_numSelRows=0;
-    for (i=0; i<m_numRows; i++) {
+    for (long i=0; i<m_numRows; i++) {
 
       currSel=m_rowIsSelected[0].at(i);
       if (currSel & 2ul) {
@@ -486,7 +489,7 @@ int Catalog::unsetCuts() {
   }
   else {
     if (m_numSelRows > 0)
-      for (i=0; i<quantSize; i++) m_rowIsSelected[i].assign(m_numRows, 0);
+      for (j=0; j<quantSize; j++) m_rowIsSelected[j].assign(m_numRows, 0);
     m_numSelRows=0;
     printLog(0, "All rows unselected");
   }
@@ -499,12 +502,10 @@ int Catalog::unsetCuts(const std::string name) {
   if (quantSize < IS_VOID) return quantSize;
   int index=checkQuant_name("unsetCuts", name);
   if (index < 0) return index;
-  m_quantities.at(index).m_excludedS.clear();
-  m_quantities.at(index).m_necessaryS.clear();
+  m_quantities.at(index).m_listValS.clear();
   m_quantities.at(index).m_lowerCut=NO_SEL_CUT;
   m_quantities.at(index).m_upperCut=NO_SEL_CUT;
-  m_quantities.at(index).m_excludedN.clear();
-  m_quantities.at(index).m_necessaryN.clear();
+  m_quantities.at(index).m_listValN.clear();
   /* if no data: exit */
   if (m_numRows == 0) return IS_OK;
 
@@ -512,10 +513,10 @@ int Catalog::unsetCuts(const std::string name) {
   std::vector<bool> isSelected;
   bool oneCriteria=existCriteria(&isSelected);
   if (oneCriteria) {
-    int i, k;
+    int k;
     unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
-    for (i=0; i<m_numRows; i++) {
+    for (long i=0; i<m_numRows; i++) {
 
       // setting required bit to 0
       m_rowIsSelected[k].at(i)&= (Max_Test-test);
@@ -584,11 +585,11 @@ int Catalog::setLowerCut(const std::string name, double cutVal) {
   
   if (check) {
     bool reject=m_quantities[index].m_rejectNaN;
-    int  i, k,
+    int  k,
          pos=m_quantities[index].m_index;
     unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
-    for (i=0; i<m_numRows; i++) {
+    for (long i=0; i<m_numRows; i++) {
 
       check=checkNUM(m_numericals[pos].at(i), index, reject);
       // setting required bit
@@ -651,11 +652,11 @@ int Catalog::setUpperCut(const std::string name, double cutVal) {
   
   if (check) {
     bool reject=m_quantities[index].m_rejectNaN;
-    int  i, k,
+    int  k,
          pos=m_quantities[index].m_index;
     unsigned long test=bitPosition(index, &k);
     m_numSelRows=0;
-    for (i=0; i<m_numRows; i++) {
+    for (long i=0; i<m_numRows; i++) {
 
       check=checkNUM(m_numericals[pos].at(i), index, reject);
       // setting required bit
@@ -674,7 +675,7 @@ int Catalog::setUpperCut(const std::string name, double cutVal) {
 
 /**********************************************************************/
 // erase all non-selected rows from memory
-int Catalog::eraseNonSelected(const bool keepCriteria) {
+int Catalog::eraseNonSelected() {
 
   const std::string origin="eraseNonSelected";
   if (m_numRows <= 0) {
@@ -683,60 +684,96 @@ int Catalog::eraseNonSelected(const bool keepCriteria) {
   }
   // test below avoid deleting NOTHING
   if (m_numRows == m_numSelRows) {
-    printWarn(origin, "all rows are selected, nothing done");
+    printWarn(origin, "all rows selected, nothing done");
     return IS_OK; 
   }
   // log if ALL is deleted
   std::string text;
   if (m_numSelRows == 0) {
-    text="no row selected, same as deleteContent()";
-    if (keepCriteria)
-      printLog(2, text);
-    else
-      printLog(2, text+", unsetCuts(), unsetSelEllipse()");
+    text="no row selected, calling deleteContent()";
+    printLog(2, text);
+    deleteContent();
+    return IS_OK;
   }
   try {
-    int i, j;
+    long i, tot=0;
+    int j;
     int sizeS=m_strings.size();
     int sizeN=m_numericals.size();
     int vecSize=m_rowIsSelected.size();
     // to speed-up, will not change (avoid reading size in loop)
 
+    std::vector<std::vector<double> > myNum;
+    myNum.resize(sizeN);
+    for (j=0; j<sizeN; j++) myNum[j].assign(m_numSelRows, 0.0);
+    std::vector<std::vector<std::string> > myStr;
+    myStr.resize(sizeS);
+    for (j=0; j<sizeS; j++) myStr[j].assign(m_numSelRows, "");
+    std::vector<std::vector<unsigned long> > myBits;
+    myBits.resize(vecSize);
+    for (j=0; j<vecSize; j++) myBits[j].assign(m_numSelRows, 0ul);
+    for (i=0; i<m_numRows; i++) {
+      if (m_rowIsSelected[0].at(i) & 1) {
+        for (j=0; j<sizeN; j++) myNum[j].at(tot)=m_numericals[j].at(i);
+        for (j=0; j<sizeS; j++) myStr[j].at(tot)=m_strings[j].at(i);
+        for (j=0; j<vecSize; j++) myBits[j].at(tot)=m_rowIsSelected[j].at(i);
+        if (++tot == m_numSelRows) break; // to speed up
+      }
+    }
+    for (j=0; j<sizeN; j++) {
+      m_numericals[j].insert(m_numericals[j].begin(),
+                             myNum[j].begin(), myNum[j].end());
+      myNum[j].clear();
+    }
+    myNum.clear();
+    for (j=0; j<sizeS; j++) {
+      m_strings[j].insert(m_strings[j].begin(),
+                          myStr[j].begin(), myStr[j].end());
+      myStr[j].clear();
+    }
+    myStr.clear();
+    for (j=0; j<vecSize; j++)  {
+      m_rowIsSelected[j].insert(m_rowIsSelected[j].begin(),
+                                myBits[j].begin(), myBits[j].end());
+      myBits[j].clear();
+    }
+    myBits.clear();
+/* if (!keepCriteria) {
+    for (j=0; j<vecSize; j++) m_rowIsSelected[j].assign(m_numSelRows, 0);
+    vecSize=m_quantities.size();
+    for (i=0; i<vecSize; i++) {
+      m_quantities.at(i).m_listValS.clear();
+      m_quantities.at(i).m_lowerCut=NO_SEL_CUT;
+      m_quantities.at(i).m_upperCut=NO_SEL_CUT;
+      m_quantities.at(i).m_listValN.clear();
+    }
+    m_selRegion=false;
+*/
+/*  THIS METHOD IS VERY VERY LONG 
     std::vector< std::vector<std::string>::iterator > stringIter;
     std::vector< std::vector<double>::iterator > doubleIter;
-    std::vector< std::vector<unsigned long>::iterator > myIter;
     for (j=0; j<sizeS; j++) stringIter.push_back(m_strings[j].begin());
     for (j=0; j<sizeN; j++) doubleIter.push_back(m_numericals[j].begin());
-    for (j=0; j<vecSize; j++) myIter.push_back(m_rowIsSelected[j].begin());
-    for (i=0; i<m_numRows; i++) {
+    if (keepCriteria) {
 
-      if (!(*myIter[0] & 1)) {
-        for (j=0; j<sizeS; j++) m_strings[j].erase(stringIter[j]);
-        for (j=0; j<sizeN; j++) m_numericals[j].erase(doubleIter[j]);
-        for (j=0; j<vecSize; j++) m_rowIsSelected[j].erase(myIter[j]);
+      std::vector< std::vector<unsigned long>::iterator > myIter;
+      for (j=0; j<vecSize; j++) myIter.push_back(m_rowIsSelected[j].begin());
+      for (i=0; i<m_numRows; i++) {
+        if (!(*myIter[0] & 1)) {
+          for (j=0; j<sizeS; j++) m_strings[j].erase(stringIter[j]);
+          for (j=0; j<sizeN; j++) m_numericals[j].erase(doubleIter[j]);
+          for (j=0; j<vecSize; j++) m_rowIsSelected[j].erase(myIter[j]);
+        }
+        else {
+          for (j=0; j<sizeS; j++) stringIter.at(j)++;
+          for (j=0; j<sizeN; j++) doubleIter.at(j)++;
+          for (j=0; j<vecSize; j++) myIter.at(j)++;
+        }
       }
-      else {
-        for (j=0; j<sizeS; j++) stringIter.at(j)++;
-        for (j=0; j<sizeN; j++) doubleIter.at(j)++;
-        for (j=0; j<vecSize; j++) myIter.at(j)++;
-      }
-    }
-    stringIter.clear();
-    doubleIter.clear();
-    myIter.clear();
-    if (!keepCriteria) {
-      for (j=0; j<vecSize; j++) m_rowIsSelected[j].assign(m_numSelRows, 0);
-      vecSize=m_quantities.size();
-      for (i=0; i<vecSize; i++) {
-        m_quantities.at(i).m_excludedS.clear();
-        m_quantities.at(i).m_necessaryS.clear();
-        m_quantities.at(i).m_lowerCut=NO_SEL_CUT;
-        m_quantities.at(i).m_upperCut=NO_SEL_CUT;
-        m_quantities.at(i).m_excludedN.clear();
-        m_quantities.at(i).m_necessaryN.clear();
-      }
-      m_selRegion=false;
-    }
+      stringIter.clear();
+      doubleIter.clear();
+      myIter.clear();
+*/
   }
   catch (std::exception &prob) {
     text="EXCEPTION erasing m_strings, m_numericals or m_rowIsSelected: ";
@@ -748,12 +785,12 @@ int Catalog::eraseNonSelected(const bool keepCriteria) {
   sortie << m_numRows-m_numSelRows << " row(s) deleted";
   printLog(0, sortie.str());
   m_numRows=m_numSelRows;
-  if (!keepCriteria) m_numSelRows=0;
+  //if (!keepCriteria) m_numSelRows=0;
   return IS_OK;
 }
 /**********************************************************************/
 // erase all selected rows from memory
-int Catalog::eraseSelected(const bool keepCriteria) {
+int Catalog::eraseSelected() {
 
   const std::string origin="eraseSelected";
   if (m_numRows <= 0) {
@@ -768,54 +805,66 @@ int Catalog::eraseSelected(const bool keepCriteria) {
   // log if ALL is deleted
   std::string text;
   if (m_numRows == m_numSelRows) {
-    text="all rows selected, same as deleteContent()";
-    if (keepCriteria)
-      printLog(2, text);
-    else
-      printLog(2, text+", unsetCuts(), unsetSelEllipse()");
+    text="all rows selected, calling deleteContent()";
+    printLog(2, text);
+    deleteContent();
+    return IS_OK;
   }
   try {
-    int i, j;
+    long i, tot=0,
+         numRows=m_numRows-m_numSelRows;
+    int j;
     int sizeS=m_strings.size();
     int sizeN=m_numericals.size();
     int vecSize=m_rowIsSelected.size();
     // to speed-up, will not change (avoid reading size in loop)
 
-    std::vector< std::vector<std::string>::iterator > stringIter;
-    std::vector< std::vector<double>::iterator > doubleIter;
-    std::vector< std::vector<unsigned long>::iterator > myIter;
-    for (j=0; j<sizeS; j++) stringIter.push_back(m_strings[j].begin());
-    for (j=0; j<sizeN; j++) doubleIter.push_back(m_numericals[j].begin());
-    for (j=0; j<vecSize; j++) myIter.push_back(m_rowIsSelected[j].begin());
+    std::vector<std::vector<double> > myNum;
+    myNum.resize(sizeN);
+    for (j=0; j<sizeN; j++) myNum[j].assign(numRows, 0.0);
+    std::vector<std::vector<std::string> > myStr;
+    myStr.resize(sizeS);
+    for (j=0; j<sizeS; j++) myStr[j].assign(numRows, "");
+    std::vector<std::vector<unsigned long> > myBits;
+    myBits.resize(vecSize);
+    for (j=0; j<vecSize; j++) myBits[j].assign(numRows, 0ul);
     for (i=0; i<m_numRows; i++) {
-
-      if (*myIter[0] & 1) {
-        for (j=0; j<sizeS; j++) m_strings[j].erase(stringIter[j]);
-        for (j=0; j<sizeN; j++) m_numericals[j].erase(doubleIter[j]);
-        for (j=0; j<vecSize; j++) m_rowIsSelected[j].erase(myIter[j]);
-      }
-      else {
-        for (j=0; j<sizeS; j++) stringIter.at(j)++;
-        for (j=0; j<sizeN; j++) doubleIter.at(j)++;
-        for (j=0; j<vecSize; j++) myIter.at(j)++;
+      if (!(m_rowIsSelected[0].at(i) & 1)) {
+        for (j=0; j<sizeN; j++) myNum[j].at(tot)=m_numericals[j].at(i);
+        for (j=0; j<sizeS; j++) myStr[j].at(tot)=m_strings[j].at(i);
+        for (j=0; j<vecSize; j++) myBits[j].at(tot)=m_rowIsSelected[j].at(i);
+        if (++tot == numRows) break; // to speed up
       }
     }
-    stringIter.clear();
-    doubleIter.clear();
-    myIter.clear();
-    if (!keepCriteria) {
-      for (j=0; j<vecSize; j++) m_rowIsSelected[j].assign(m_numSelRows, 0);
-      vecSize=m_quantities.size();
-      for (i=0; i<vecSize; i++) {
-        m_quantities.at(i).m_excludedS.clear();
-        m_quantities.at(i).m_necessaryS.clear();
-        m_quantities.at(i).m_lowerCut=NO_SEL_CUT;
-        m_quantities.at(i).m_upperCut=NO_SEL_CUT;
-        m_quantities.at(i).m_excludedN.clear();
-        m_quantities.at(i).m_necessaryN.clear();
-      }
-      m_selRegion=false;
+    for (j=0; j<sizeN; j++) {
+      m_numericals[j].insert(m_numericals[j].begin(),
+                             myNum[j].begin(), myNum[j].end());
+      myNum[j].clear();
     }
+    myNum.clear();
+    for (j=0; j<sizeS; j++) {
+      m_strings[j].insert(m_strings[j].begin(),
+                          myStr[j].begin(), myStr[j].end());
+      myStr[j].clear();
+    }
+    myStr.clear();
+    for (j=0; j<vecSize; j++)  {
+      m_rowIsSelected[j].insert(m_rowIsSelected[j].begin(),
+                                myBits[j].begin(), myBits[j].end());
+      myBits[j].clear();
+    }
+    myBits.clear();
+/* if (!keepCriteria) {
+    for (j=0; j<vecSize; j++) m_rowIsSelected[j].assign(numRows, 0);
+    vecSize=m_quantities.size();
+    for (i=0; i<vecSize; i++) {
+      m_quantities.at(i).m_listValS.clear();
+      m_quantities.at(i).m_lowerCut=NO_SEL_CUT;
+      m_quantities.at(i).m_upperCut=NO_SEL_CUT;
+      m_quantities.at(i).m_listValN.clear();
+    }
+    m_selRegion=false;
+*/
   }
   catch (std::exception &prob) {
     text="EXCEPTION erasing m_strings, m_numericals or m_rowIsSelected: ";
@@ -831,4 +880,122 @@ int Catalog::eraseSelected(const bool keepCriteria) {
   return IS_OK;
 }
 
+/**********************************************************************/
+// select rows depending on the given string list
+int Catalog::doSelS(const std::string name, const std::string origin,
+                    const std::vector<std::string> &stringList, bool exact) {
+
+  int quantSize=checkImport(origin, true);
+  if (quantSize < IS_VOID) return quantSize;
+  std::ostringstream sortie;
+  int code,
+      index=checkQuant_name(origin, name);
+  if (index < 0) return index;
+  if (m_quantities.at(index).m_type != Quantity::STRING) {  
+    std::string errText;
+    errText="given Quantity name ("+name+") is not of STRING type";
+    printWarn(origin, errText);
+    return BAD_QUANT_TYPE;
+  }
+  if (origin == "useOnlyS") {
+    m_quantities[index].m_includeList=true;
+    code=1;
+    sortie << "Include rows";
+  }
+  else {
+    m_quantities[index].m_includeList=false;
+    code=0;
+    sortie << "Exclude rows";
+  }
+  //m_quantities[index].m_caselessList=-exact; //how to negate ?
+  m_quantities[index].m_listValS.clear();
+  quantSize=stringList.size();
+  int j;
+  int (*pfunc)(int)=tolower; // function used by transform
+  std::string mot;
+  if (exact) {
+    m_quantities[index].m_caselessList=false;
+    for (j=0; j<quantSize; j++)
+      m_quantities[index].m_listValS.push_back(stringList.at(j));
+  }
+  else {
+    m_quantities[index].m_caselessList=true;
+    for (j=0; j<quantSize; j++) {
+      mot=stringList.at(j);
+      transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+      m_quantities[index].m_listValS.push_back(mot);
+    }
+  }
+  #ifdef DEBUG_CAT
+  for (j=0; j<quantSize; j++)
+    std::cout << m_quantities[index].m_listValS[j] << "|";
+  std::cout <<"caseless="<< m_quantities[index].m_caselessList << std::endl;
+  #endif
+
+  /* if no data: exit */
+  if (m_numRows == 0) return IS_OK;
+
+  std::vector<bool> isSelected;
+  bool oneCriteria=existCriteria(&isSelected);
+  bool check=true;
+  if (quantSize == 0) {
+    printLog(1, "Disabling list selection (on "+name+")");
+    if (!oneCriteria) {
+      if (m_numSelRows > 0) {
+        code=m_rowIsSelected.size(); // to avoid compiler Warning
+        for (j=0; j<code; j++)
+          m_rowIsSelected[j].assign(m_numRows, 0);
+      }
+      m_numSelRows=0;
+      check=false;
+      printLog(0, "All rows unselected");
+    }
+  }
+  else {
+    sortie << " with \"" << name <<"\" string in list ("
+           << quantSize << " elements, ";
+    if (exact) sortie << "exact match)"; else sortie << "caseless match)"; 
+    printLog(1, sortie.str());
+  }
+  
+  if (check) {
+    int pos=m_quantities[index].m_index;
+    unsigned long test=bitPosition(index, &j);
+    m_numSelRows=0;
+    for (long i=0; i<m_numRows; i++) {
+
+      mot=m_strings[pos].at(i);
+      if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+      check=checkSTR(mot, index, code);
+      // setting required bit
+      if (check)
+        m_rowIsSelected[j].at(i)|= test;
+      else
+        m_rowIsSelected[j].at(i)&= (Max_Test-test);
+      if (rowSelect(i, isSelected) == true) m_numSelRows++;
+ 
+    }// loop on rows
+  }
+
+  return IS_OK;
+}
+/**********************************************************************/
+// only include rows which have string value in the given list
+int Catalog::useOnlyS(const std::string name,
+                      const std::vector<std::string> &stringList, bool exact) {
+
+  int done=doSelS(name, "useOnlyS", stringList, exact);
+  return done;
+}
+/**********************************************************************/
+// exclude all rows which have string value in the given list
+int Catalog::excludeS(const std::string name,
+                      const std::vector<std::string> &stringList, bool exact) {
+
+  int done=doSelS(name, "excludeS", stringList, exact);
+  return done;
+}
+
+
+/**********************************************************************/
 } // namespace catalogAccess
