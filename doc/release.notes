@@ -3,6 +3,8 @@
     @author A. Sauvageon
 
 @verbatim
+13-apr-2005  v0r1p1  AS  Add selection of columns (and verbosity level)
+
 22-feb-2005  v0r1    AS  Modified generic functions.
                          Corrected bug in setSelEllipse method.
 

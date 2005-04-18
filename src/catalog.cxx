@@ -112,6 +112,38 @@ void Catalog::deleteDescription() {
   m_indexDEC= -1;
 }
 /**********************************************************************/
+// erase elements in m_quantities according to m_loadQuantity,
+// deleteContent() MUST be done before
+void Catalog::deleteQuantities() {
+
+  int maxSize=m_loadQuantity.size(),
+      nbA=0, nbD=0;
+  if (maxSize != m_quantities.size()) {
+    printErr("deleteQuantities",
+             "problem in code, this error should not occur");
+    return;
+  }
+  /* these vectors can be set if import was succesful with 0 row */
+  m_rowIsSelected.clear();
+  m_numericals.clear();
+  m_strings.clear();
+  std::vector<Quantity>::iterator quantIter;
+  quantIter=m_quantities.begin();
+  for (int i=0; i<maxSize; i++) {
+    if (m_loadQuantity[i]) {/* change the index in 2D tables */
+      if ((*quantIter).m_format[0] == 'A') (*quantIter).m_index=nbA++;
+      else (*quantIter).m_index=nbD++;
+      quantIter++;
+    }
+    else m_quantities.erase(quantIter);
+  }/* loop on quantities */
+  /* now that index have changed, update the index shortcuts */
+  for (nbA=0; nbA<MAX_CAT; nbA++) {
+    if (Catalog::s_CatalogList[2*nbA+1] == m_tableName) break;
+  }
+  setGeneric(nbA);
+}
+/**********************************************************************/
 // Copy constructor needed to allocate arrays in copy
 Catalog::Catalog(const Catalog & myCat) {
 
@@ -133,8 +165,8 @@ Catalog::Catalog(const Catalog & myCat) {
 //  if ( myCat.myFile.is_open() ) { DO NOT COMPILE
   if ( myCat.m_filePos > 0 ) {
     // the file read is left opened, don't know how to get stream on same file
-    errText="FILE should be CLOSED (in this version), FORBIDS importSelected";
-    printErr("Catalog copy constructor", errText);
+    errText="FILE isn't CLOSED (in this version), FORBIDS importSelected";
+    printWarn("Catalog copy constructor", errText);
   }
   m_filePos=0;
   m_posErrSys=myCat.m_posErrSys;
@@ -161,7 +193,7 @@ Catalog::Catalog(const Catalog & myCat) {
   int vecSize, j;
   // following data member m_selEllipse[] needed for efficient selection
   try {
-    vecSize=myCat.m_selEllipse.size();
+    vecSize=myCat.m_selEllipse.size(); // size is only 7
     for (j=0; j<vecSize; j++) m_selEllipse.push_back(myCat.m_selEllipse.at(j));
   }
   catch (std::exception &err) {
@@ -172,6 +204,7 @@ Catalog::Catalog(const Catalog & myCat) {
   // following data member m_loadQuantity[] needed for importSelected()
   try {
     vecSize=myCat.m_loadQuantity.size();
+    m_loadQuantity.reserve(vecSize);  // pre-allocate the memory 
     for (j=0; j<vecSize; j++)
       m_loadQuantity.push_back(myCat.m_loadQuantity.at(j));
   }
@@ -392,19 +425,17 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
       if (err == IS_OK) {
         // decription is read until separation line starting with ---
         char line[MAX_LINE];
-        unsigned int pos;
-        std::string mot;
+        int  posC,
+             maxLine=MAX_LINE-1; // to avoid computation each line
         refRow=tot+1;
         while ( myFile.good() ) {
           myFile.getline(line, MAX_LINE);
           tot++;
           i=strlen(line);
-          if (testCR) line[--i]='\0';
-          if (i == 0) break; // in any case, stop on empty string contrary to
-                             //  load() which continues, skipping lines
+          if (i < 2) break; // in any case, stop on empty string contrary to
+                            //  load() which continues, skipping lines
           // string max size is MAX_LINE-1;
-          text=line; /* convert C string to C++ string */
-          if (i >= MAX_LINE-1) {
+          if (i >= maxLine) {
             sortie << "line #" << tot << " exceeds maximal size ("
                    << MAX_LINE << ")";
             printErr(origin, sortie.str());
@@ -412,9 +443,9 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
             err=BAD_FILELINE;
             break;
           }
-          mot="#Table";
-          pos=text.find(mot);
-          if (pos == 0) {
+          //if (testCR) line[--i]='\0';
+          posC=strncmp(line, "#Table", 6);
+          if (posC == 0) {
             // should not happen, normally preceded by empty lines
             sortie << "line #" << tot << ": second table start (not read)";
             printWarn(origin, sortie.str());
@@ -719,7 +750,7 @@ int Catalog::getStatError(const std::string name, const long row,
   num=checkQuant_name(origin, name);
   if (num < 0) return num;
   std::string statName=m_quantities.at(num).m_statError;
-  if (statName == "") {;
+  if (statName.empty()) {;
     statName="given Quantity name ("+name+") has no statistical error";
     printWarn(origin, statName);
     return NO_QUANT_ERR;
@@ -745,7 +776,7 @@ int Catalog::getStatError(const std::string name, const long row,
   num=checkQuant_name(origin, name);
   if (num < 0) return num;
   std::string sysName=m_quantities.at(num).m_sysError;
-  if (sysName == "") {
+  if (sysName.empty()) {
     sysName="given Quantity name ("+name+") has no systematic error";
     printWarn(origin, sysName);
     return NO_QUANT_ERR;
@@ -945,7 +976,7 @@ int Catalog::getSelStatError(const std::string name, const long srow,
   num=checkQuant_name(origin, name);
   if (num < 0) return num;
   std::string statName=m_quantities.at(num).m_statError;
-  if (statName == "") {;
+  if (statName.empty()) {;
     statName="given Quantity name ("+name+") has no statistical error";
     printWarn(origin, statName);
     return NO_QUANT_ERR;
@@ -978,7 +1009,7 @@ int Catalog::getSelSysError(const std::string name, const long srow,
   num=checkQuant_name(origin, name);
   if (num < 0) return num;
   std::string sysName=m_quantities.at(num).m_sysError;
-  if (sysName == "") {;
+  if (sysName.empty()) {;
     sysName="given Quantity name ("+name+") has no systematic error";
     printWarn(origin, sysName);
     return NO_QUANT_ERR;

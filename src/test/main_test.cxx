@@ -226,8 +226,11 @@ int main(int iargc, char * argv[]) {
   err=myCat->importDescription(strVal);
   std::cout << "* Value returned = " << err << std::endl;
 
+  /* changing the verbosity level up to maximum */
+  catalogAccess::verbosity=4;
   std::cout << "\n* Calling: import on file \"3EG_test.out\" (with 5 rows)"
             << std::endl;
+  myCat->deleteContent();
   err=myCat->import(strVal);
   vecSize=myCat->getQuantityDescription(&allQ);
   myCat->getNumRows(&numRows);

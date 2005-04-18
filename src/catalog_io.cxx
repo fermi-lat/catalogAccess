@@ -529,7 +529,8 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
        lineSkipped=false;
   int  i, last, err=IS_OK,
        found=0,
-       nbQuantAscii=0;
+       nbQuantAscii=0,
+       maxLine=MAX_LINE-1; // to avoid computation each line
   int (*pfunc)(int)=toupper; // function used by transform
 
   if (getDescr) origin="importDescription"; else origin="import";
@@ -537,11 +538,11 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
 
     // extract line with delimiter \n which is discarded
     myFile.getline(line, MAX_LINE);
-    text=line; /* convert C string to C++ string */
     (*tot)++;
     switch (found) {
     case 0:
       mot="#Column";
+      text=line; /* convert C string to C++ string */
       pos=text.find(mot);
       if (pos == 0) {
         Quantity readQ;
@@ -623,6 +624,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
       // If lines are separated by TAB ==> TSV (what * -1)
       // Check that first word match first quantity,
       // if not: considered as separation line and loop on case 1.
+      text=line; /* convert C string to C++ string */
       pos=text.find(sep);
       if (pos != std::string::npos) {
         mot=text.substr(0, pos);
@@ -641,11 +643,11 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
 
     case 2:
       // most of decription is read, units on separate line
-      last=text.length();
-      if (testCR) text.erase(--last);
+      last=strlen(line);
+      if (testCR) line[--last]='\0';
       if (last > 0) {
         found++;
-        m_filePos=myFile.tellg();
+        text=line; /* convert C string to C++ string */
         i=0;
         last=text.find(sep);
         do {
@@ -675,9 +677,9 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
 
     case 3:
       // decription is read, separation line starting with ---
-      last=text.length();
-      if (testCR) text.erase(--last);
-      if ((last > 0) && (text[0] == '-')) {
+      last=strlen(line);
+      if (testCR) line[--last]='\0';
+      if ((last > 0) && (line[0] == '-')) {
         found++;
         m_numRows=0;
         m_filePos=myFile.tellg();
@@ -687,25 +689,26 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
           // to allocate m_strings, m_numericals buffers.
           while ( myFile.good() ) {
             myFile.getline(line, MAX_LINE);
-            if (strlen(line) == (size_t)testCR) break;
+            if (strlen(line) < 2) break; // 1 CR for WINDOWS
             m_numReadRows++;
           }
           // go back to initial position printf("%ld ReadRows\n", m_numReadRows);
           myFile.clear(); // needed to reset flags before seekg
           myFile.seekg(m_filePos);
+          m_numOriRows=m_numReadRows; // used by importSelected();
         }
         create_tables(nbQuantAscii);
       }
       break;
 
     default:
-      last=text.length();
-      if ((last == 0) || (text[0] == 0x0D)) {
-        lineSkipped=true;
+      last=strlen(line);
+      if ((last == 0) || (line[0] == 0x0D)) {
+        lineSkipped=true; // to have Warning messages below
         break;
       }
       // string max size is MAX_LINE-1;
-      if (last >= MAX_LINE-1) {
+      if (last >= maxLine) {
         sortie << "line #" << *tot << " exceeds maximal size ("
                << MAX_LINE << ")";
         printErr(origin, sortie.str());
@@ -713,16 +716,16 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
         err=BAD_FILELINE;
         break;
       }
-      if (testCR) text.erase(--last);
-      mot="#Table";
-      pos=text.find(mot);
-      if (pos == 0) {
+      i=strncmp(line, "#Table", 6);
+      if (i == 0) {
         sortie << "line #" << *tot << ": second table start (not read)";
         printWarn(origin, sortie.str());
         sortie.str(""); // Will empty the string.
         err=BAD_ROW;
         break;
       }
+      if (testCR) line[--last]='\0';
+      text=line; /* convert C string to C++ string */
       pos=text.find(sep);
       if (pos == std::string::npos) {
         sortie << "line #" << *tot << " without separator, line skipped";
@@ -769,7 +772,8 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
       // Quantities must be set.
       if (found == 1) {
         if (m_quantities.size() == 0) { found--; break; }
-        if (*what >= 2) { found=4; break; }// found changed, no error on META ALL
+        if (*what >= 2) { found=4; break; }
+                       // found changed, no error on META ALL
       }
     }
     else if (getDescr) break;
@@ -1100,24 +1104,52 @@ int Catalog::importWeb(const std::string catName,
 int Catalog::loadSelected(unsigned long *tot) {
 
   const std::string origin="importSelected";
+  int  i, last,
+       maxLine=MAX_LINE-1, // to avoid computation each line
+       err=0;
   char sep=';',
        line[MAX_LINE];
+
+  m_numRows=0;
+  if ( !m_numOriRows ) {
+    // read the total number of rows to have a maximal value
+    // to allocate m_strings, m_numericals buffers.
+    while ( myFile.good() ) {
+      myFile.getline(line, MAX_LINE);
+      if (strlen(line) < 2) break; // 1 CR for WINDOWS
+      m_numOriRows++;
+    }
+    // go back to initial position
+    myFile.clear(); // needed to reset flags before seekg
+    myFile.seekg(m_filePos);
+  }
+  m_numReadRows=m_numOriRows;
+  last=m_quantities.size();
+  for (i=0; i<last; i++)
+    if (m_quantities[i].m_format[0] == 'A') err++;
+  create_tables(err);
+  if (!m_numReadRows) return IS_OK;
+
+//printf("%ld OriRows\n", m_numOriRows);
   bool testCR=false,
-       first=true;
-  int  i, last,
-       err=IS_OK;
+       first=true,
+       lineSkipped=false;
   unsigned int pos;
   std::ostringstream sortie;
   std::string text, mot;
+  err=IS_OK;
   while ( myFile.good() ) {
 
     // extract line with delimiter \n which is discarded
     myFile.getline(line, MAX_LINE);
     (*tot)++;
     last=strlen(line);
-    if ((last == 0) || (line[0] == 0x0D)) continue;
+    if ((last == 0) || (line[0] == 0x0D)) {
+      lineSkipped=true; // to have Warning messages below
+      continue;
+    }
     // string max size is MAX_LINE-1;
-    if (last >= MAX_LINE-1) {
+    if (last >= maxLine) {
       sortie << "data line #" << *tot << " exceeds maximal size ("
              << MAX_LINE << ")";
       printErr(origin, sortie.str());
@@ -1140,23 +1172,16 @@ int Catalog::loadSelected(unsigned long *tot) {
           break;
         }
       }
-/*   if (pos == std::string::npos) {
-       if ((pos=text.find(0x09)) != std::string::npos) {
-        // suppose there is at least 2 columns
-          found++;
-          sep=0x09;
-        }*/
     }
     else if (testCR) line[--last]='\0';
-    text=line; /* convert C string to C++ string */
-    mot="#Table";
-    pos=text.find(mot);
-    if (pos == 0) {
+    i=strncmp(line, "#Table", 6);
+    if (i == 0) {
       sortie << "data line #" << *tot << ": second table start (not read)";
       printWarn(origin, sortie.str());
       sortie.str(""); // Will empty the string.
       break;
     }
+    text=line; /* convert C string to C++ string */
     pos=text.find(sep);
     if (pos == std::string::npos) {
       sortie << "data line #" << *tot << " without separator, line skipped";
@@ -1165,15 +1190,20 @@ int Catalog::loadSelected(unsigned long *tot) {
       continue;
     }
     i=0;
-/*    err=m_quantities.size();
+    if (lineSkipped) break;
+    err=m_loadQuantity.size();
+    last=0;
     do {
       mot=text.substr(0, pos);
-      if (i < err) translate_cell(mot, i);
-      else {
+      if (i >= err) {
         sortie << "data line #" << *tot << " contains too many quantities";
         printWarn(origin, sortie.str());
         sortie.str(""); // Will empty the string.
         break;
+      }
+      else {
+        if (m_loadQuantity[i]) translate_cell(mot, i-last);
+	else last++;
       }
       i++;
       if (pos != std::string::npos) {
@@ -1189,7 +1219,7 @@ int Catalog::loadSelected(unsigned long *tot) {
       sortie.str(""); // Will empty the string.
     }
     err=IS_OK;
-    m_numRows++;*/
+    m_numRows++;
   }
   return err;
 }
@@ -1206,17 +1236,23 @@ int Catalog::importSelected() {
     printWarn(origin, "call 'deleteContent' before 'importSelected'");
     return IMPORT_BIS;
   }
-  int i, err=0;
-  for (i=0; i<quantSize; i++) if (m_loadQuantity.at(i)) err++;
+  int i, err=0,
+      maxSize=m_loadQuantity.size();
+  for (i=0; i<maxSize; i++) if (m_loadQuantity[i]) err++;
   if (err < 2) {
-    printWarn(origin, "at least 2 quantities must be selected for import");
-    return IS_VOID;
+    printErr(origin, "at least 2 quantities must be selected for import");
+    return BAD_SEL_QUANT;
   }
   std::ostringstream sortie; 
-  sortie << err << " quantities (over " << quantSize << ") selected for import";
+  sortie << err << " quantities (over " << maxSize << ") selected for import";
   printLog(1, sortie.str());
   sortie.str(""); // Will empty the string
-
+  if (err != quantSize) {
+    // in fact, due to select*Quantities() restrictions,
+    // quantSize can only be greater than err
+    printLog(2, "Erasing unwanted quantities for importSelected()");
+    deleteQuantities();
+  }
   err=IS_VOID; //IS_OK;
   if ( myFile.is_open() ) { // data must be read from file
 
@@ -1240,7 +1276,7 @@ int Catalog::importSelected() {
 
 
   }
-  printWarn(origin, "function not implemented");
+  printWarn(origin, "function only implemented for column selection");
   return err;
 }
 

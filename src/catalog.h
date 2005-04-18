@@ -357,7 +357,6 @@ public:
       // reassign the row numbers by sorting by the given
       // quantity in decending order
 
-
 /**********************************************************************/
 private:
 
@@ -372,8 +371,8 @@ private:
   double m_posErrSys;
   double m_posErrFactor;
 
-  std::vector<Quantity> m_quantities; // the definition of the catalog
-  std::vector<bool> m_loadQuantity;   // which Quantities to load
+  std::vector<Quantity> m_quantities;      // the definition of the catalog
+  std::vector<bool>     m_loadQuantity;    // which quantities to load ?
 
   std::vector<std::vector<std::string> > m_strings;
       // stores all string contents of the catalog;
@@ -434,6 +433,9 @@ private:
   void deleteDescription();
       // erase the changes made by "importDescription"
       // must call first "deleteContent" if "import" or "importSelected" done
+  void deleteQuantities();
+      // erase elements in m_quantities according to m_loadQuantity,
+      // deleteContent() MUST be done before
 
   bool checkRegion(const long row, const int nRA, const int nDEC);
       // check if given row is inside the elliptical region,
@@ -550,6 +552,7 @@ inline Catalog::Catalog() {
     printErr("Catalog constructor", errText);
     throw;
   }
+  verbosity=3;
   #ifdef DEBUG_CAT
   std::cout << "!! DEBUG Catalog constructor (sizes=" <<  m_quantities.size()
             <<","<< m_strings.size() <<","<< m_numericals.size() <<","

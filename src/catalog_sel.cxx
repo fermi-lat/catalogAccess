@@ -20,19 +20,37 @@ namespace catalogAccess {
 // importSelected() will actually load selected quantities
 int Catalog::selectQuantity(const std::string name, const bool toBeLoaded) {
 
-  int num=checkImport("selectQuantity", true);
-  if (num < IS_VOID) return num;
-  num=checkQuant_name("selectQuantity", name);
+  int quantSize=checkImport("selectQuantity", true);
+  if (quantSize < IS_VOID) return quantSize;
+  int num=checkQuant_name("selectQuantity", name);
   if (num < 0) return num;
+
+  int maxSize=m_loadQuantity.size();
+  if (quantSize != maxSize) {
+    printWarn("selectQuantity",
+             "cannot get all initial quantities once importSelected() done");
+    return BAD_SEL_QUANT;
+  }
   m_loadQuantity.at(num)=toBeLoaded;
   return IS_OK;
 }
 /**********************************************************************/
 int Catalog::selectAllQuantities(const bool toBeLoaded) {
 
-  int num=checkImport("selectAllQuantities", true);
-  if (num < IS_VOID) return num;
-  m_loadQuantity.assign(num, toBeLoaded);
+  int quantSize=checkImport("selectAllQuantities", true);
+  if (quantSize < IS_VOID) return quantSize;
+
+  // beware m_loadQuantity has always the initial size
+  // whereas m_quantities size can decrease
+  int maxSize=m_loadQuantity.size();
+  if (quantSize != maxSize) {
+    printWarn("selectAllQuantities",
+             "cannot get all initial quantities once importSelected() done");
+    return BAD_SEL_QUANT;
+  }
+  if (toBeLoaded) // vectors with same size
+       m_loadQuantity.assign(maxSize, true);
+  else m_loadQuantity.assign(maxSize, false);
   return IS_OK;
 }
 
@@ -866,7 +884,7 @@ int Catalog::setMatchPercent(const std::string name, double percent) {
   std::ostringstream sortie;
   if (percent <= 100.*NearZero) {
     sortie << "Percentage must be > " << 100.*NearZero;
-    printErr(origin, sortie.str());
+    printWarn(origin, sortie.str());
     return BAD_SEL_LIM;
   }
   // if limit is the same: do nothing
@@ -927,7 +945,7 @@ int Catalog::setMatchEpsilon(const std::string name, const unsigned long step)
   std::ostringstream sortie;
   if (step == 0ul) {
     sortie << "Number of epsilon must be > 0";
-    printErr(origin, sortie.str());
+    printWarn(origin, sortie.str());
     return BAD_SEL_LIM;
   }
   // if limit is the same: do nothing
