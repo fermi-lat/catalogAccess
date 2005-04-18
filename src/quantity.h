@@ -41,11 +41,12 @@ enum { IS_OK = 1, IS_VOID = 0,
      BAD_FILETYPE = -5, BAD_FILELINE = -6, BAD_URL = -7, NO_RA_DEC = -8,
    BAD_ROW = -10, BAD_QUANT_NAME = -11, BAD_QUANT_TYPE = -12, NO_QUANT_ERR= -13,
    BAD_RA = -14, BAD_DEC = -15, BAD_ROT = -16, BAD_AXIS = -17,
- BAD_SEL_LIM = -20 };
+ BAD_SEL_LIM = -20, BAD_SEL_QUANT = -21 };
 
-void printErr(const std::string origin, const std::string text);
-void printWarn(const std::string origin, const std::string text);
-void printLog(const unsigned char level, const std::string text);
+extern int verbosity; // global variable 0 (less) to 4 (more verbose)
+extern void printErr(const std::string origin, const std::string text);
+extern void printWarn(const std::string origin, const std::string text);
+extern void printLog(const int level, const std::string text);
 
 /**
  * @class Quantity
@@ -64,6 +65,7 @@ public:
   typedef enum {NUM=1, STRING=2, VECTOR=0} QuantityType;
 
   Quantity() {                  // Default constructor
+ 
     m_type =VECTOR;
     m_index=-1;
     m_isGeneric   =false;

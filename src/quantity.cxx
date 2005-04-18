@@ -17,15 +17,19 @@ namespace catalogAccess {
 /**********************************************************************/
 /*  GLOBAL FUNCTION for catalogAccess                                 */
 /**********************************************************************/
+int verbosity;
+
 void printErr(const std::string origin, const std::string text) {
   std::cerr << "ERROR catalogAccess (IN " << origin << ") "
             << text << std::endl;
 }
 void printWarn(const std::string origin, const std::string text) {
+  if (verbosity > 0)
   std::cerr << "WARNING catalogAccess (IN " << origin << "): "
             << text << std::endl;
 }
-void printLog(const unsigned char level, const std::string text) {
+void printLog(const int level, const std::string text) {
+  if (verbosity+level >= 4)
   std::cout << "LOG_" << (int)level << " (catalogAccess): "
             << text << std::endl;
 }

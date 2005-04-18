@@ -94,7 +94,6 @@ STEP 3) METHODS when IMPORT WORKS (on EGRET)
 * Calling: importDescription on file "3EG_test.out" (pointer 'myCat')
 WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file: 30 lines read
 * Value returned = 11
 * Calling: getQuantityNames, get 11 quantities:
 recno
@@ -163,17 +162,15 @@ WARNING catalogAccess (IN setLowerCut): given Quantity name () do not exist
 
 * Calling: importSelected
 LOG_1 (catalogAccess): 11 quantities (over 11) selected for import
-LOG_0 (catalogAccess): 6 data lines read for importSelected()
-WARNING catalogAccess (IN importSelected): function not implemented
-* Value returned = 0
-* Number of rows = 0
+WARNING catalogAccess (IN importSelected): data line #2 does not contain all quantities
+WARNING catalogAccess (IN importSelected): data line #5 contains too many quantities
+WARNING catalogAccess (IN importSelected): function only implemented for column selection
+* Value returned = 5
+* Number of rows = 5
 
 * Calling again: importDescription on file "3EG_test.out"
-LOG_2 (catalogAccess): deleting previous Catalog description
-WARNING catalogAccess (IN importDescription): more units than quantities, ignoring last unit(s)
-LOG_1 (catalogAccess): input text file is CSV type (; separator)
-LOG_0 (catalogAccess): input text file: 30 lines read
-* Value returned = 11
+WARNING catalogAccess (IN importDescription): call 'deleteContent' before importing again
+* Value returned = -1
 
 * Calling: import on file "3EG_test.out" (with 5 rows)
 LOG_2 (catalogAccess): deleting previous Catalog description
@@ -183,6 +180,7 @@ WARNING catalogAccess (IN import): line #32 does not contain all quantities
 WARNING catalogAccess (IN import): line #35 contains too many quantities
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
 LOG_0 (catalogAccess): input text file: 36 lines read
+LOG_1 (catalogAccess): Original whole catalog number of rows =      5
 LOG_1 (catalogAccess): Needed RAM space (MB) for      5 data rows =   0.0
     0 kB for numericals (  7 double per row)
     0 kB for  4 strings ( 86 char per row)
@@ -258,7 +256,7 @@ time: ucd="IJDelapsed", type=1, unit="sec", format="",
 comment=""
 
 * COPY 'myCat' to 'aCat' then DELETE 'myCat
-ERROR catalogAccess (IN Catalog copy constructor) FILE should be CLOSED (in this version), FORBIDS importSelected
+WARNING catalogAccess (IN Catalog copy constructor): FILE isn't CLOSED (in this version), FORBIDS importSelected
 * Number of rows in 'aCat' = 5
 
 * 'aCat' info (size 3):
@@ -381,6 +379,7 @@ ERROR catalogAccess (IN importDescription) : fits FILE not handled now
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
 LOG_0 (catalogAccess): input text file: 102 lines read
+LOG_1 (catalogAccess): Original whole catalog number of rows =     50
 LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
     9 kB for numericals ( 22 double per row)
     3 kB for  9 strings ( 59 char per row)
@@ -602,6 +601,7 @@ LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): input text file is CSV type (; separator)
 LOG_0 (catalogAccess): input text file: 102 lines read
+LOG_1 (catalogAccess): Original whole catalog number of rows =     50
 LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
     9 kB for numericals ( 22 double per row)
     3 kB for  9 strings ( 59 char per row)
