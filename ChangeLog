@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: landriu  Mon Apr 18 06:08:45 PDT 2005
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx catalog_sel.cxx 
+	quantity.cxx quantity.h 
+Log Message:
+column selection
+    *
+------------------------------------------------------------
 User: landriu  Mon Apr 18 06:08:44 PDT 2005
 catalogAccess/doc
 
