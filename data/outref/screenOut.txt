@@ -59,7 +59,7 @@ WARNING catalogAccess (IN importWeb): given Catalog name (toto) do not exist
 * Try to load via Web catalog "ROSAT 1RXS" (pointer 'myCat')
 ERROR catalogAccess (IN importDescriptionWeb) : CODE for URL (web http address) is empty
 ERROR catalogAccess (IN importWeb) : CODE for URL (web http address) do not exist
-* Values returned = -7 then -7
+* Values returned = -8 then -8
 * Number of rows in 'myCat' = 0
 
 * Calling: importSelected
@@ -363,17 +363,223 @@ ERROR catalogAccess (IN importDescription) : FILENAME is EMPTY
 
 * Calling: importDescription("totoX") then  importDescription("../..")
 ERROR catalogAccess (IN importDescription) : FILENAME "totoX" cannot be opened
-ERROR catalogAccess (IN importDescription) : FILENAME "../.." is a directory
-* Values returned = -4, -5
+ERROR catalogAccess (IN importDescription) : FILENAME "../.." is empty or has unknown structure (stopped step 0)
+LOG_0 (catalogAccess): input file: 1 lines read
+* Values returned = -4, -4
 
 * Calling: importDescription on file "1rxs_50.fits"
-ERROR catalogAccess (IN importDescription) : FILENAME "/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.fits" is fits without extension[] specified
-LOG_0 (catalogAccess): input file: 0 lines read
-* Value returned = -4
+LOG_1 (catalogAccess): fits extension TABLE name = IX_10A_1rxs
+* Value returned = 30
+* Calling: getQuantityDescription, results: 
+_Glon: ucd="POS_GAL_LON", type=1, unit="deg", format="F6.2",
+     index=0, boolGeneric=1, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+_Glat: ucd="POS_GAL_LAT", type=1, unit="deg", format="F6.2",
+     index=1, boolGeneric=1, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+recno: ucd="RECORD", type=1, unit="", format="I8",
+     index=2, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+1RXS: ucd="ID_MAIN", type=2, unit="", format="A21",
+     index=0, boolGeneric=1, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+n_1RXS: ucd="NOTE", type=2, unit="", format="A1",
+     index=1, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+RAJ2000: ucd="POS_EQ_RA_MAIN", type=1, unit="deg", format="F9.5",
+     index=3, boolGeneric=1, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+DEJ2000: ucd="POS_EQ_DEC_MAIN", type=1, unit="deg", format="F9.5",
+     index=4, boolGeneric=1, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+PosErr: ucd="ERROR", type=1, unit="arcsec", format="I2",
+     index=5, boolGeneric=1, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+ScrFlags: ucd="CODE_MISC", type=2, unit="", format="A5",
+     index=2, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+NewFlag: ucd="CODE_MISC", type=2, unit="", format="A4",
+     index=3, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+Count: ucd="PHOT_COUNT-RATE_X", type=1, unit="ct/s", format="E9.2",
+     index=6, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+e_Count: ucd="ERROR", type=1, unit="ct/s", format="E9.2",
+     index=7, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+bgCt: ucd="INST_BACKGROUND", type=1, unit="ct/s/arcmin2", format="E9.2",
+     index=8, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+ExpTime: ucd="TIME_EXPTIME", type=1, unit="s", format="I6",
+     index=9, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+HR1: ucd="SPECT_HARDNESS-RATIO", type=1, unit="", format="F5.2",
+     index=10, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+e_HR1: ucd="ERROR", type=1, unit="", format="F5.2",
+     index=11, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+HR2: ucd="SPECT_HARDNESS-RATIO", type=1, unit="", format="F5.2",
+     index=12, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+e_HR2: ucd="ERROR", type=1, unit="", format="F5.2",
+     index=13, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+Extent: ucd="EXTENSION_DIAM", type=1, unit="arcsec", format="I5",
+     index=14, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+L_Extent: ucd="STAT_LIKELIHOOD", type=1, unit="", format="I4",
+     index=15, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+Ldetect: ucd="STAT_LIKELIHOOD", type=1, unit="", format="I4",
+     index=16, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+ExtRad: ucd="REDUCT_EXTR-RAD", type=1, unit="arcsec", format="I5",
+     index=17, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+PrioFlags: ucd="CODE_MISC", type=2, unit="", format="A6",
+     index=4, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+PHA: ucd="CODE_MISC", type=2, unit="", format="A1",
+     index=5, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+VigFactor: ucd="INST_CORR-FACTOR", type=1, unit="", format="F5.2",
+     index=18, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+IncDate: ucd="TIME_DATE", type=2, unit=""Y:M:D"", format="A10",
+     index=6, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+UpdDate: ucd="TIME_DATE", type=2, unit=""Y:M:D"", format="A10",
+     index=7, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+Ncand: ucd="NUMBER", type=1, unit="", format="I3",
+     index=19, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+SASS: ucd="ID_FIELD", type=1, unit="", format="I8",
+     index=20, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+MASOL: ucd="ID_NUMBER", type=1, unit="", format="I4",
+     index=21, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+* 'aCat' info (size 6):
+code="ROSAT 1RXS"
+URL =""
+catalog="IX/10A" []
+table  ="IX/10A/1rxs" []
+
+* Calling: import on file "test1.fits"
+LOG_2 (catalogAccess): deleting previous Catalog description
+WARNING catalogAccess (IN import): trying to get whole catalog file
+LOG_1 (catalogAccess): fits extension BINTABLE name = GLAST_CAT
+WARNING catalogAccess (IN import): fits EXTENSION, cannot get all header keys
+WARNING catalogAccess (IN import): fits EXTENSION, cannot get all header comments
+WARNING catalogAccess (IN import): Unknown table name, all generic quantities may be not found
+LOG_1 (catalogAccess): Original whole catalog number of rows =     17
+LOG_1 (catalogAccess): Needed RAM space (MB) for     17 data rows =   0.0
+    2 kB for numericals ( 12 double per row)
+    0 kB for  3 strings (  1 char per row)
+    0 kB for select bits ( 1 long per row)
+* Value returned = 17
+* Calling: getQuantityDescription, results: 
+ID: ucd="", type=2, unit="", format="20A",
+     index=0, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+POS_EQ_RA: ucd="", type=1, unit="deg", format="1E",
+     index=0, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+POS_EQ_DEC: ucd="", type=1, unit="deg", format="1E",
+     index=1, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+POS_ERR_MAJ: ucd="", type=1, unit="deg", format="1E",
+     index=2, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+POS_ERR_MIN: ucd="", type=1, unit="deg", format="1E",
+     index=3, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+POS_ERR_ANG: ucd="", type=1, unit="deg", format="1E",
+     index=4, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+PROB: ucd="", type=1, unit="probability", format="1E",
+     index=5, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+SRC_3EG: ucd="", type=2, unit="", format="10A",
+     index=1, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+SRC_RAJ2000: ucd="", type=1, unit="deg", format="1E",
+     index=6, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+SRC_DEJ2000: ucd="", type=1, unit="deg", format="1E",
+     index=7, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+SRC_theta95: ucd="", type=1, unit="deg", format="1E",
+     index=8, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+CPT_1RXS: ucd="", type=2, unit="", format="21A",
+     index=2, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+CPT_RAJ2000: ucd="", type=1, unit="deg", format="1E",
+     index=9, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+CPT_DEJ2000: ucd="", type=1, unit="deg", format="1E",
+     index=10, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+CPT_PosErr: ucd="", type=1, unit="arcsec", format="1E",
+     index=11, boolGeneric=0, boolNaN=1
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment=""
+Quantity POS_EQ_RA minimum =   3.030e+02
+Quantity POS_EQ_RA maximum) =   3.098e+02
+WARNING catalogAccess (IN maxVal): given Quantity name (SRC_3EG) is not of NUM type
+* SRC_3EG vector (size=6)
 
 * Calling: importDescription on "1rxs_50.fits[1]"
-ERROR catalogAccess (IN importDescription) : fits FILE not handled now
-* Value returned = -5
+LOG_2 (catalogAccess): deleting previous Catalog description
+ERROR catalogAccess (IN importDescription) : FILENAME "/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.fits[1]" cannot be opened
+* Value returned = -4
 
 * Calling: import on file "/1rxs_50.out"
 WARNING catalogAccess (IN import): trying to get whole catalog file
@@ -388,7 +594,7 @@ LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
 * Number of quantities & rows = 31 & 50
 * 'aCat' info (size 6):
 code="ROSAT 1RXS"
-URL=""
+URL =""
 catalog="IX/10A" [ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)]
 table  ="IX/10A/1rxs" [The 1RXS catalogue]
 

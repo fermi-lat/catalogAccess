@@ -196,7 +196,7 @@ Catalog::Catalog(const Catalog & myCat) {
     vecSize=myCat.m_selEllipse.size(); // size is only 7
     for (j=0; j<vecSize; j++) m_selEllipse.push_back(myCat.m_selEllipse.at(j));
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     errText=std::string("EXCEPTION on m_selEllipse[]: ")+err.what();
     printErr("Catalog copy constructor", errText);
     throw;
@@ -208,7 +208,7 @@ Catalog::Catalog(const Catalog & myCat) {
     for (j=0; j<vecSize; j++)
       m_loadQuantity.push_back(myCat.m_loadQuantity.at(j));
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     errText=std::string("EXCEPTION on m_loadQuantity[]: ")+err.what();
     printErr("Catalog copy constructor", errText);
     throw;
@@ -218,7 +218,7 @@ Catalog::Catalog(const Catalog & myCat) {
     for (itQ=myCat.m_quantities.begin(); itQ!=myCat.m_quantities.end(); itQ++)
       m_quantities.push_back(*itQ);
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     errText=std::string("EXCEPTION on m_quantities[]: ")+err.what();
     printErr("Catalog copy constructor", errText);
     throw;
@@ -235,7 +235,7 @@ Catalog::Catalog(const Catalog & myCat) {
           m_rowIsSelected[j].push_back(myCat.m_rowIsSelected[j].at(i));
       }
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_rowIsSelected[][]: ")+err.what();
       printErr("Catalog copy constructor", errText);
       throw;
@@ -252,7 +252,7 @@ Catalog::Catalog(const Catalog & myCat) {
           m_strings[j].push_back(myCat.m_strings[j].at(i));
       }
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_strings[][]: ")+err.what();
       printErr("Catalog copy constructor", errText);
       throw;
@@ -269,7 +269,7 @@ Catalog::Catalog(const Catalog & myCat) {
           m_numericals[j].push_back(myCat.m_numericals[j].at(i));
       }
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_numericals[][]: ")+err.what();
       printErr("Catalog copy constructor", errText);
       throw;
@@ -300,7 +300,7 @@ void Catalog::getCatList(std::vector<std::string> *names, const bool isCode) {
       names->push_back(text);
     }
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text=std::string("EXCEPTION filling names: ")+prob.what();
     printErr("getCatList", text);
     throw;
@@ -334,7 +334,7 @@ void Catalog::getWebList(std::vector<std::string> *names, const bool isCode) {
       names->push_back(text);
     }
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text=std::string("EXCEPTION filling names: ")+prob.what();
     printErr("getWebList", text);
     throw;
@@ -388,7 +388,7 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
       m_numRows=err;
       return err;
     }
-    DIR *testDir=opendir(fileName.c_str());
+/*    DIR *testDir=opendir(fileName.c_str());
     if (testDir != NULL) {
       closedir(testDir);
       myFile.close();
@@ -397,7 +397,7 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
       err=BAD_FILETYPE;
       m_numRows=err;
       return err;
-    }
+    }*/
     err=analyze_head(&tot, &what, &testCR);
     if (!tot) {
       text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
@@ -410,7 +410,8 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
              << "has unknown structure (stopped step " << -1*err << ")";
       printErr(origin, sortie.str());
       sortie.str(""); // Will empty the string.
-      err=BAD_FILETYPE;
+      if (err == 0) err=BAD_FILENAME; /* nothing is read */
+      else err=BAD_FILETYPE; /* can search if catalog name exist */
     }
     else if (what == 2) {
       sortie << "closing input META file (" << m_numOriRows;
@@ -570,7 +571,7 @@ int Catalog::getQuantityNames(std::vector<std::string> *names) {
     for (int i=0; i<quantSize; i++)
       names->push_back(m_quantities.at(i).m_name);
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     std::string errText;
     errText=std::string("EXCEPTION on names: ")+err.what();
     printErr(origin, errText);
@@ -593,7 +594,7 @@ int Catalog::getQuantityUnits(std::vector<std::string> *units) {
     for (int i=0; i<quantSize; i++)
       units->push_back(m_quantities.at(i).m_unit);
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     std::string errText;
     errText=std::string("EXCEPTION on units: ")+err.what();
     printErr(origin, errText);
@@ -616,7 +617,7 @@ int Catalog::getQuantityUCDs (std::vector<std::string> *ucds) {
     for (int i=0; i<quantSize; i++)
       ucds->push_back(m_quantities.at(i).m_ucd);
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     std::string errText;
     errText=std::string("EXCEPTION on ucds: ")+err.what();
     printErr(origin, errText);
@@ -639,7 +640,7 @@ int Catalog::getQuantityTypes(std::vector<Quantity::QuantityType> *types) {
     for (int i=0; i<quantSize; i++)
       types->push_back(m_quantities.at(i).m_type);
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     std::string errText;
     errText=std::string("EXCEPTION on types: ")+err.what();
     printErr(origin, errText);
@@ -827,7 +828,7 @@ int Catalog::getSValues(const std::string name,
       if (j == max) values->push_back(text);
     }
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     text=std::string("EXCEPTION on values: ")+err.what();
     printErr(origin, text);
     throw;
@@ -1069,7 +1070,7 @@ int Catalog::getSelSValues(const std::string name,
       if (++tot == m_numSelRows) break; // to speed up
     }
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     text=std::string("EXCEPTION on values: ")+err.what();
     printErr(origin, text);
     throw;

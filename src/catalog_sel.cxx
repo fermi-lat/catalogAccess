@@ -1268,7 +1268,7 @@ int Catalog::eraseNonSelected() {
       myIter.clear();
 */
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text="EXCEPTION erasing m_strings, m_numericals or m_rowIsSelected: ";
     text=text+prob.what();
     printErr(origin, text);
@@ -1359,7 +1359,7 @@ int Catalog::eraseSelected() {
     m_selRegion=false;
 */
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text="EXCEPTION erasing m_strings, m_numericals or m_rowIsSelected: ";
     text=text+prob.what();
     printErr(origin, text);

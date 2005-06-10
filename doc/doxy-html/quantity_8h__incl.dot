@@ -1,0 +1,12 @@
+digraph inheritance
+{
+  Node94 [shape="box",label="quantity.h",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="black",style="filled" fontcolor="white"];
+  Node95 -> Node94 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node95 [shape="box",label="limits",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node96 -> Node94 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node96 [shape="box",label="iostream",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node97 -> Node94 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node97 [shape="box",label="sstream",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+  Node98 -> Node94 [dir=back,color="midnightblue",fontsize=10,style="solid",fontname="Helvetica"];
+  Node98 [shape="box",label="vector",fontsize=10,height=0.2,width=0.4,fontname="Helvetica",color="grey75"];
+}
