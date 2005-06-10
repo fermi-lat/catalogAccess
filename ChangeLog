@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: landriu  Fri Jun 10 06:15:44 PDT 2005
+catalogAccess/doc
+
+Modified Files:
+	release.notes 
+Added Files:
+	used_packages.html 
+Log Message:
+read fits (using tip)
+    *
+------------------------------------------------------------
+User: landriu  Fri Jun 10 06:15:44 PDT 2005
 catalogAccess/data/outref
 
 Modified Files:
