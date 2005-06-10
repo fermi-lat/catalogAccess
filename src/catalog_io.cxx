@@ -12,9 +12,10 @@
  */
 
 #include "catalog.h"
+#include "tip/Header.h"
 
 namespace catalogAccess {
-
+  using namespace tip;
 /**********************************************************************/
 /*  DEFINING CLASS CONSTANTS                                          */
 /**********************************************************************/
@@ -38,6 +39,9 @@ static const char *UCD_Added[MAX_GEN]={
 
 const std::string Catalog::s_genericL = UCD_List[4];
 const std::string Catalog::s_genericB = UCD_List[5];
+const std::string KeyCatal[2]={"CDS-CAT",
+                               "Catalogue designation in CDS nomenclature"};
+const std::string KeyTable[2]={"CDS-NAME", "Table used in a VizieR Query"};
 
 /**********************************************************************/
 /*  METHODS for IMPORTING, SAVING, LOADING                            */
@@ -216,7 +220,7 @@ void Catalog::create_tables(const int nbQuantAscii) {
     try {
       m_strings.resize(nbQuantAscii);
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_strings: ")+err.what();
       printErr("private create_tables", errText);
       throw;
@@ -227,7 +231,7 @@ void Catalog::create_tables(const int nbQuantAscii) {
     try {
       m_numericals.resize(vecSize);
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_numericals: ")+err.what();
       printErr("private create_tables", errText);
       throw;
@@ -251,7 +255,7 @@ void Catalog::add_rows() {
 //        for (j=0; j<m_numReadRows; j++) m_strings[i].at(j).resize(20);
       }
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_strings: ")+err.what();
       printErr("private add_rows", errText);
       throw;
@@ -262,7 +266,7 @@ void Catalog::add_rows() {
     try {
       for (i=0; i<vecSize; i++) m_numericals[i].resize(m_numReadRows);
     }
-    catch (std::exception &err) {
+    catch (const std::exception &err) {
       errText=std::string("EXCEPTION on m_numericals: ")+err.what();
       printErr("private add_rows", errText);
       throw;
@@ -310,11 +314,182 @@ void Catalog::translate_cell(std::string mot, const int index) {
 
 /**********************************************************************/
 // read the catalog from fits file (only description if getDescr is true)
-int Catalog::analyze_fits(const std::string &fileName, const bool getDescr,
+int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
                           const std::string origin) {
 
-/*TO BE DONE   use tip to open ASCII fits */
+  std::string text, mot;
+  int  i, j, max,
+       found=0,
+       nbQuantAscii=0;
+  char name[9]; /* 8 char maximum gor header key */
+  bool binary=true;
+  unsigned int pos;
+  int (*pfunc)(int)=toupper; // function used by transform
+  const Header &header=myDOL->getHeader();
 
+  try {
+    text=myDOL->getName();
+    header.getKeyword("XTENSION", mot);
+  /* text.rfind('_');
+    since '/' are replaced by '_' in EXTNAME
+    and  is ambiguous with '_' in catalog name:
+    must search for keywords CDS-CAT  CDS-NAME
+  */
+  }
+  catch (const TipException &x) {
+    text=": fits EXTENSION, cannot get name";
+    printErr(origin, text);
+    return BAD_FITS;
+  }
+  std::ostringstream sortie;
+  sortie << "fits extension " << mot << " name = " << text;
+  printLog(1, sortie.str());
+  sortie.str(""); // Will empty the string.
+
+  m_catName="";   m_catRef="";
+  m_tableName=""; m_tableRef="";
+  if (mot == "TABLE") binary=false;
+  try {
+    header.getKeyword(KeyTable[0], text);
+    m_tableName=text;
+    header.getKeyword(KeyCatal[0], mot);
+    m_catName=mot;
+
+  }
+  catch (const TipException &x) {
+    if (binary) {
+      printWarn(origin, "fits EXTENSION, cannot get all header keys");
+    }
+    else {
+      printErr(origin, ": fits EXTENSION, cannot get all header keys");
+      return BAD_FITS;
+    }
+  }
+  try {
+    text=header.getKeyComment(KeyTable[0]);
+    mot =header.getKeyComment(KeyCatal[0]);
+    // have to use long comment
+  }
+  catch (const TipException &x) {
+    printWarn(origin, "fits EXTENSION, cannot get all header comments");
+  }
+//  const Table::FieldCont &allCol=myDOL->getValidFields();
+  max=myDOL->getValidFields().size();
+  if (max < 1) {
+    printErr(origin, ": fits EXTENSION, need at least 1 column");
+    return BAD_FILETYPE;
+  }
+  text="";
+  try {
+    m_numOriRows=myDOL->getNumRecords();
+    const IColumn *myCol = 0;
+    for (i=0; i < max; i++) {
+      found++;
+      text="";
+      myCol=myDOL->getColumn(i);
+      Quantity readQ;
+      readQ.m_name=myCol->getId();
+      readQ.m_unit=myCol->getUnits();
+      sprintf(name, "TFORM%d", i+1);
+      mot=name; /* convert C string to C++ string */
+      header.getKeyword(mot, text);
+      transform(text.begin(), text.end(), text.begin(), pfunc);
+      j=text.length();
+      readQ.m_format=text;
+//printf("'%s', ",  text.c_str());
+      text="";
+      if (binary) {
+        if ( !myCol->isScalar() ) {
+          text="unauthorized FITS TABLE vector";
+          sortie << ": VECTOR not supported, column#" << found;
+          throw std::runtime_error(text);
+        }
+        if (j == 0) {
+          text="unauthorized FITS empty format ";
+          sortie << ": FITS format is empty, column#" << found;
+          throw std::runtime_error(text);
+        }
+        if (readQ.m_format[j-1] == 'A') readQ.m_type=Quantity::STRING;
+        else readQ.m_type=Quantity::NUM;
+        
+        
+        /* readQ.m_comment  readQ.m_comment  ARE NOT SET */
+      }
+      else {
+        if (readQ.m_format[0] == 'A') readQ.m_type=Quantity::STRING;
+        else readQ.m_type=Quantity::NUM;
+        sprintf(name, "TBCOL%d", i+1); mot=name;
+        text=header.getKeyComment(mot);
+        j=4;
+        if (text.substr(0,j) == "UCD=") text.erase(0,j);
+        pos=text.find('.');
+        if (pos != std::string::npos) text.erase(pos);
+        transform(text.begin(), text.end(), text.begin(), pfunc);
+        readQ.m_ucd=text;
+        /* ONLY  readQ.m_comment  IS NOT SET */
+      }
+      if (readQ.m_type == Quantity::STRING) {
+        readQ.m_index=nbQuantAscii;
+        nbQuantAscii++;
+      }
+      else if  (readQ.m_type == Quantity::NUM) {
+        readQ.m_index=m_quantities.size()-nbQuantAscii;
+        readQ.m_type=Quantity::NUM;
+      }
+      try { m_quantities.push_back(readQ); }
+      catch (const std::exception &prob) {
+        text=std::string("EXCEPTION filling m_quantities: ")+prob.what();
+        sortie << text;
+        throw;
+      }
+    }/* loop on columns */
+  }
+  catch (...) {
+    m_quantities.clear();
+    j=BAD_FILETYPE;
+    m_numRows=j;
+    if ( text.empty() ) {
+      sortie << ": fits EXTENSION, wrong TABLE column#";
+      sortie << found << " description";
+      printErr(origin, sortie.str() );
+    }
+    else {
+      printErr(origin, sortie.str() );
+      // exception sent only for vector allocation
+      if (text == sortie.str() ) throw;
+    }
+    return j;
+  }
+//printf("numRows=%ld\n", m_numOriRows );
+  if ((getDescr) || (m_numOriRows == 0)) return IS_OK;
+
+  if ( !m_numReadRows ) {
+    // set the total number of rows to have a maximal value
+    // to allocate m_strings, m_numericals buffers.
+    m_numReadRows=m_numOriRows;
+  }
+  create_tables(nbQuantAscii);
+  m_numRows=0;
+  try {
+    // Loop over all records (rows) and extract values
+    for (Table::ConstIterator itor=myDOL->begin(); itor != myDOL->end();
+         ++itor) {
+
+      // double variable to hold the value of all the fields for each row:
+      for (i=0; i < max; i++) {
+        j=m_quantities[i].m_index;
+        if (m_quantities[i].m_type == Quantity::NUM)
+          m_numericals[j].at(m_numRows)=(*itor)[m_quantities[i].m_name].get();
+        else (*itor)[m_quantities[i].m_name].get(m_strings[j].at(m_numRows) );
+      }
+      if (++m_numRows == m_numReadRows) break;
+    }
+  }
+  catch (const TipException &x) {
+    sortie << ": fits EXTENSION, cannot read after row#" << m_numRows+1;
+    printErr(origin, sortie.str() );
+    return BAD_ROW;
+  }
   return IS_OK;
 }
 
@@ -332,6 +507,8 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 
   // must use good instead eof, because eof is still false
   // if getline reads MAX_LINE char ==> infinite loop
+  m_catName="";   m_catRef ="";
+  m_tableName=""; m_tableRef ="";
   myFile.clear();  
   // to reset the state flags (checked by the previous load call)
   while ( myFile.good() ) {
@@ -356,7 +533,7 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 #Table  J_ApJS_123_79_3eg:
 #Name: J/ApJS/123/79/3eg
 #Title: Third EGRET Source Catalog (table 4)
-#blabla(Coosys	G:	galactic)
+#blabla(CoosysG:galactic)
 #Column
 // Column must be followed by at least one separation line 
 
@@ -520,7 +697,7 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR) {
 int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
                           const bool getDescr) {
 
-  std::string origin, text, mot;
+  std::string  origin, text, mot;
   unsigned int pos;
   char sep=';',
        line[MAX_LINE];
@@ -600,7 +777,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
           readQ.m_type=Quantity::NUM;
         }
         try { m_quantities.push_back(readQ); }
-        catch (std::exception &prob) {
+        catch (const std::exception &prob) {
           text=std::string("EXCEPTION filling m_quantities: ")+prob.what();
           printErr(origin, text);
           throw;
@@ -658,7 +835,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
             last=text.find(sep);
           }
           try { m_quantities.at(i).m_unit=mot; }
-          catch (std::exception &prob) {
+          catch (const std::exception &prob) {
             if (i == m_quantities.size())
               text="more units than quantities, ignoring last unit(s)";
             else
@@ -790,7 +967,8 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
 
 /**********************************************************************/
 // common code between import and importDescription (private method)
-int Catalog::load(const std::string &fileName, const bool getDescr) {
+int Catalog::load(const std::string &fileName, const std::string ext,
+                  const bool getDescr) {
 
   int i, err=IS_OK;
   std::string origin, text;
@@ -805,43 +983,84 @@ int Catalog::load(const std::string &fileName, const bool getDescr) {
     m_numRows=err;
     return err;
   }
-  if (fileName.at(i-1) == ']') {
-    // file should be a fits
-    err=analyze_fits(fileName, getDescr, origin);
- 
-    text=": fits FILE not handled now";
+  if ( myFile.is_open() ) myFile.close();
+  myFile.open(fileName.c_str(), std::ios::in);
+  // file can be opened ?
+  if ( !myFile.is_open() ) {
+    text=": FILENAME \""+fileName+"\" cannot be opened";
+    printErr(origin, text);
+    err=BAD_FILENAME;
+    m_numRows=err;
+    return err;
+  }
+/*  DIR *testDir=opendir(fileName.c_str());
+  if (testDir != NULL) {
+    closedir(testDir);
+    myFile.close();
+    text=": FILENAME \""+fileName+"\" is a directory";
     printErr(origin, text);
     err=BAD_FILETYPE;
     m_numRows=err;
     return err;
+  }*/
+  std::ostringstream sortie;
+  bool myTest;
+  { // inside a block to destroy test object Extension
+    // cannot use readTable because FITS IMAGE returns also error 1
+    const Extension *myDOL = 0;
+    try {
+      myDOL=IFileSvc::instance().readExtension(fileName, ext);
+    }
+    catch (const TipException &x) {
+      err=x.code();
+      if (err == 1) {
+        // This non-cfitsio error number means the file does not exist
+        // or is not a table, or is not in either Root nor Fits format. 
+        err=BAD_FITS;
+/*      printWarn(origin, "FILENAME is NOT fits");*/
+      }
+      else {
+        // Other errors come from cfitsio, but apply to a file
+        // which is in FITS format but has some sort of format error.
+        sortie << ": FILENAME is FITS, but cfitsio returned error=" << err;
+        printErr(origin, sortie.str());
+        err=BAD_FITS;
+        m_numRows=err;
+        return err;
+      }
+    }
+    if (err == IS_OK) myTest=myDOL->isTable();
   }
-  else {
+  if (err == IS_OK) {
+ 
+    if (!myTest) {
+      text=": FILENAME is FITS, but NOT a TABLE";
+      printErr(origin, text);
+      err=BAD_FITS;
+      m_numRows=err;
+      return err;
+    }
+    const Table *myDOL = 0;
+    try {
+      myDOL=IFileSvc::instance().readTable(fileName, ext);
+    }
+    catch (const TipException &x) {
+      sortie << ": FITS is TABLE, but cfitsio returned error=" << err;
+      printErr(origin, sortie.str());
+      err=BAD_FITS;
+      m_numRows=err;
+      return err;
+    }
+    err=analyze_fits(myDOL, getDescr, origin);
 
-    std::ostringstream sortie;
+  }
+  else { // (err == BAD_FITS)
+
+    err=IS_OK;
     unsigned long tot=0ul; // number of lines read
     bool testCR=false; // true if lines ends with CR (on windows)
     int what=0;        // 0 for unkwown, >0 for csv, <0 to tsv
                        // fabs()=1 for standard, =2 for meta QUERY
-    if ( myFile.is_open() ) myFile.close();
-    myFile.open(fileName.c_str(), std::ios::in);
-    // file can be opened ?
-    if ( !myFile.is_open() ) {
-      text=": FILENAME \""+fileName+"\" cannot be opened";
-      printErr(origin, text);
-      err=BAD_FILENAME;
-      m_numRows=err;
-      return err;
-    }
-    DIR *testDir=opendir(fileName.c_str());
-    if (testDir != NULL) {
-      closedir(testDir);
-      myFile.close();
-      text=": FILENAME \""+fileName+"\" is a directory";
-      printErr(origin, text);
-      err=BAD_FILETYPE;
-      m_numRows=err;
-      return err;
-    }
     err=analyze_head(&tot, &what, &testCR);
     if (!tot) {
       sortie << ": FILENAME \"" << fileName << "\" is fits without extension[] "
@@ -858,7 +1077,8 @@ int Catalog::load(const std::string &fileName, const bool getDescr) {
       printErr(origin, sortie.str());
       sortie.str(""); // Will empty the string.
       text="input file";
-      err=BAD_FILETYPE;
+      if (err == 0) err=BAD_FILENAME; /* nothing is read */
+      else err=BAD_FILETYPE; /* can search if catalog name exist */
     }
     else {
 
@@ -898,14 +1118,14 @@ int Catalog::load(const std::string &fileName, const bool getDescr) {
     m_numRows=err;
     m_numReadRows=0;
     // exit only if nothing is read
-    if (err == BAD_FILENAME) return err;
+    if ((err == BAD_FILENAME) || (err == BAD_FITS)) return err;
   }
   // m_quantities vector maybe filled, MUST fill m_selEllipse, m_loadQuantity
   try {
     m_selEllipse.assign(7, 0.0);
     m_loadQuantity.assign(m_quantities.size(), true);
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text=std::string("EXCEPTION on creating m_selEllipse, m_loadQuantity: ")
         +prob.what();
     printErr(origin, text);
@@ -925,22 +1145,22 @@ int Catalog::load(const std::string &fileName, const bool getDescr) {
 }
 /**********************************************************************/
 // read only the catalog description from file
-int Catalog::importDescription(const std::string &fileName) {
-
+int Catalog::importDescription(const std::string &fileName,
+                               const std::string ext) {
   int err;
   err=checkImport("importDescription", false);
   // must be called before load() which set m_numRows to 0
   if (err < IS_VOID) return err;
 
-  err=load(fileName, true);
+  err=load(fileName, ext, true);
   if (err < IS_OK) return err;
 
   return m_quantities.size();
 }
 /**********************************************************************/
 // read from file an entire catalog without selection
-int Catalog::import(const std::string &fileName, const long maxRow) {
-
+int Catalog::import(const std::string &fileName, const long maxRow,
+                    const std::string ext) {
   int err;
   err=checkImport("import", false);
   // after this check, m_numReadRows is 0
@@ -952,7 +1172,7 @@ int Catalog::import(const std::string &fileName, const long maxRow) {
   }
   else m_numReadRows=maxRow;
 
-  err=load(fileName, false);
+  err=load(fileName, ext, false);
   if (err < IS_OK) return err;
   getRAMsize(m_numRows, true);
   try {
@@ -976,7 +1196,7 @@ int Catalog::import(const std::string &fileName, const long maxRow) {
       for (int j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
     // above lines can be commented to test the try catch mechanism
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     std::string text;
     text=std::string("EXCEPTION filling m_rowIsSelected: ")+prob.what();
     printErr("import", text);
@@ -1043,7 +1263,7 @@ int Catalog::loadWeb(const std::string catName, const std::string urlCode,
     return err;
   }
   try { m_selEllipse.assign(7, 0.0); }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text=std::string("EXCEPTION on creating m_selEllipse: ")+prob.what();
     printErr(origin, text);
     throw;
@@ -1090,7 +1310,7 @@ int Catalog::importWeb(const std::string catName,
       for (int j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
     // above lines can be commented to test the try catch mechanism
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     std::string text;
     text=std::string("EXCEPTION filling m_rowIsSelected: ")+prob.what();
     printErr("importWeb", text);
@@ -1203,7 +1423,7 @@ int Catalog::loadSelected(unsigned long *tot) {
       }
       else {
         if (m_loadQuantity[i]) translate_cell(mot, i-last);
-	else last++;
+        else last++;
       }
       i++;
       if (pos != std::string::npos) {
@@ -1435,7 +1655,7 @@ int Catalog::save(const std::string fileName, bool no_replace) {
     tot+=m_numRows;
     if (buffer != NULL) free(buffer);
   }
-  catch (std::exception &prob) {
+  catch (const std::exception &prob) {
     text=std::string("EXCEPTION writing rows in file: ")+prob.what();
     printErr(origin, text);
     throw;

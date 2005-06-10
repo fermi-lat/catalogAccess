@@ -11,13 +11,15 @@
 #ifndef catalogAccess_cat_h
 #define catalogAccess_cat_h
 
+#include "tip/IFileSvc.h"
+#include "tip/Table.h"
 #include "quantity.h"
 // can compile without first three
 //#include <cctype>      //for toupper, tolower
 //#include <algorithm>   //for transform
 //#include <cstdio>      //for sprintf
 #include <fstream>    //for ifstream, ofstream
-#include <dirent.h>   //for DIR type 
+//#include <dirent.h>   //for DIR type 
 #include <iomanip>    //for setprecision, _Ios_Fmtflags, ...
 #include <stdexcept>  //for std::runtime_error
 
@@ -71,7 +73,7 @@ public:
       // return the number of RAM bytes needed for numRows catalog rows
       // if writeLog is true (as called by import below) write info in Log
 
-  int importDescription(const std::string &fileName);
+  int importDescription(const std::string &fileName, const std::string ext="1");
   int importDescriptionWeb(const std::string catName,
                            const std::string urlCode="cds",
                            const std::string &fileName="");
@@ -82,7 +84,8 @@ public:
       // other negative number for loading error
 
 
-  int import(const std::string &fileName, const long maxRow=0);
+  int import(const std::string &fileName, const long maxRow=0,
+             const std::string ext="1");
   int importWeb(const std::string catName, const std::string urlCode="cds",
                 const long maxRow=44000, const std::string &fileName="");
       // import method for loading an entire catalog without selection
@@ -469,7 +472,7 @@ private:
   void translate_cell(std::string mot, const int index);
       // loads one quantity at last row (m_numRows);
 
-  int analyze_fits(const std::string &fileName, const bool getDescr,
+  int analyze_fits(const tip::Table *myDOL, const bool getDescr,
                    const std::string origin);
   int analyze_head(unsigned long *tot, int *what, bool *testCR);
   int analyze_body(unsigned long *tot, int *what, const bool testCR,
@@ -477,7 +480,8 @@ private:
       // 3 methods read file for import or importDescription (getDescr=true)
       // returns IS_OK for completion, otherwise strictly negative number
 
-  int load(const std::string &fileName, const bool getDescr);
+  int load(const std::string &fileName, const std::string ext,
+           const bool getDescr);
       // common code between import and importDescription
   int loadWeb(const std::string catName, const std::string urlCode,
               const std::string &fileName, const long maxRow);
@@ -546,7 +550,7 @@ inline Catalog::Catalog() {
   m_indexRA = -1;
   m_indexDEC= -1;
   try { m_selEllipse.assign(7, 0.0); }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     std::string errText;
     errText=std::string("EXCEPTION on creating m_selEllipse: ")+err.what();
     printErr("Catalog constructor", errText);
@@ -696,7 +700,7 @@ inline bool Catalog::existCriteria(std::vector<bool> *quantSel) {
 
     }// loop on quantities
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     std::string errText=std::string("EXCEPTION on boolean vector: ")+err.what();
     printErr("private existCriteria", errText);
     throw;

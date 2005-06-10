@@ -59,7 +59,7 @@ Quantity::Quantity(const Quantity & q) {
     vecSize=q.m_vectorQs.size();
     for (i=0; i<vecSize; i++) m_vectorQs.push_back(q.m_vectorQs.at(i));
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     errText=std::string("EXCEPTION on m_vectorQs[]: ")+err.what();
     printErr("Quantity copy constructor", errText);
     throw;
@@ -77,7 +77,7 @@ Quantity::Quantity(const Quantity & q) {
     vecSize=q.m_listValN.size();
     for (i=0; i<vecSize; i++) m_listValN.push_back(q.m_listValN.at(i));
   }
-  catch (std::exception &err) {
+  catch (const std::exception &err) {
     errText=std::string("EXCEPTION on selection list: ")+err.what();
     printErr("Quantity copy constructor", errText);
     throw;

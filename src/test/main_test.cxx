@@ -336,10 +336,10 @@ int main(int iargc, char * argv[]) {
 
   catNames.assign(3, "");
   aCat.getCatalogTitles(&catNames);
-  std::cout << "\n* 'aCat' info (size " <<catNames.size() << "):"
+  std::cout << "\n* 'aCat' info (size " << catNames.size() << "):"
             << "\ncode=\"" << catNames[0] << "\""
-            << "\nURL =\"" <<  catNames[1] << "\""
-            << "\ncatalog=\"" <<  catNames[2] << "\"" << std::endl;
+            << "\nURL =\"" << catNames[1] << "\""
+            << "\ncatalog=\"" << catNames[2] << "\"" << std::endl;
 
   std::cout << "\n* Getting all quantities from 'aCat':" << std::endl;
   vecSize=aCat.getQuantityDescription(&allQ);
@@ -415,12 +415,44 @@ int main(int iargc, char * argv[]) {
   err=aCat.importDescription("totoX");
   i=aCat.importDescription("../..");
   std::cout << "* Values returned = " << err <<", "<< i << std::endl;
-
+try {
   std::cout << "\n* Calling: importDescription on file \"1rxs_50.fits\""
             << std::endl;
-  strVal=myPath+"/1rxs_50.fits";  //"../../1rxs_50.fits";
+  strVal=myPath+"/1rxs_50.fits";
   err=aCat.importDescription(strVal);
   std::cout << "* Value returned = " << err << std::endl;
+  std::cout << "* Calling: getQuantityDescription, results: "<< std::endl;
+  vecSize=aCat.getQuantityDescription(&allQ);
+  for (i=0; i<vecSize; i++) show_quant(allQ[i]);
+  catNames.assign(6, "");
+  aCat.getCatalogTitles(&catNames);
+  std::cout << "* 'aCat' info (size " << catNames.size() << "):"
+            << "\ncode=\"" << catNames[0] << "\""
+            << "\nURL =\"" << catNames[1] << "\""
+            << "\ncatalog=\"" << catNames[2] << "\"" 
+            << " [" << catNames[3] << "]" 
+            << "\ntable  =\"" << catNames[4] << "\"" 
+            << " [" << catNames[5] << "]" << std::endl;
+
+  std::cout << "\n* Calling: import on file \"test1.fits\""
+            << std::endl;
+  strVal=myPath+"/test1.fits";
+  err=aCat.import(strVal);
+  std::cout << "* Value returned = " << err << std::endl;
+  std::cout << "* Calling: getQuantityDescription, results: "<< std::endl;
+  vecSize=aCat.getQuantityDescription(&allQ);
+  for (i=0; i<vecSize; i++) show_quant(allQ[i]);
+  err=aCat.minVal("POS_EQ_RA", &rVal);
+  if (err > 0) show_double("POS_EQ_RA minimum", rVal);
+  err=aCat.maxVal("POS_EQ_RA", &rVal);
+  if (err > 0) show_double("POS_EQ_RA maximum)", rVal);
+  err=aCat.maxVal("SRC_3EG", &rVal);
+  vecSize=aCat.getSValues("SRC_3EG", &catNames);
+  std::cout << "* SRC_3EG vector (size=" << vecSize << ")" << std::endl;
+  aCat.deleteContent();
+} catch (...) {
+  std::cout << "!! EXCEPTION thrown !!";
+}
 
   std::cout << "\n* Calling: importDescription on \"1rxs_50.fits[1]\""
             << std::endl;
@@ -428,7 +460,7 @@ int main(int iargc, char * argv[]) {
   err=aCat.importDescription(strVal);
   std::cout << "* Value returned = " << err << std::endl;
 
-
+//return;
   std::cout << "\n* Calling: import on file \"" << argString
              << "\""<< std::endl;
   strVal=myPath+argString;
@@ -441,14 +473,13 @@ int main(int iargc, char * argv[]) {
 
   catNames.assign(6, "");
   aCat.getCatalogTitles(&catNames);
-  std::cout << "* 'aCat' info (size " <<catNames.size() << "):"
+  std::cout << "* 'aCat' info (size " << catNames.size() << "):"
             << "\ncode=\"" << catNames[0] << "\""
-            << "\nURL=\"" <<  catNames[1] << "\""
-            << "\ncatalog=\"" <<  catNames[2] << "\"" 
-            << " [" <<  catNames[3] << "]" 
-            << "\ntable  =\"" <<  catNames[4] << "\"" 
-            << " [" <<  catNames[5] << "]" 
-            << std::endl;
+            << "\nURL =\"" << catNames[1] << "\""
+            << "\ncatalog=\"" << catNames[2] << "\"" 
+            << " [" << catNames[3] << "]" 
+            << "\ntable  =\"" << catNames[4] << "\"" 
+            << " [" << catNames[5] << "]" << std::endl;
   
   std::cout << "\n* Calling: getQuantityDescription, results:" << std::endl;
   vecSize=aCat.getQuantityDescription(&allQ);
