@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Jun 10 06:15:46 PDT 2005
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+read fits (using tip)
+    *
+------------------------------------------------------------
+User: landriu  Fri Jun 10 06:15:46 PDT 2005
 catalogAccess/src
 
 Modified Files:
