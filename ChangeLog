@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 User: landriu  Fri Jun 10 06:15:46 PDT 2005
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx catalog_sel.cxx 
+	quantity.cxx quantity.h 
+Log Message:
+read fits (using tip)
+    *
+------------------------------------------------------------
+User: landriu  Fri Jun 10 06:15:46 PDT 2005
 catalogAccess/doc/doxy-html
 
 Added Files:
