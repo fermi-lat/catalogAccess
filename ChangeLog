@@ -1,4 +1,35 @@
 ------------------------------------------------------------
+User: landriu  Mon Jun 20 07:05:38 PDT 2005
+catalogAccess/doc/doxy-html
+
+Modified Files:
+	annotated.html catalog_8cxx-source.html catalog_8cxx.html 
+	catalog_8h-source.html catalog_8h.html 
+	catalog_8h__dep__incl.dot catalog__io_8cxx-source.html 
+	catalog__io_8cxx.html catalog__io_8cxx__incl.dot 
+	catalog__sel_8cxx-source.html catalog__sel_8cxx.html 
+	catalog__sel_8cxx__incl.dot 
+	classcatalog_access_1_1_catalog-members.html 
+	classcatalog_access_1_1_catalog.html 
+	classcatalog_access_1_1_quantity-members.html 
+	classcatalog_access_1_1_quantity.html files.html 
+	functions.html globals.html graph_legend.html main.html 
+	main__test_8cxx-source.html main__test_8cxx.html 
+	main__test_8cxx__incl.dot mainpage_8h-source.html 
+	mainpage_8h.html namespacecatalog_access.html 
+	namespacemembers.html namespaces.html namespacetip.html 
+	quantity_8cxx-source.html quantity_8cxx.html 
+	quantity_8cxx__incl.dot quantity_8h-source.html 
+	quantity_8h.html quantity_8h__dep__incl.dot 
+	quantity_8h__incl.dot release_8notes-source.html 
+	release_8notes.html tree.js 
+Removed Files:
+	main__test_8time_8cxx-source.html main__test_8time_8cxx.html 
+	main__test_8time_8cxx__incl.dot 
+Log Message:
+save with fits format
+    *
+------------------------------------------------------------
 User: landriu  Mon Jun 20 07:05:36 PDT 2005
 catalogAccess/doc
 
