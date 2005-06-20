@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Mon Jun 20 07:05:36 PDT 2005
+catalogAccess/data
+
+Added Files:
+	test.fits 
+Log Message:
+save with fits format
+    *
+------------------------------------------------------------
+User: landriu  Mon Jun 20 07:05:36 PDT 2005
 catalogAccess/cmt
 
 Modified Files:
