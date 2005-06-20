@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: landriu  Mon Jun 20 07:05:36 PDT 2005
+catalogAccess/data/outref
+
+Modified Files:
+	screenOut.txt 
+Added Files:
+	1rxs_50.out.fits 
+Log Message:
+save with fits format
+    *
+------------------------------------------------------------
+User: landriu  Mon Jun 20 07:05:36 PDT 2005
 catalogAccess/data
 
 Added Files:
