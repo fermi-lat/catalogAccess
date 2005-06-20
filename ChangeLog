@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Mon Jun 20 07:05:38 PDT 2005
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+save with fits format
+    *
+------------------------------------------------------------
+User: landriu  Mon Jun 20 07:05:38 PDT 2005
 catalogAccess/src
 
 Modified Files:
