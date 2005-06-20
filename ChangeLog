@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Mon Jun 20 07:05:38 PDT 2005
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx 
+Log Message:
+save with fits format
+    *
+------------------------------------------------------------
+User: landriu  Mon Jun 20 07:05:38 PDT 2005
 catalogAccess/doc/doxy-html
 
 Modified Files:
