@@ -329,7 +329,7 @@ References <a class="el" href="quantity_8h-source.html#l00090">m_comment</a>, <a
 00061   }
 00062   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;err) {
 00063     errText=std::string(<span class="stringliteral">"EXCEPTION on m_vectorQs[]: "</span>)+err.what();
-00064     <a class="code" href="namespacecatalog_access.html#a31">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
+00064     <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
 00065     <span class="keywordflow">throw</span>;
 00066   }
 00067   <span class="comment">// selection criteria</span>
@@ -347,7 +347,7 @@ References <a class="el" href="quantity_8h-source.html#l00090">m_comment</a>, <a
 00079   }
 00080   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;err) {
 00081     errText=std::string(<span class="stringliteral">"EXCEPTION on selection list: "</span>)+err.what();
-00082     <a class="code" href="namespacecatalog_access.html#a31">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
+00082     <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
 00083     <span class="keywordflow">throw</span>;
 00084   }
 00085 <span class="comment">/* line is commented on purpose to TEMINATE the program on EXCEPTION */</span>
@@ -380,7 +380,7 @@ References <a class="el" href="quantity_8h-source.html#l00090">m_comment</a>, <a
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00090">90</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00704">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01732">catalogAccess::Catalog::createFits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m18" doxytag="catalogAccess::Quantity::m_cutORed"></a><p>
@@ -458,7 +458,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00094">94</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00704">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00319">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01732">catalogAccess::Catalog::createFits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m6" doxytag="catalogAccess::Quantity::m_index"></a><p>
@@ -484,7 +484,7 @@ Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAc
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00098">98</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00704">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00319">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01863">catalogAccess::Catalog::saveFits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01910">catalogAccess::Catalog::saveSelectedFits()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m7" doxytag="catalogAccess::Quantity::m_isGeneric"></a><p>
@@ -510,7 +510,7 @@ Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAc
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00101">101</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m14" doxytag="catalogAccess::Quantity::m_listValN"></a><p>
@@ -536,7 +536,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00131">131</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
+Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
   </tr>
 </table>
 <a name="m11" doxytag="catalogAccess::Quantity::m_listValS"></a><p>
@@ -562,7 +562,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00122">122</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
+Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
   </tr>
 </table>
 <a name="m12" doxytag="catalogAccess::Quantity::m_lowerCut"></a><p>
@@ -588,7 +588,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00125">125</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m0" doxytag="catalogAccess::Quantity::m_name"></a><p>
@@ -614,7 +614,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00089">89</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="main__test_8cxx-source.html#l00022">main()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00704">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00319">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01732">catalogAccess::Catalog::createFits()</a>, <a class="el" href="main__test_8cxx-source.html#l00022">main()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01863">catalogAccess::Catalog::saveFits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01910">catalogAccess::Catalog::saveSelectedFits()</a>, <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
   </tr>
 </table>
 <a name="m16" doxytag="catalogAccess::Quantity::m_precision"></a><p>
@@ -666,7 +666,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00137">137</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m8" doxytag="catalogAccess::Quantity::m_statError"></a><p>
@@ -744,7 +744,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00095">95</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00704">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00319">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01732">catalogAccess::Catalog::createFits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01863">catalogAccess::Catalog::saveFits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01910">catalogAccess::Catalog::saveSelectedFits()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m2" doxytag="catalogAccess::Quantity::m_ucd"></a><p>
@@ -770,7 +770,7 @@ Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAc
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00091">91</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="main__test_8cxx-source.html#l00022">main()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00704">catalogAccess::Catalog::analyze_body()</a>, <a class="el" href="catalog__io_8cxx-source.html#l00319">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01732">catalogAccess::Catalog::createFits()</a>, <a class="el" href="main__test_8cxx-source.html#l00022">main()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>, and <a class="el" href="quantity_8h-source.html#l00150">~Quantity()</a>.    </td>
   </tr>
 </table>
 <a name="m5" doxytag="catalogAccess::Quantity::m_unit"></a><p>
@@ -796,7 +796,7 @@ Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00697">catalogAc
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00096">96</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00319">catalogAccess::Catalog::analyze_fits()</a>, <a class="el" href="catalog__io_8cxx-source.html#l01732">catalogAccess::Catalog::createFits()</a>, <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m13" doxytag="catalogAccess::Quantity::m_upperCut"></a><p>
@@ -822,7 +822,7 @@ Referenced by <a class="el" href="catalog__io_8cxx-source.html#l00317">catalogAc
 <p>
 Definition at line <a class="el" href="quantity_8h-source.html#l00128">128</a> of file <a class="el" href="quantity_8h-source.html">quantity.h</a>.
 <p>
-Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00694">show_quant()</a>.    </td>
+Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</a>, and <a class="el" href="main__test_8cxx-source.html#l00710">show_quant()</a>.    </td>
   </tr>
 </table>
 <a name="m10" doxytag="catalogAccess::Quantity::m_vectorQs"></a><p>
@@ -853,7 +853,7 @@ Referenced by <a class="el" href="quantity_8cxx-source.html#l00039">Quantity()</
 </table>
 <hr>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="quantity_8h-source.html">quantity.h</a><li><a class="el" href="quantity_8cxx-source.html">quantity.cxx</a></ul>
-<hr><address style="align: right;"><small>Generated on Fri Jun 10 14:51:25 2005 for catalogAccess by
+<hr><address style="align: right;"><small>Generated on Mon Jun 20 15:18:17 2005 for catalogAccess by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

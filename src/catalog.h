@@ -105,17 +105,23 @@ public:
       // -1 if successful import already done, -2 if importDescription not done
       // other negative number for loading error      
 
-  int save(const std::string fileName, bool no_replace);
+  int saveText(const std::string &fileName, bool clobber=false);
+      // save the catalog information presently in memory to a text file
+      // the method returns 1 if successful, negative number otherwise
+
+  int saveSelectedText(const std::string &fileName, bool clobber=false);
+      // like saveText(), however, storing only the selected rows
+      // the method returns 1 if successful, negative number otherwise
+
+  int saveFits(const std::string &fileName, const std::string &extName,
+               bool clobber=false, bool append=false);
       // save the catalog information presently in memory to a FITS file
       // the method returns 1 if successful, negative number otherwise
 
-//  int saveSelected(const std::string fileName, bool no_replace);
-      // like save(), however, storing only the selected rows
+  int saveSelectedFits(const std::string &fileName, const std::string &extName,
+                       bool clobber=false, bool append=false);
+      // like saveFits(), however, storing only the selected rows
       // the method returns 1 if successful, negative number otherwise
-
-//  int load(const std::string fileName);
-      // same as import(), only the data is loaded from a FITS file
-      // compatible with the save() method
 
 
   // Methods for accessing data
@@ -488,7 +494,15 @@ private:
       // common code between importWeb and importDescriptionWeb
   int loadSelected(unsigned long *tot);
       // code for ASCII file importSelected()
- 
+
+  // create catalog header from memory to a text file
+  int createText(const std::string &fileName, bool clobber,
+                 const std::string origin);
+  // create catalog header from memory to a FITS file
+  int createFits
+     (const std::string &fileName, const std::string &extName, bool clobber,
+      bool append, const std::string origin, tip::Table **ptrTable);
+
   // inline private methods
 
   int checkImport(const std::string origin, const bool isDone);

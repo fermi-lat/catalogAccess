@@ -261,7 +261,7 @@ WARNING catalogAccess (IN Catalog copy constructor): FILE isn't CLOSED (in this 
 
 * 'aCat' info (size 3):
 code="EGRET3 sources"
-URL =""
+URL ="CDS"
 catalog="J/ApJS/123/79"
 
 * Getting all quantities from 'aCat':
@@ -493,7 +493,7 @@ MASOL: ucd="ID_NUMBER", type=1, unit="", format="I4",
 comment=""
 * 'aCat' info (size 6):
 code="ROSAT 1RXS"
-URL =""
+URL ="CDS"
 catalog="IX/10A" []
 table  ="IX/10A/1rxs" []
 
@@ -501,8 +501,8 @@ table  ="IX/10A/1rxs" []
 LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): fits extension BINTABLE name = GLAST_CAT
-WARNING catalogAccess (IN import): fits EXTENSION, cannot get all header keys
-WARNING catalogAccess (IN import): fits EXTENSION, cannot get all header comments
+WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header keys
+WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header comments
 WARNING catalogAccess (IN import): Unknown table name, all generic quantities may be not found
 LOG_1 (catalogAccess): Original whole catalog number of rows =     17
 LOG_1 (catalogAccess): Needed RAM space (MB) for     17 data rows =   0.0
@@ -576,8 +576,20 @@ Quantity POS_EQ_RA maximum) =   3.098e+02
 WARNING catalogAccess (IN maxVal): given Quantity name (SRC_3EG) is not of NUM type
 * SRC_3EG vector (size=6)
 
-* Calling: importDescription on "1rxs_50.fits[1]"
+* Calling: saveFits to create test1out.fits
+WARNING catalogAccess (IN saveFits): EXTENSION name set to ''
+ERROR catalogAccess (IN saveFits) : cannot append and edit fits EXTENSION
+
+* Calling: importDescription on file "test.fits" (HDU #2)
 LOG_2 (catalogAccess): deleting previous Catalog description
+LOG_1 (catalogAccess): fits extension BINTABLE name = test
+WARNING catalogAccess (IN importDescription): fits EXTENSION, cannot get CDS header keys
+WARNING catalogAccess (IN importDescription): fits EXTENSION, cannot get CDS header comments
+ERROR catalogAccess (IN importDescription) : fits EXTENSION, need at least 1 column
+WARNING catalogAccess (IN importDescription): Unknown table name, all generic quantities may be not found
+* Value returned = -5
+
+* Calling: importDescription on "1rxs_50.fits[1]"
 ERROR catalogAccess (IN importDescription) : FILENAME "/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.fits[1]" cannot be opened
 * Value returned = -4
 
@@ -594,7 +606,7 @@ LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
 * Number of quantities & rows = 31 & 50
 * 'aCat' info (size 6):
 code="ROSAT 1RXS"
-URL =""
+URL ="CDS"
 catalog="IX/10A" [ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)]
 table  ="IX/10A/1rxs" [The 1RXS catalogue]
 
@@ -795,7 +807,7 @@ LOG_1 (catalogAccess): Exclude rows with "NewFlag" string in list (1 elements, c
 LOG_1 (catalogAccess): Include rows with "NewFlag" string in list (1 elements, caseless match)
 * Number of SELECTED rows = 13
 
-* Calling: save(/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.out.txt)
+* Calling: saveText(/home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.out.txt)
 LOG_0 (catalogAccess): output text file is closed ( 54 lines written)
 
 * Calling: eraseSelected()
@@ -819,6 +831,10 @@ LOG_1 (catalogAccess): Needed RAM space (MB) for     50 data rows =   0.0
 LOG_1 (catalogAccess): selection ellipse center RA=0 , DEC=90 with radius 90 * 90 (degrees) orientated at 0 (with respect to North pole)
 * Number of SELECTED rows = 27
 
+* Calling: saveFits to create /home/aymsauv/GLAST/ZprogU9/unit_test/data/1rxs_50.out.fits
+WARNING catalogAccess (IN saveFits): EXTENSION name set to 'IX_10A_1rxs'
+LOG_0 (catalogAccess): output fits is closed ( 50 rows written)
+
 * Limits on "L_Extent":
 Quantity L_Extent minimum =   1.000e+00
 Quantity L_Extent maximum =   3.700e+01
@@ -836,10 +852,11 @@ LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elem
 * Number of SELECTED rows = 27
 
 * Accepting NaN (whatever condition, always select NaN)
-LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements, ANDed with cut)
-* Number of SELECTED rows = 17
+* Setting list of values: 1.00, NaN
 LOG_1 (catalogAccess): Include rows with "L_Extent" around value in list (2 elements, ANDed with cut)
 * Number of SELECTED rows = 21
+LOG_1 (catalogAccess): Exclude rows with "L_Extent" around value in list (2 elements, ANDed with cut)
+* Number of SELECTED rows = 17
 
 * Calling: unsetCuts (all quantities, remains only selection ellipse)
 * Number of SELECTED rows = 27
