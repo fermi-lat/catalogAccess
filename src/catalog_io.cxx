@@ -1,9 +1,10 @@
 /**
  * @file   catalog_io.cxx
  * @brief  Read/write (or import/export) routines for Catalog class.
- * The fits access methods are not coded. Only methods to read or write
- * ASCII file are coded. Methods to load catalog through web are placeholders.
- * Methods to read or write selected data are not coded.
+ * Methods exist to access both files: ASCII or fits (writing only BINARY table,
+ * reading any table format).
+ * Methods to load catalog through web are placeholders.
+ * Methods not coded: READ only selected data from file.
  *
  * @author A. Sauvageon
  *
@@ -42,6 +43,7 @@ const std::string Catalog::s_genericB = UCD_List[5];
 const std::string KeyCatal[2]={"CDS-CAT",
                                "Catalogue designation in CDS nomenclature"};
 const std::string KeyTable[2]={"CDS-NAME", "Table used in a VizieR Query"};
+const std::string Key_UCD="TBUCD";
 
 /**********************************************************************/
 /*  METHODS for IMPORTING, SAVING, LOADING                            */
@@ -321,7 +323,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   int  i, j, max,
        found=0,
        nbQuantAscii=0;
-  char name[9]; /* 8 char maximum gor header key */
+  char name[9]; /* 8 char maximum for header key */
   bool binary=true;
   unsigned int pos;
   int (*pfunc)(int)=toupper; // function used by transform
@@ -348,7 +350,11 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
 
   m_catName="";   m_catRef="";
   m_tableName=""; m_tableRef="";
-  if (mot == "TABLE") binary=false;
+  m_URL="";
+  if (mot == "TABLE") {
+    binary=false;
+    m_URL="CDS"; /* to know that format string need to be changed for fits */
+  }
   try {
     header.getKeyword(KeyTable[0], text);
     m_tableName=text;
@@ -358,10 +364,10 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   }
   catch (const TipException &x) {
     if (binary) {
-      printWarn(origin, "fits EXTENSION, cannot get all header keys");
+      printWarn(origin, "fits EXTENSION, cannot get CDS header keys");
     }
     else {
-      printErr(origin, ": fits EXTENSION, cannot get all header keys");
+      printErr(origin, ": fits EXTENSION, cannot get CDS header keys");
       return BAD_FITS;
     }
   }
@@ -371,7 +377,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
     // have to use long comment
   }
   catch (const TipException &x) {
-    printWarn(origin, "fits EXTENSION, cannot get all header comments");
+    printWarn(origin, "fits EXTENSION, cannot get CDS header comments");
   }
 //  const Table::FieldCont &allCol=myDOL->getValidFields();
   max=myDOL->getValidFields().size();
@@ -411,9 +417,10 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         }
         if (readQ.m_format[j-1] == 'A') readQ.m_type=Quantity::STRING;
         else readQ.m_type=Quantity::NUM;
-        
-        
-        /* readQ.m_comment  readQ.m_comment  ARE NOT SET */
+        sprintf(name, "%s%d", Key_UCD.c_str(), i+1); mot=name;
+/*        readQ.m_comment=header.getKeyComment(mot);
+        header.getKeyword(mot, text);
+          ARE NOT SET */
       }
       else {
         if (readQ.m_format[0] == 'A') readQ.m_type=Quantity::STRING;
@@ -423,11 +430,11 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         j=4;
         if (text.substr(0,j) == "UCD=") text.erase(0,j);
         pos=text.find('.');
-        if (pos != std::string::npos) text.erase(pos);
-        transform(text.begin(), text.end(), text.begin(), pfunc);
-        readQ.m_ucd=text;
+        if (pos != std::string::npos) text.erase(pos);;
         /* ONLY  readQ.m_comment  IS NOT SET */
       }
+      transform(text.begin(), text.end(), text.begin(), pfunc);
+      readQ.m_ucd=text;
       if (readQ.m_type == Quantity::STRING) {
         readQ.m_index=nbQuantAscii;
         nbQuantAscii++;
@@ -475,7 +482,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
     for (Table::ConstIterator itor=myDOL->begin(); itor != myDOL->end();
          ++itor) {
 
-      // double variable to hold the value of all the fields for each row:
+      // double variable to hold the value of all the numeric fields
       for (i=0; i < max; i++) {
         j=m_quantities[i].m_index;
         if (m_quantities[i].m_type == Quantity::NUM)
@@ -1005,32 +1012,31 @@ int Catalog::load(const std::string &fileName, const std::string ext,
   }*/
   std::ostringstream sortie;
   bool myTest;
-  { // inside a block to destroy test object Extension
-    // cannot use readTable because FITS IMAGE returns also error 1
-    const Extension *myDOL = 0;
-    try {
-      myDOL=IFileSvc::instance().readExtension(fileName, ext);
-    }
-    catch (const TipException &x) {
-      err=x.code();
-      if (err == 1) {
-        // This non-cfitsio error number means the file does not exist
-        // or is not a table, or is not in either Root nor Fits format. 
-        err=BAD_FITS;
-/*      printWarn(origin, "FILENAME is NOT fits");*/
-      }
-      else {
-        // Other errors come from cfitsio, but apply to a file
-        // which is in FITS format but has some sort of format error.
-        sortie << ": FILENAME is FITS, but cfitsio returned error=" << err;
-        printErr(origin, sortie.str());
-        err=BAD_FITS;
-        m_numRows=err;
-        return err;
-      }
-    }
-    if (err == IS_OK) myTest=myDOL->isTable();
+  const Extension *myEXT = 0;
+  // cannot use readTable because FITS IMAGE returns also error 1
+  try {
+    myEXT=IFileSvc::instance().readExtension(fileName, ext);
   }
+  catch (const TipException &x) {
+    err=x.code();
+    if (err == 1) {
+      // This non-cfitsio error number means the file does not exist
+      // or is not a table, or is not in either Root nor Fits format. 
+      err=BAD_FITS;
+/*      printWarn(origin, "FILENAME is NOT fits");*/
+    }
+    else {
+      // Other errors come from cfitsio, but apply to a file
+      // which is in FITS format but has some sort of format error.
+      sortie << ": FILENAME is FITS, but cfitsio returned error=" << err;
+      printErr(origin, sortie.str());
+      err=BAD_FITS;
+      m_numRows=err;
+      return err;
+    }
+  }
+  if (err == IS_OK) myTest=myEXT->isTable();
+  delete myEXT;
   if (err == IS_OK) {
  
     if (!myTest) {
@@ -1052,6 +1058,7 @@ int Catalog::load(const std::string &fileName, const std::string ext,
       return err;
     }
     err=analyze_fits(myDOL, getDescr, origin);
+    delete myDOL;
 
   }
   else { // (err == BAD_FITS)
@@ -1131,6 +1138,7 @@ int Catalog::load(const std::string &fileName, const std::string ext,
     printErr(origin, text);
     throw;
   }
+  m_URL="CDS"; /* to know that format string need to be changed for fits */
   // check if tableName is known to set generic
   for (i=0; i<MAX_CAT; i++) {
     if (Catalog::s_CatalogList[2*i+1] == m_tableName) break;
@@ -1500,14 +1508,14 @@ int Catalog::importSelected() {
   return err;
 }
 
-
 /**********************************************************************/
-// save whole catalog from memory to a FITS file
-int Catalog::save(const std::string fileName, bool no_replace) {
-
-  const std::string origin="save";
-  std::string text;
+// create catalog header from memory to a text file
+int Catalog::createText(const std::string &fileName, bool clobber,
+                        const std::string origin) {
+  std::string  text;
+  std::fstream file;
   int err;
+
   err=checkImport(origin, true);
   if (err < IS_VOID) return err;
 
@@ -1518,22 +1526,13 @@ int Catalog::save(const std::string fileName, bool no_replace) {
     err=BAD_FILENAME;
     return err;
   }
-  if (fileName.at(err-1) == ']') {
-    // file should be a fits
- 
-    text=": fits FILE not handled now";
-    printErr(origin, text);
-    err=BAD_FILETYPE;
-    return err;
-  }
 
-  std::fstream file;
   // overwrite existing file ?
-  if (no_replace) {
+  if (!clobber) {
     file.open(fileName.c_str(), std::ios::in);
     if (file) {
       file.close();
-      text=": FILENAME \""+fileName+"\" exist (no_replace option)";
+      text=": FILENAME \""+fileName+"\" exist (clobber=no)";
       printErr(origin, text);
       return BAD_FILENAME;
     }
@@ -1549,7 +1548,10 @@ int Catalog::save(const std::string fileName, bool no_replace) {
 
   char tab=0x09, sep=';';
   int j, vecSize;
-  unsigned long tot=0ul;
+  long tot=0l, totData=0l;
+  bool saveAll=(origin == "saveText");
+  if (m_numRows == m_numSelRows) saveAll=true;
+
   file << "#RESOURCE=catalogAccess(" << m_code << ")" << std::endl;
   file << "#Name: " << m_catName << std::endl;
   file << "#Title:" << tab <<  m_catRef << std::endl;
@@ -1626,33 +1628,66 @@ int Catalog::save(const std::string fileName, bool no_replace) {
     }
     // all the quantities have their sprintf format
     // IF their lengths[] is positive
-    for (long k=0; k<m_numRows; k++) for (j=0; j<vecSize; ) {   
+    if (saveAll) {
 
-      if (m_quantities[j].m_type == Quantity::NUM) {
-        r=m_numericals[m_quantities[j].m_index].at(k);
-        if (isnan(r)) {
-          len=lengths[j];
-          if (len == 0) len=1;
-          file << std::setw(len+1) << std::setfill(' ');
+      for (long k=0; k<m_numRows; k++) for (j=0; j<vecSize; ) {
+        if (m_quantities[j].m_type == Quantity::NUM) {
+          r=m_numericals[m_quantities[j].m_index].at(k);
+          if (isnan(r)) {
+            len=lengths[j];
+            if (len == 0) len=1;
+            file << std::setw(len+1) << std::setfill(' ');
+          }
+          else if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), r);
+            file.write(buffer, lengths[j]);
+          }
+          else file << r;
         }
-        else if (lengths[j] > 0) {
-          sprintf(buffer, formats[j].c_str(), r);
-          file.write(buffer, lengths[j]);
+        else if (m_quantities[j].m_type == Quantity::STRING) {
+          text=m_strings[m_quantities[j].m_index].at(k);
+          if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), text.c_str());
+            file.write(buffer, lengths[j]);
+          }
+          else file << text;
         }
-        else file << r;
-      }
-      else if (m_quantities[j].m_type == Quantity::STRING) {
-        text=m_strings[m_quantities[j].m_index].at(k);
-        if (lengths[j] > 0) {
-          sprintf(buffer, formats[j].c_str(), text.c_str());
-          file.write(buffer, lengths[j]);
-        }
-        else file << text;
-      }
-      if (++j == vecSize) file << std::endl; else file << sep;
+        if (++j == vecSize) file << std::endl; else file << sep;
+      } // loop on rows and quantities
 
-    } // loop on rows and quantities
-    tot+=m_numRows;
+    }
+    else for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+
+      for (j=0; j<vecSize; ) {
+        if (m_quantities[j].m_type == Quantity::NUM) {
+          r=m_numericals[m_quantities[j].m_index].at(k);
+          if (isnan(r)) {
+            len=lengths[j];
+            if (len == 0) len=1;
+            file << std::setw(len+1) << std::setfill(' ');
+          }
+          else if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), r);
+            file.write(buffer, lengths[j]);
+          }
+          else file << r;
+        }
+        else if (m_quantities[j].m_type == Quantity::STRING) {
+          text=m_strings[m_quantities[j].m_index].at(k);
+          if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), text.c_str());
+            file.write(buffer, lengths[j]);
+          }
+          else file << text;
+        }
+        if (++j == vecSize) file << std::endl; else file << sep;
+      }
+      totData++;
+      if (totData == m_numSelRows) break;
+
+    } // loop on rows and quantities, selected branch
+
+    if (saveAll) tot+=m_numRows; else tot+=m_numSelRows;
     if (buffer != NULL) free(buffer);
   }
   catch (const std::exception &prob) {
@@ -1666,12 +1701,260 @@ int Catalog::save(const std::string fileName, bool no_replace) {
   std::ostringstream sortie; 
   sortie << "output text file is closed ( " << tot << " lines written)";
   printLog(0, sortie.str());
+  return IS_OK;  
+}
+/**********************************************************************/
+// save whole catalog from memory to a text file
+int Catalog::saveText(const std::string &fileName, bool clobber) {
+
+  const std::string origin="saveText";
+  int err;
+  err=createText(fileName, clobber, origin);
+  if (err < IS_VOID) return err;
+
+  return IS_OK;
+}
+/**********************************************************************/
+// save selected rows of catalog from memory to a text file
+int Catalog::saveSelectedText(const std::string &fileName, bool clobber) {
+
+  const std::string origin="saveSelectedText";
+  int err;
+  err=createText(fileName, clobber, origin);
+  if (err < IS_VOID) return err;
+
   return IS_OK;
 }
 
+
+/**********************************************************************/
+// create catalog header from memory to a FITS file
+int Catalog::createFits(const std::string &fileName, const std::string &extName,
+                        bool clobber, bool append, const std::string origin,
+                        tip::Table **ptrTable) {
+
+  char name[9]; /* 8 char maximum for header key */
+  std::string text, newName;
+  int  j, err;
+  bool create=true;
+
+  err=checkImport(origin, true);
+  if (err < IS_VOID) return err;
+
+  err=fileName.length();
+  if (err == 0) {
+    text=": FILENAME is EMPTY";
+    printErr(origin, text);
+    return BAD_FILENAME;
+  }
+  if (extName.length() > 68) {
+    text=": EXTENSION name is TOO long (limited to 68 characters)";
+    printErr(origin, text);
+    return BAD_FILENAME;
+  }
+  // overwrite existing file ?
+  if (!clobber) {
+    std::fstream file;
+    file.open(fileName.c_str(), std::ios::in);
+    if (file) {
+      file.close();
+      create=false;
+      if (!append) {
+        text=": FILENAME \""+fileName+"\" exist (clobber=no, append=no)";
+        printErr(origin, text);
+        return BAD_FILENAME;
+      }
+      else {
+        text="appending extension to existing FILENAME (method "+origin+")";
+        printLog(1, text);
+      }
+    }
+  }
+  if (extName.empty()) {
+    /* max length is 68, as keyword value starts/ends with ' in 11/80 */
+    newName=m_tableName.substr(0,68);
+    /* replace forbidden char. */
+    err=newName.length();
+    for (j=0; j < err; j++) {
+      if (newName[j] == '/') newName[j]='_';
+    }
+    text="EXTENSION name set to '"+newName+"'";
+    printWarn(origin, text); 
+    err=IS_OK;
+  }
+  else newName=extName;
+
+  try {
+    if (create) IFileSvc::instance().createFile(fileName);
+    IFileSvc::instance().appendTable(fileName, newName);
+    (*ptrTable)=IFileSvc::instance().editTable(fileName, newName);
+  }
+  catch (const TipException &x) {
+    text=": cannot append and edit fits EXTENSION";
+    printErr(origin, text);
+    return BAD_FITS;
+  }
+  Header &header=(*ptrTable)->getHeader();
+  try {
+    header.setKeyword(KeyCatal[0], m_catName);
+    header.setKeyComment(KeyCatal[0], KeyCatal[1]);
+    header.setKeyword(KeyTable[0], m_tableName);
+    header.setKeyComment(KeyTable[0], KeyTable[1]);
+    /* test 
+    header.setKeyUnit(KeyTable[0], "deg");*/
+  }
+  catch (const TipException &x) {
+    text="fits EXTENSION, cannot add CDS header keys";
+    printWarn(origin, text);
+  }
+  try {
+    err=m_quantities.size();
+    for (j=0; j < err; j++) {
+      const Quantity &readQ=m_quantities[j];
+      if (readQ.m_type == Quantity::NUM) {
+        text="1D";
+        /* to be improved for integers */
+      }
+      else {
+        text=readQ.m_format;
+        if ( isalpha(readQ.m_format[0]) ) {
+          text.erase(0,1);
+          text=text+"A";
+        }
+      }
+      (*ptrTable)->appendField(readQ.m_name, text);
+      text=readQ.m_unit;
+      if ( !text.empty() ) {
+        sprintf(name, "TUNIT%d", j+1);
+        newName=name; /* convert C string to C++ string */
+        header.setKeyword(newName, text);
+        header.setKeyComment(newName, "physical unit of field");
+      }
+      sprintf(name, "%s%d", Key_UCD.c_str(), j+1);
+      newName=name; /* convert C string to C++ string */
+      header.setKeyword(newName, readQ.m_ucd);
+      header.setKeyComment(newName, readQ.m_comment);
+    }/* loop on quantities */
+  }
+  catch (const TipException &x) {
+    text=": fits EXTENSION, cannot add column";
+    printErr(origin, text);
+    return BAD_FITS;
+  }
+/* NEED new tip methods
+  const IColumn *myCol = 0;
+  try {
+    for (j=0; j < err; j++) {
+      const Quantity &readQ=m_quantities[j];
+      myCol=(*ptrTable)->getColumn(j);
+
+    }
+  }
+  catch (const TipException &x) {
+    text=": fits EXTENSION, cannot modify column description";
+    printErr(origin, text);
+    return BAD_FITS;
+  }
+*/
+  return IS_OK;
+}
+/**********************************************************************/
+// save whole catalog from memory to a FITS file
+int Catalog::saveFits(const std::string &fileName, const std::string &extName,
+                      bool clobber, bool append) {
+
+  const std::string origin="saveFits";
+  Table *myDOL=0;
+  int err;
+  err=createFits(fileName, extName, clobber, append, origin, &myDOL);
+  if (err < IS_VOID) return err;
+
+  std::ostringstream sortie;
+  long tot=0l;
+  int  i, j;
+
+  if (m_numRows > 0) {
+  try {
+    myDOL->setNumRecords(m_numRows);
+    Quantity readQ;
+    err=m_quantities.size();
+    // Loop over all records (rows) and set values
+    for (Table::Iterator itor=myDOL->begin(); itor != myDOL->end(); ++itor) {
+      // double variable to hold the value of all the numeric fields
+      for (j=0; j < err; j++) {
+        readQ=m_quantities[j];
+        i=readQ.m_index;
+        if (readQ.m_type == Quantity::NUM) {
+          (*itor)[readQ.m_name].set( m_numericals[i].at(tot) );
+          // to be improved for integers
+        }
+        else (*itor)[readQ.m_name].set( m_strings[i].at(tot) );
+      }
+      tot++;
+    }/* loop on rows */
+  }
+  catch (const TipException &x) {
+    sortie << ": fits EXTENSION, cannot write at row#" << tot;
+    printErr(origin, sortie.str() );
+    return BAD_ROW;
+  }/* end of try */
+  }/* at least 1 row */
+
+  delete myDOL; myDOL=0;
+  sortie << "output fits is closed ( " << tot << " rows written)";
+  printLog(0, sortie.str());
+  return IS_OK;
+}
 /**********************************************************************/
 // save selected rows of catalog from memory to a FITS file
+int Catalog::saveSelectedFits(const std::string &fileName,
+                              const std::string &extName,
+                              bool clobber, bool append) {
 
+  const std::string origin="saveSelectedFits";
+  Table *myDOL=0;
+  int err;
+  err=createFits(fileName, extName, clobber, append, origin, &myDOL);
+  if (err < IS_VOID) return err;
 
+  std::ostringstream sortie;
+  long tot=0l;
+  int  i, j;
+
+  if (m_numSelRows > 0) {
+  try {
+    myDOL->setNumRecords(m_numSelRows);
+    Quantity readQ;
+    err=m_quantities.size();
+    Table::Iterator itor=myDOL->begin();
+    // Loop over all selected records (rows) and set values
+    // first bit indicates global selection
+    for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+      for (j=0; j < err; j++) {
+        readQ=m_quantities[j];
+        i=readQ.m_index;
+        if (readQ.m_type == Quantity::NUM) {
+          (*itor)[readQ.m_name].set( m_numericals[i].at(tot) );
+          // to be improved for integers
+        }
+        else (*itor)[readQ.m_name].set( m_strings[i].at(tot) );
+      }
+      tot++;
+      itor++;
+      if (tot == m_numSelRows) break;
+    }
+  }
+  catch (const TipException &x) {
+    sortie << ": fits EXTENSION, cannot write at row#" << tot;
+    printErr(origin, sortie.str() );
+    return BAD_ROW;
+  }/* end of try */
+  }/* at least 1 selected row */
+
+  delete myDOL; myDOL=0;
+  sortie << "output fits is closed ( " << tot << " rows written)";
+  printLog(0, sortie.str());
+  return IS_OK;
+}
 
 } // namespace catalogAccess

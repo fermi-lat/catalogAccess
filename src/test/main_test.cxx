@@ -449,7 +449,16 @@ try {
   err=aCat.maxVal("SRC_3EG", &rVal);
   vecSize=aCat.getSValues("SRC_3EG", &catNames);
   std::cout << "* SRC_3EG vector (size=" << vecSize << ")" << std::endl;
+
+  std::cout << "\n* Calling: saveFits to create test1out.fits" << std::endl;
+  err=aCat.saveFits("test1out.fits", "", true);
   aCat.deleteContent();
+
+  std::cout << "\n* Calling: importDescription on file \"test.fits\" (HDU #2)"
+            << std::endl;
+  strVal=myPath+"/test.fits";
+  err=aCat.importDescription (strVal, "2");
+  std::cout << "* Value returned = " << err << std::endl;
 } catch (...) {
   std::cout << "!! EXCEPTION thrown !!";
 }
@@ -601,13 +610,14 @@ try {
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
   strVal=myPath+argString+".txt";
-  std::cout << "\n* Calling: save(" << strVal << ")" << std::endl;
-  err=aCat.save(strVal, false);
+  std::cout << "\n* Calling: saveText(" << strVal << ", true)" << std::endl;
+  err=aCat.saveText(strVal, true);
 
   std::cout << "\n* Calling: eraseSelected()" << std::endl;
   err=aCat.eraseSelected();
   aCat.getNumRows(&numRows);
   std::cout << "* Number of rows = " << numRows << std::endl;
+
 
   std::cout << "\n* Calling: import on file \"" << argString
              << "\""<< std::endl;
@@ -622,6 +632,10 @@ try {
   err=aCat.setSelEllipse(0, 90., 90, 90);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+
+  strVal=myPath+argString+".fits";
+  std::cout << "\n* Calling: saveFits to create " << strVal << std::endl;
+  err=aCat.saveFits(strVal, "", true);
 
   std::cout << "\n* Limits on \"L_Extent\":" << std::endl;
   err=aCat.minVal("L_Extent", &rVal);
@@ -651,11 +665,13 @@ try {
   std::cout << "\n* Accepting NaN (whatever condition, always select NaN)" 
             << std::endl;
   aCat.setRejectNaN("L_Extent", false);
-  aCat.excludeN("L_Extent", listVal);
-  aCat.getNumSelRows(&numRows);
-  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  std::cout << "* Setting list of values: "<< listVal[0]<<", " << listVal[1]
+            << std::endl;
   aCat.useOnlyN("L_Extent", listVal);
 //  aCat.includeN("L_Extent", listVal);
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
+  aCat.excludeN("L_Extent", listVal);
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 

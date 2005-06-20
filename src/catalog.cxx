@@ -116,8 +116,9 @@ void Catalog::deleteDescription() {
 // deleteContent() MUST be done before
 void Catalog::deleteQuantities() {
 
-  int maxSize=m_loadQuantity.size(),
-      nbA=0, nbD=0;
+  unsigned int maxSize=m_loadQuantity.size();
+  int  nbA=0, nbD=0;
+
   if (maxSize != m_quantities.size()) {
     printErr("deleteQuantities",
              "problem in code, this error should not occur");
@@ -129,7 +130,7 @@ void Catalog::deleteQuantities() {
   m_strings.clear();
   std::vector<Quantity>::iterator quantIter;
   quantIter=m_quantities.begin();
-  for (int i=0; i<maxSize; i++) {
+  for (unsigned int i=0; i<maxSize; i++) {
     if (m_loadQuantity[i]) {/* change the index in 2D tables */
       if ((*quantIter).m_format[0] == 'A') (*quantIter).m_index=nbA++;
       else (*quantIter).m_index=nbD++;

@@ -34,18 +34,18 @@
 00036 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> Max_Test = std::numeric_limits&lt;unsigned long&gt;::max();
 00037 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> Angle_Conv = M_PI/180.;
 00038 
-00039 <span class="keyword">enum</span> { <a class="code" href="namespacecatalog_access.html#a34a10">IS_OK</a> = 1, <a class="code" href="namespacecatalog_access.html#a34a11">IS_VOID</a> = 0,
-00040       <a class="code" href="namespacecatalog_access.html#a34a12">IMPORT_BIS</a> = -1, <a class="code" href="namespacecatalog_access.html#a34a13">IMPORT_NEED</a> = -2, <a class="code" href="namespacecatalog_access.html#a34a14">BAD_CATNAME</a> = -3, <a class="code" href="namespacecatalog_access.html#a34a15">BAD_FILENAME</a> = -4,
-00041      <a class="code" href="namespacecatalog_access.html#a34a16">BAD_FILETYPE</a> = -5, <a class="code" href="namespacecatalog_access.html#a34a17">BAD_FITS</a> = -6, <a class="code" href="namespacecatalog_access.html#a34a18">BAD_FILELINE</a> = -7, <a class="code" href="namespacecatalog_access.html#a34a19">BAD_URL</a> = -8,
-00042     <a class="code" href="namespacecatalog_access.html#a34a20">NO_RA_DEC</a> = -9,
-00043    <a class="code" href="namespacecatalog_access.html#a34a21">BAD_ROW</a> = -10, <a class="code" href="namespacecatalog_access.html#a34a22">BAD_QUANT_NAME</a> = -11, <a class="code" href="namespacecatalog_access.html#a34a23">BAD_QUANT_TYPE</a> = -12, <a class="code" href="namespacecatalog_access.html#a34a24">NO_QUANT_ERR</a>= -13,
-00044   <a class="code" href="namespacecatalog_access.html#a34a25">BAD_RA</a> = -14, <a class="code" href="namespacecatalog_access.html#a34a26">BAD_DEC</a> = -15, <a class="code" href="namespacecatalog_access.html#a34a27">BAD_ROT</a> = -16, <a class="code" href="namespacecatalog_access.html#a34a28">BAD_AXIS</a> = -17,
-00045  <a class="code" href="namespacecatalog_access.html#a34a29">BAD_SEL_LIM</a> = -20, <a class="code" href="namespacecatalog_access.html#a34a30">BAD_SEL_QUANT</a> = -21 };
+00039 <span class="keyword">enum</span> { <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a> = 1, <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a> = 0,
+00040       <a class="code" href="namespacecatalog_access.html#a35a13">IMPORT_BIS</a> = -1, <a class="code" href="namespacecatalog_access.html#a35a14">IMPORT_NEED</a> = -2, <a class="code" href="namespacecatalog_access.html#a35a15">BAD_CATNAME</a> = -3, <a class="code" href="namespacecatalog_access.html#a35a16">BAD_FILENAME</a> = -4,
+00041      <a class="code" href="namespacecatalog_access.html#a35a17">BAD_FILETYPE</a> = -5, <a class="code" href="namespacecatalog_access.html#a35a18">BAD_FITS</a> = -6, <a class="code" href="namespacecatalog_access.html#a35a19">BAD_FILELINE</a> = -7, <a class="code" href="namespacecatalog_access.html#a35a20">BAD_URL</a> = -8,
+00042     <a class="code" href="namespacecatalog_access.html#a35a21">NO_RA_DEC</a> = -9,
+00043    <a class="code" href="namespacecatalog_access.html#a35a22">BAD_ROW</a> = -10, <a class="code" href="namespacecatalog_access.html#a35a23">BAD_QUANT_NAME</a> = -11, <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a> = -12, <a class="code" href="namespacecatalog_access.html#a35a25">NO_QUANT_ERR</a>= -13,
+00044   <a class="code" href="namespacecatalog_access.html#a35a26">BAD_RA</a> = -14, <a class="code" href="namespacecatalog_access.html#a35a27">BAD_DEC</a> = -15, <a class="code" href="namespacecatalog_access.html#a35a28">BAD_ROT</a> = -16, <a class="code" href="namespacecatalog_access.html#a35a29">BAD_AXIS</a> = -17,
+00045  <a class="code" href="namespacecatalog_access.html#a35a30">BAD_SEL_LIM</a> = -20, <a class="code" href="namespacecatalog_access.html#a35a31">BAD_SEL_QUANT</a> = -21 };
 00046 
-00047 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="namespacecatalog_access.html#a4">verbosity</a>; <span class="comment">// global variable 0 (less) to 4 (more verbose)</span>
-00048 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a31">printErr</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
-00049 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a32">printWarn</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
-00050 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a33">printLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> level, <span class="keyword">const</span> std::string text);
+00047 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="namespacecatalog_access.html#a5">verbosity</a>; <span class="comment">// global variable 0 (less) to 4 (more verbose)</span>
+00048 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
+00049 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
+00050 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> level, <span class="keyword">const</span> std::string text);
 00051 
 <a name="l00062"></a><a class="code" href="classcatalog_access_1_1_quantity.html">00062</a> <span class="keyword">class </span><a class="code" href="classcatalog_access_1_1_quantity.html">Quantity</a> {
 00063 
@@ -148,7 +148,7 @@
 00160 
 00161 } <span class="comment">// namespace catalogAccess</span>
 00162 <span class="preprocessor">#endif // catalogAccess_quant_h</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Jun 10 14:51:23 2005 for catalogAccess by
+</pre></div><hr><address style="align: right;"><small>Generated on Mon Jun 20 15:18:15 2005 for catalogAccess by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

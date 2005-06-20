@@ -14,19 +14,19 @@
 00017 <span class="comment">/**********************************************************************/</span>
 00018 <span class="comment">/*  GLOBAL FUNCTION for catalogAccess                                 */</span>
 00019 <span class="comment">/**********************************************************************/</span>
-<a name="l00020"></a><a class="code" href="namespacecatalog_access.html#a4">00020</a> <span class="keywordtype">int</span> <a class="code" href="namespacecatalog_access.html#a4">verbosity</a>;
+<a name="l00020"></a><a class="code" href="namespacecatalog_access.html#a5">00020</a> <span class="keywordtype">int</span> <a class="code" href="namespacecatalog_access.html#a5">verbosity</a>;
 00021 
-<a name="l00022"></a><a class="code" href="namespacecatalog_access.html#a31">00022</a> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a31">printErr</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text) {
+<a name="l00022"></a><a class="code" href="namespacecatalog_access.html#a32">00022</a> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text) {
 00023   std::cerr &lt;&lt; <span class="stringliteral">"ERROR catalogAccess (IN "</span> &lt;&lt; origin &lt;&lt; <span class="stringliteral">") "</span>
 00024             &lt;&lt; text &lt;&lt; std::endl;
 00025 }
-<a name="l00026"></a><a class="code" href="namespacecatalog_access.html#a32">00026</a> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a32">printWarn</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text) {
-00027   <span class="keywordflow">if</span> (<a class="code" href="namespacecatalog_access.html#a4">verbosity</a> &gt; 0)
+<a name="l00026"></a><a class="code" href="namespacecatalog_access.html#a33">00026</a> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text) {
+00027   <span class="keywordflow">if</span> (<a class="code" href="namespacecatalog_access.html#a5">verbosity</a> &gt; 0)
 00028   std::cerr &lt;&lt; <span class="stringliteral">"WARNING catalogAccess (IN "</span> &lt;&lt; origin &lt;&lt; <span class="stringliteral">"): "</span>
 00029             &lt;&lt; text &lt;&lt; std::endl;
 00030 }
-<a name="l00031"></a><a class="code" href="namespacecatalog_access.html#a33">00031</a> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a33">printLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> level, <span class="keyword">const</span> std::string text) {
-00032   <span class="keywordflow">if</span> (<a class="code" href="namespacecatalog_access.html#a4">verbosity</a>+level &gt;= 4)
+<a name="l00031"></a><a class="code" href="namespacecatalog_access.html#a34">00031</a> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> level, <span class="keyword">const</span> std::string text) {
+00032   <span class="keywordflow">if</span> (<a class="code" href="namespacecatalog_access.html#a5">verbosity</a>+level &gt;= 4)
 00033   std::cout &lt;&lt; <span class="stringliteral">"LOG_"</span> &lt;&lt; (int)level &lt;&lt; <span class="stringliteral">" (catalogAccess): "</span>
 00034             &lt;&lt; text &lt;&lt; std::endl;
 00035 }
@@ -58,7 +58,7 @@
 00061   }
 00062   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;err) {
 00063     errText=std::string(<span class="stringliteral">"EXCEPTION on m_vectorQs[]: "</span>)+err.what();
-00064     <a class="code" href="namespacecatalog_access.html#a31">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
+00064     <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
 00065     <span class="keywordflow">throw</span>;
 00066   }
 00067   <span class="comment">// selection criteria</span>
@@ -76,7 +76,7 @@
 00079   }
 00080   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;err) {
 00081     errText=std::string(<span class="stringliteral">"EXCEPTION on selection list: "</span>)+err.what();
-00082     <a class="code" href="namespacecatalog_access.html#a31">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
+00082     <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="stringliteral">"Quantity copy constructor"</span>, errText);
 00083     <span class="keywordflow">throw</span>;
 00084   }
 00085 <span class="comment">/* line is commented on purpose to TEMINATE the program on EXCEPTION */</span>
@@ -85,7 +85,7 @@
 00088 
 00089 
 00090 } <span class="comment">// namespace catalogAccess</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Fri Jun 10 14:51:23 2005 for catalogAccess by
+</pre></div><hr><address style="align: right;"><small>Generated on Mon Jun 20 15:18:15 2005 for catalogAccess by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>
