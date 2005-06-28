@@ -1,5 +1,5 @@
 package catalogAccess
-version v0r2p1
+version v0r2p2
 
 author Aymeric Sauvageon <asauvageon@cea.fr>
 
@@ -11,4 +11,4 @@ apply_pattern ST_library option=-no_share
 application  main_test  test/main_test.cxx
 
 #application main_test -check main_test.cxx  quantity.cxx  
-#catalog.cxx catalog_io.cxx catalog_sel.cxx
+#   catalog_io.cxx catalog_ioText.cxx  catalog_sel.cxx  catalog.cxx

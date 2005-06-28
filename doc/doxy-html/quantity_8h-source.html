@@ -33,122 +33,124 @@
 00035 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> NearZero = 10*std::numeric_limits&lt;double&gt;::min();
 00036 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> Max_Test = std::numeric_limits&lt;unsigned long&gt;::max();
 00037 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> Angle_Conv = M_PI/180.;
-00038 
-00039 <span class="keyword">enum</span> { <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a> = 1, <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a> = 0,
-00040       <a class="code" href="namespacecatalog_access.html#a35a13">IMPORT_BIS</a> = -1, <a class="code" href="namespacecatalog_access.html#a35a14">IMPORT_NEED</a> = -2, <a class="code" href="namespacecatalog_access.html#a35a15">BAD_CATNAME</a> = -3, <a class="code" href="namespacecatalog_access.html#a35a16">BAD_FILENAME</a> = -4,
-00041      <a class="code" href="namespacecatalog_access.html#a35a17">BAD_FILETYPE</a> = -5, <a class="code" href="namespacecatalog_access.html#a35a18">BAD_FITS</a> = -6, <a class="code" href="namespacecatalog_access.html#a35a19">BAD_FILELINE</a> = -7, <a class="code" href="namespacecatalog_access.html#a35a20">BAD_URL</a> = -8,
-00042     <a class="code" href="namespacecatalog_access.html#a35a21">NO_RA_DEC</a> = -9,
-00043    <a class="code" href="namespacecatalog_access.html#a35a22">BAD_ROW</a> = -10, <a class="code" href="namespacecatalog_access.html#a35a23">BAD_QUANT_NAME</a> = -11, <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a> = -12, <a class="code" href="namespacecatalog_access.html#a35a25">NO_QUANT_ERR</a>= -13,
-00044   <a class="code" href="namespacecatalog_access.html#a35a26">BAD_RA</a> = -14, <a class="code" href="namespacecatalog_access.html#a35a27">BAD_DEC</a> = -15, <a class="code" href="namespacecatalog_access.html#a35a28">BAD_ROT</a> = -16, <a class="code" href="namespacecatalog_access.html#a35a29">BAD_AXIS</a> = -17,
-00045  <a class="code" href="namespacecatalog_access.html#a35a30">BAD_SEL_LIM</a> = -20, <a class="code" href="namespacecatalog_access.html#a35a31">BAD_SEL_QUANT</a> = -21 };
-00046 
-00047 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="namespacecatalog_access.html#a5">verbosity</a>; <span class="comment">// global variable 0 (less) to 4 (more verbose)</span>
-00048 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
-00049 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
-00050 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> level, <span class="keyword">const</span> std::string text);
-00051 
-<a name="l00062"></a><a class="code" href="classcatalog_access_1_1_quantity.html">00062</a> <span class="keyword">class </span><a class="code" href="classcatalog_access_1_1_quantity.html">Quantity</a> {
-00063 
-00064 <span class="keyword">public</span>:
-00065 
-<a name="l00066"></a><a class="code" href="classcatalog_access_1_1_quantity.html#s3">00066</a>   <span class="keyword">typedef</span> <span class="keyword">enum</span> {<a class="code" href="classcatalog_access_1_1_quantity.html#s3s0">NUM</a>=1, <a class="code" href="classcatalog_access_1_1_quantity.html#s3s1">STRING</a>=2, <a class="code" href="classcatalog_access_1_1_quantity.html#s3s2">VECTOR</a>=0} <a class="code" href="classcatalog_access_1_1_quantity.html#s3">QuantityType</a>;
-00067 
-<a name="l00068"></a><a class="code" href="classcatalog_access_1_1_quantity.html#a0">00068</a>   <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a>() {                  <span class="comment">// Default constructor</span>
-00069  
-00070     <a class="code" href="classcatalog_access_1_1_quantity.html#m4">m_type</a> =<a class="code" href="classcatalog_access_1_1_quantity.html#s3s2">VECTOR</a>;
-00071     <a class="code" href="classcatalog_access_1_1_quantity.html#m6">m_index</a>=-1;
-00072     <a class="code" href="classcatalog_access_1_1_quantity.html#m7">m_isGeneric</a>   =<span class="keyword">false</span>;
-00073     <a class="code" href="classcatalog_access_1_1_quantity.html#m12">m_lowerCut</a>=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>; <a class="code" href="classcatalog_access_1_1_quantity.html#m13">m_upperCut</a>=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>;
-00074     <a class="code" href="classcatalog_access_1_1_quantity.html#m16">m_precision</a>   =10*Min_Prec;
-00075     <a class="code" href="classcatalog_access_1_1_quantity.html#m17">m_rejectNaN</a>   =<span class="keyword">true</span>;
-00076     <a class="code" href="classcatalog_access_1_1_quantity.html#m18">m_cutORed</a>     =<span class="keyword">false</span>;
-00077     <a class="code" href="classcatalog_access_1_1_quantity.html#m15">m_excludeList</a> =<span class="keyword">false</span>;
-00078   }
-<a name="l00079"></a><a class="code" href="classcatalog_access_1_1_quantity.html#a1">00079</a>   <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a>(std::string name, std::string comm, std::string ucd,
-00080            <a class="code" href="classcatalog_access_1_1_quantity.html#s3">QuantityType</a> type, std::string unit, <span class="keywordtype">int</span> index=-1,
-00081            <span class="keywordtype">bool</span> gene=<span class="keyword">false</span>, <span class="keywordtype">double</span> low=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>, <span class="keywordtype">double</span> up=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>) :
-00082     <a class="code" href="classcatalog_access_1_1_quantity.html#m0">m_name</a>(name), <a class="code" href="classcatalog_access_1_1_quantity.html#m1">m_comment</a>(comm), <a class="code" href="classcatalog_access_1_1_quantity.html#m2">m_ucd</a>(ucd), <a class="code" href="classcatalog_access_1_1_quantity.html#m4">m_type</a>(type), <a class="code" href="classcatalog_access_1_1_quantity.html#m5">m_unit</a>(unit),
-00083     <a class="code" href="classcatalog_access_1_1_quantity.html#m6">m_index</a>(index), <a class="code" href="classcatalog_access_1_1_quantity.html#m7">m_isGeneric</a>(gene), <a class="code" href="classcatalog_access_1_1_quantity.html#m12">m_lowerCut</a>(low), <a class="code" href="classcatalog_access_1_1_quantity.html#m13">m_upperCut</a>(up) {}
-00084                                 <span class="comment">// Constructor with arguments</span>
-00085   <a class="code" href="classcatalog_access_1_1_quantity.html#a2">~Quantity</a>();                  <span class="comment">// Destructor needed to free memory</span>
-00086   <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a>(<span class="keyword">const</span> <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a> &amp; );  <span class="comment">// Copy constructor needed</span>
-00087 
-00088 <span class="comment">/**********************************************************************/</span>
-<a name="l00089"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m0">00089</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m0">m_name</a>;           <span class="comment">// The name of the quantity, e.g., "hr1"</span>
-<a name="l00090"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m1">00090</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m1">m_comment</a>;        <span class="comment">// e.g. " hardness ratio 1-3keV/3-6keV"</span>
-<a name="l00091"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m2">00091</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m2">m_ucd</a>;
-00092       <span class="comment">// Unified contents descriptor (if available, "" otherwise)</span>
-00093       <span class="comment">// follows either UCD1 standard or UCD1+ (still t.b.d.)</span>
-<a name="l00094"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m3">00094</a>   std::string  <a class="code" href="classcatalog_access_1_1_quantity.html#m3">m_format</a>;        <span class="comment">// format used in CDS database</span>
-<a name="l00095"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m4">00095</a>   <a class="code" href="classcatalog_access_1_1_quantity.html#s3">QuantityType</a> <a class="code" href="classcatalog_access_1_1_quantity.html#m4">m_type</a>;
-<a name="l00096"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m5">00096</a>   std::string  <a class="code" href="classcatalog_access_1_1_quantity.html#m5">m_unit</a>;
-00097       <span class="comment">// The unit description, "1" if dimensionless, "" if string</span>
-<a name="l00098"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m6">00098</a>   <span class="keywordtype">int</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m6">m_index</a>;
-00099       <span class="comment">// Where to find the quantity in the m_strings or m_numericals</span>
-00100       <span class="comment">// catalog members array</span>
-<a name="l00101"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m7">00101</a>   <span class="keywordtype">bool</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m7">m_isGeneric</a>;
-00102       <span class="comment">// True if the quantity is part of the set of quantities</span>
-00103       <span class="comment">// common to all catalogs</span>
-<a name="l00104"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m8">00104</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m8">m_statError</a>;
-00105       <span class="comment">// For numerical quantities: the name of the quantity which contains</span>
-00106       <span class="comment">// the statistical error of this quantity;</span>
-00107       <span class="comment">// empty if unavailable or for strings</span>
-<a name="l00108"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m9">00108</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m9">m_sysError</a>;
-00109       <span class="comment">// For numerical quantities: the name of the quantity which contains</span>
-00110       <span class="comment">// the systematic error of this quantity;</span>
-00111       <span class="comment">// empty if unavailable or for strings</span>
-<a name="l00112"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m10">00112</a>   std::vector&lt;std::string&gt; <a class="code" href="classcatalog_access_1_1_quantity.html#m10">m_vectorQs</a>;
-00113       <span class="comment">// If type == VECTOR, this vector of strings contains the ordered list</span>
-00114       <span class="comment">// of quantity names which constitute the vector elements.</span>
-00115       <span class="comment">// All vector elements have to be numerical quantities.</span>
-00116       <span class="comment">// If type!=VECTOR, vectorQs is empty.</span>
-00117 
-00118 
-00119   <span class="comment">// selection criteria</span>
-00120   <span class="comment">//-------------------</span>
-00121 
-<a name="l00122"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m11">00122</a>   std::vector&lt;std::string&gt; <a class="code" href="classcatalog_access_1_1_quantity.html#m11">m_listValS</a>;
-00123       <span class="comment">// for numerical: undefined; default: empty</span>
-00124       <span class="comment">// for string   : stores the list of values to be tested</span>
-<a name="l00125"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m12">00125</a>   <span class="keywordtype">double</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m12">m_lowerCut</a>;  
-00126       <span class="comment">// for string   : undefined; default == NO_SEL_CUT</span>
-00127       <span class="comment">// for numerical: stores the minimum value neccessary for row inclusion</span>
-<a name="l00128"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m13">00128</a>   <span class="keywordtype">double</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m13">m_upperCut</a>;
-00129       <span class="comment">// for string   : undefined; default == NO_SEL_CUT</span>
-00130       <span class="comment">// for numerical: stores the maximum value necessary for row inclusion</span>
-<a name="l00131"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m14">00131</a>   std::vector&lt;double&gt; <a class="code" href="classcatalog_access_1_1_quantity.html#m14">m_listValN</a>;
-00132      <span class="comment">// for string   : undefined; default: empty</span>
-00133      <span class="comment">// for numerical: stores the list of values to be tested</span>
-00134 
-<a name="l00135"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m15">00135</a>   <span class="keywordtype">bool</span>   <a class="code" href="classcatalog_access_1_1_quantity.html#m15">m_excludeList</a>;<span class="comment">// if false the values in the list lead to row inclusion</span>
-<a name="l00136"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m16">00136</a>   <span class="keywordtype">double</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m16">m_precision</a>;  <span class="comment">// test for equality used for m_excludedN, listValN</span>
-<a name="l00137"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m17">00137</a>   <span class="keywordtype">bool</span>   <a class="code" href="classcatalog_access_1_1_quantity.html#m17">m_rejectNaN</a>;  <span class="comment">// if true the NaN values are not selected</span>
-<a name="l00138"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m18">00138</a>   <span class="keywordtype">bool</span>   <a class="code" href="classcatalog_access_1_1_quantity.html#m18">m_cutORed</a>;
-00139       <span class="comment">// set false by useOnlyN (default): numerical cut AND list</span>
-00140       <span class="comment">// set true by includeN: numerical cut OR list</span>
-00141 
-00142 }; <span class="comment">// end class definition </span>
+00038 <span class="keyword">static</span> <span class="keyword">const</span> <span class="keywordtype">double</span> MissNAN = 0/0.;
+00039 
+00040 <span class="keyword">enum</span> { <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a> = 1, <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a> = 0,
+00041       <a class="code" href="namespacecatalog_access.html#a31a9">IMPORT_BIS</a> = -1, <a class="code" href="namespacecatalog_access.html#a31a10">IMPORT_NEED</a> = -2, <a class="code" href="namespacecatalog_access.html#a31a11">BAD_CATNAME</a> = -3, <a class="code" href="namespacecatalog_access.html#a31a12">BAD_FILENAME</a> = -4,
+00042      <a class="code" href="namespacecatalog_access.html#a31a13">BAD_FILETYPE</a> = -5, <a class="code" href="namespacecatalog_access.html#a31a14">BAD_FITS</a> = -6, <a class="code" href="namespacecatalog_access.html#a31a15">BAD_FILELINE</a> = -7, <a class="code" href="namespacecatalog_access.html#a31a16">BAD_URL</a> = -8,
+00043     <a class="code" href="namespacecatalog_access.html#a31a17">NO_RA_DEC</a> = -9,
+00044    <a class="code" href="namespacecatalog_access.html#a31a18">BAD_ROW</a> = -10, <a class="code" href="namespacecatalog_access.html#a31a19">BAD_QUANT_NAME</a> = -11, <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a> = -12, <a class="code" href="namespacecatalog_access.html#a31a21">NO_QUANT_ERR</a>= -13,
+00045   <a class="code" href="namespacecatalog_access.html#a31a22">BAD_RA</a> = -14, <a class="code" href="namespacecatalog_access.html#a31a23">BAD_DEC</a> = -15, <a class="code" href="namespacecatalog_access.html#a31a24">BAD_ROT</a> = -16, <a class="code" href="namespacecatalog_access.html#a31a25">BAD_AXIS</a> = -17,
+00046  <a class="code" href="namespacecatalog_access.html#a31a26">BAD_SEL_LIM</a> = -20, <a class="code" href="namespacecatalog_access.html#a31a27">BAD_SEL_QUANT</a> = -21 };
+00047 
+00048 <span class="keyword">extern</span> <span class="keywordtype">int</span> <a class="code" href="namespacecatalog_access.html#a0">verbosity</a>; <span class="comment">// global variable 0 (less) to 4 (more verbose)</span>
+00049 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
+00050 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="keyword">const</span> std::string origin, <span class="keyword">const</span> std::string text);
+00051 <span class="keyword">extern</span> <span class="keywordtype">void</span> <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(<span class="keyword">const</span> <span class="keywordtype">int</span> level, <span class="keyword">const</span> std::string text);
+00052 
+<a name="l00063"></a><a class="code" href="classcatalog_access_1_1_quantity.html">00063</a> <span class="keyword">class </span><a class="code" href="classcatalog_access_1_1_quantity.html">Quantity</a> {
+00064 
+00065 <span class="keyword">public</span>:
+00066 
+<a name="l00067"></a><a class="code" href="classcatalog_access_1_1_quantity.html#s3">00067</a>   <span class="keyword">typedef</span> <span class="keyword">enum</span> {<a class="code" href="classcatalog_access_1_1_quantity.html#s3s0">NUM</a>=1, <a class="code" href="classcatalog_access_1_1_quantity.html#s3s1">STRING</a>=2, <a class="code" href="classcatalog_access_1_1_quantity.html#s3s2">VECTOR</a>=0} <a class="code" href="classcatalog_access_1_1_quantity.html#s3">QuantityType</a>;
+00068 
+<a name="l00069"></a><a class="code" href="classcatalog_access_1_1_quantity.html#a0">00069</a>   <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a>() {                  <span class="comment">// Default constructor</span>
+00070  
+00071     <a class="code" href="classcatalog_access_1_1_quantity.html#m5">m_type</a> =<a class="code" href="classcatalog_access_1_1_quantity.html#s3s2">VECTOR</a>;
+00072     <a class="code" href="classcatalog_access_1_1_quantity.html#m7">m_index</a>=-1;
+00073     <a class="code" href="classcatalog_access_1_1_quantity.html#m8">m_isGeneric</a>   =<span class="keyword">false</span>;
+00074     <a class="code" href="classcatalog_access_1_1_quantity.html#m13">m_lowerCut</a>=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>; <a class="code" href="classcatalog_access_1_1_quantity.html#m14">m_upperCut</a>=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>;
+00075     <a class="code" href="classcatalog_access_1_1_quantity.html#m17">m_precision</a>   =10*Min_Prec;
+00076     <a class="code" href="classcatalog_access_1_1_quantity.html#m18">m_rejectNaN</a>   =<span class="keyword">true</span>;
+00077     <a class="code" href="classcatalog_access_1_1_quantity.html#m19">m_cutORed</a>     =<span class="keyword">false</span>;
+00078     <a class="code" href="classcatalog_access_1_1_quantity.html#m16">m_excludeList</a> =<span class="keyword">false</span>;
+00079   }
+<a name="l00080"></a><a class="code" href="classcatalog_access_1_1_quantity.html#a1">00080</a>   <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a>(std::string name, std::string comm, std::string ucd,
+00081            <a class="code" href="classcatalog_access_1_1_quantity.html#s3">QuantityType</a> type, std::string unit, <span class="keywordtype">int</span> index=-1,
+00082            <span class="keywordtype">bool</span> gene=<span class="keyword">false</span>, <span class="keywordtype">double</span> low=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>, <span class="keywordtype">double</span> up=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>) :
+00083     <a class="code" href="classcatalog_access_1_1_quantity.html#m0">m_name</a>(name), <a class="code" href="classcatalog_access_1_1_quantity.html#m1">m_comment</a>(comm), <a class="code" href="classcatalog_access_1_1_quantity.html#m2">m_ucd</a>(ucd), <a class="code" href="classcatalog_access_1_1_quantity.html#m5">m_type</a>(type), <a class="code" href="classcatalog_access_1_1_quantity.html#m6">m_unit</a>(unit),
+00084     <a class="code" href="classcatalog_access_1_1_quantity.html#m7">m_index</a>(index), <a class="code" href="classcatalog_access_1_1_quantity.html#m8">m_isGeneric</a>(gene), <a class="code" href="classcatalog_access_1_1_quantity.html#m13">m_lowerCut</a>(low), <a class="code" href="classcatalog_access_1_1_quantity.html#m14">m_upperCut</a>(up) {}
+00085                                 <span class="comment">// Constructor with arguments</span>
+00086   <a class="code" href="classcatalog_access_1_1_quantity.html#a2">~Quantity</a>();                  <span class="comment">// Destructor needed to free memory</span>
+00087   <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a>(<span class="keyword">const</span> <a class="code" href="classcatalog_access_1_1_quantity.html#a0">Quantity</a> &amp; );  <span class="comment">// Copy constructor needed</span>
+00088 
+00089 <span class="comment">/**********************************************************************/</span>
+<a name="l00090"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m0">00090</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m0">m_name</a>;           <span class="comment">// The name of the quantity, e.g., "hr1"</span>
+<a name="l00091"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m1">00091</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m1">m_comment</a>;        <span class="comment">// e.g. " hardness ratio 1-3keV/3-6keV"</span>
+<a name="l00092"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m2">00092</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m2">m_ucd</a>;
+00093       <span class="comment">// Unified contents descriptor (if available, "" otherwise)</span>
+00094       <span class="comment">// follows either UCD1 standard or UCD1+ (still t.b.d.)</span>
+<a name="l00095"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m3">00095</a>   std::string  <a class="code" href="classcatalog_access_1_1_quantity.html#m3">m_format</a>;        <span class="comment">// format used in CDS database or BINTABLE</span>
+<a name="l00096"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m4">00096</a>   std::string  <a class="code" href="classcatalog_access_1_1_quantity.html#m4">m_null</a>;          <span class="comment">// TNULL keyword in BINTABLE </span>
+<a name="l00097"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m5">00097</a>   <a class="code" href="classcatalog_access_1_1_quantity.html#s3">QuantityType</a> <a class="code" href="classcatalog_access_1_1_quantity.html#m5">m_type</a>;
+<a name="l00098"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m6">00098</a>   std::string  <a class="code" href="classcatalog_access_1_1_quantity.html#m6">m_unit</a>;
+00099       <span class="comment">// The unit description, "1" if dimensionless, "" if string</span>
+<a name="l00100"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m7">00100</a>   <span class="keywordtype">int</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m7">m_index</a>;
+00101       <span class="comment">// Where to find the quantity in the m_strings or m_numericals</span>
+00102       <span class="comment">// catalog members array</span>
+<a name="l00103"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m8">00103</a>   <span class="keywordtype">bool</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m8">m_isGeneric</a>;
+00104       <span class="comment">// True if the quantity is part of the set of quantities</span>
+00105       <span class="comment">// common to all catalogs</span>
+<a name="l00106"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m9">00106</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m9">m_statError</a>;
+00107       <span class="comment">// For numerical quantities: the name of the quantity which contains</span>
+00108       <span class="comment">// the statistical error of this quantity;</span>
+00109       <span class="comment">// empty if unavailable or for strings</span>
+<a name="l00110"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m10">00110</a>   std::string <a class="code" href="classcatalog_access_1_1_quantity.html#m10">m_sysError</a>;
+00111       <span class="comment">// For numerical quantities: the name of the quantity which contains</span>
+00112       <span class="comment">// the systematic error of this quantity;</span>
+00113       <span class="comment">// empty if unavailable or for strings</span>
+<a name="l00114"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m11">00114</a>   std::vector&lt;std::string&gt; <a class="code" href="classcatalog_access_1_1_quantity.html#m11">m_vectorQs</a>;
+00115       <span class="comment">// If type == VECTOR, this vector of strings contains the ordered list</span>
+00116       <span class="comment">// of quantity names which constitute the vector elements.</span>
+00117       <span class="comment">// All vector elements have to be numerical quantities.</span>
+00118       <span class="comment">// If type!=VECTOR, vectorQs is empty.</span>
+00119 
+00120 
+00121   <span class="comment">// selection criteria</span>
+00122   <span class="comment">//-------------------</span>
+00123 
+<a name="l00124"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m12">00124</a>   std::vector&lt;std::string&gt; <a class="code" href="classcatalog_access_1_1_quantity.html#m12">m_listValS</a>;
+00125       <span class="comment">// for numerical: undefined; default: empty</span>
+00126       <span class="comment">// for string   : stores the list of values to be tested</span>
+<a name="l00127"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m13">00127</a>   <span class="keywordtype">double</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m13">m_lowerCut</a>;  
+00128       <span class="comment">// for string   : undefined; default == NO_SEL_CUT</span>
+00129       <span class="comment">// for numerical: stores the minimum value neccessary for row inclusion</span>
+<a name="l00130"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m14">00130</a>   <span class="keywordtype">double</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m14">m_upperCut</a>;
+00131       <span class="comment">// for string   : undefined; default == NO_SEL_CUT</span>
+00132       <span class="comment">// for numerical: stores the maximum value necessary for row inclusion</span>
+<a name="l00133"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m15">00133</a>   std::vector&lt;double&gt; <a class="code" href="classcatalog_access_1_1_quantity.html#m15">m_listValN</a>;
+00134      <span class="comment">// for string   : undefined; default: empty</span>
+00135      <span class="comment">// for numerical: stores the list of values to be tested</span>
+00136 
+<a name="l00137"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m16">00137</a>   <span class="keywordtype">bool</span>   <a class="code" href="classcatalog_access_1_1_quantity.html#m16">m_excludeList</a>;<span class="comment">// if false the values in the list lead to row inclusion</span>
+<a name="l00138"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m17">00138</a>   <span class="keywordtype">double</span> <a class="code" href="classcatalog_access_1_1_quantity.html#m17">m_precision</a>;  <span class="comment">// test for equality used for m_excludedN, listValN</span>
+<a name="l00139"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m18">00139</a>   <span class="keywordtype">bool</span>   <a class="code" href="classcatalog_access_1_1_quantity.html#m18">m_rejectNaN</a>;  <span class="comment">// if true the NaN values are not selected</span>
+<a name="l00140"></a><a class="code" href="classcatalog_access_1_1_quantity.html#m19">00140</a>   <span class="keywordtype">bool</span>   <a class="code" href="classcatalog_access_1_1_quantity.html#m19">m_cutORed</a>;
+00141       <span class="comment">// set false by useOnlyN (default): numerical cut AND list</span>
+00142       <span class="comment">// set true by includeN: numerical cut OR list</span>
 00143 
-00144 
-00145 <span class="comment">/**********************************************************************/</span>
-00146 <span class="comment">/*  DEFINING inline FUNCTION MEMBERS                                  */</span>
+00144 }; <span class="comment">// end class definition </span>
+00145 
+00146 
 00147 <span class="comment">/**********************************************************************/</span>
-00148 
-00149 <span class="comment">// Destructor needed to free memory</span>
-<a name="l00150"></a><a class="code" href="classcatalog_access_1_1_quantity.html#a2">00150</a> <span class="keyword">inline</span> Quantity::~Quantity() {
-00151 
-00152 <span class="preprocessor">  #ifdef DEBUG_CAT</span>
-00153 <span class="preprocessor"></span>  std::cout &lt;&lt; <span class="stringliteral">"!! DEBUG Quantity destructor on: "</span>
-00154             &lt;&lt; <a class="code" href="classcatalog_access_1_1_quantity.html#m0">m_name</a> &lt;&lt;<span class="stringliteral">" (ucd="</span>&lt;&lt; <a class="code" href="classcatalog_access_1_1_quantity.html#m2">m_ucd</a> &lt;&lt;<span class="stringliteral">")"</span>&lt;&lt; std::endl;
-00155 <span class="preprocessor">  #endif</span>
-00156 <span class="preprocessor"></span>  <a class="code" href="classcatalog_access_1_1_quantity.html#m10">m_vectorQs</a>.clear();
-00157   <a class="code" href="classcatalog_access_1_1_quantity.html#m11">m_listValS</a>.clear();
-00158   <a class="code" href="classcatalog_access_1_1_quantity.html#m14">m_listValN</a>.clear();
-00159 }
-00160 
-00161 } <span class="comment">// namespace catalogAccess</span>
-00162 <span class="preprocessor">#endif // catalogAccess_quant_h</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Mon Jun 20 15:18:15 2005 for catalogAccess by
+00148 <span class="comment">/*  DEFINING inline FUNCTION MEMBERS                                  */</span>
+00149 <span class="comment">/**********************************************************************/</span>
+00150 
+00151 <span class="comment">// Destructor needed to free memory</span>
+<a name="l00152"></a><a class="code" href="classcatalog_access_1_1_quantity.html#a2">00152</a> <span class="keyword">inline</span> Quantity::~Quantity() {
+00153 
+00154 <span class="preprocessor">  #ifdef DEBUG_CAT</span>
+00155 <span class="preprocessor"></span>  std::cout &lt;&lt; <span class="stringliteral">"!! DEBUG Quantity destructor on: "</span>
+00156             &lt;&lt; <a class="code" href="classcatalog_access_1_1_quantity.html#m0">m_name</a> &lt;&lt;<span class="stringliteral">" (ucd="</span>&lt;&lt; <a class="code" href="classcatalog_access_1_1_quantity.html#m2">m_ucd</a> &lt;&lt;<span class="stringliteral">")"</span>&lt;&lt; std::endl;
+00157 <span class="preprocessor">  #endif</span>
+00158 <span class="preprocessor"></span>  <a class="code" href="classcatalog_access_1_1_quantity.html#m11">m_vectorQs</a>.clear();
+00159   <a class="code" href="classcatalog_access_1_1_quantity.html#m12">m_listValS</a>.clear();
+00160   <a class="code" href="classcatalog_access_1_1_quantity.html#m15">m_listValN</a>.clear();
+00161 }
+00162 
+00163 } <span class="comment">// namespace catalogAccess</span>
+00164 <span class="preprocessor">#endif // catalogAccess_quant_h</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Jun 28 10:46:03 2005 for catalogAccess by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

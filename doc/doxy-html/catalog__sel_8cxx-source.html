@@ -17,38 +17,38 @@
 00020 <span class="comment">// importSelected() will actually load selected quantities</span>
 <a name="l00021"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a49">00021</a> <span class="keywordtype">int</span> Catalog::selectQuantity(<span class="keyword">const</span> std::string name, <span class="keyword">const</span> <span class="keywordtype">bool</span> toBeLoaded) {
 00022 
-00023   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"selectQuantity"</span>, <span class="keyword">true</span>);
-00024   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
-00025   <span class="keywordtype">int</span> num=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"selectQuantity"</span>, name);
+00023   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"selectQuantity"</span>, <span class="keyword">true</span>);
+00024   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00025   <span class="keywordtype">int</span> num=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"selectQuantity"</span>, name);
 00026   <span class="keywordflow">if</span> (num &lt; 0) <span class="keywordflow">return</span> num;
 00027 
 00028   <span class="keywordtype">int</span> maxSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.size();
 00029   <span class="keywordflow">if</span> (quantSize != maxSize) {
-00030     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"selectQuantity"</span>,
+00030     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"selectQuantity"</span>,
 00031              <span class="stringliteral">"cannot get all initial quantities once importSelected() done"</span>);
-00032     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a31">BAD_SEL_QUANT</a>;
+00032     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a27">BAD_SEL_QUANT</a>;
 00033   }
 00034   <a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.at(num)=toBeLoaded;
-00035   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00035   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00036 }
 00037 <span class="comment">/**********************************************************************/</span>
 <a name="l00038"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a50">00038</a> <span class="keywordtype">int</span> Catalog::selectAllQuantities(<span class="keyword">const</span> <span class="keywordtype">bool</span> toBeLoaded) {
 00039 
-00040   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"selectAllQuantities"</span>, <span class="keyword">true</span>);
-00041   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00040   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"selectAllQuantities"</span>, <span class="keyword">true</span>);
+00041   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
 00042 
 00043   <span class="comment">// beware m_loadQuantity has always the initial size</span>
 00044   <span class="comment">// whereas m_quantities size can decrease</span>
 00045   <span class="keywordtype">int</span> maxSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.size();
 00046   <span class="keywordflow">if</span> (quantSize != maxSize) {
-00047     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"selectAllQuantities"</span>,
+00047     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"selectAllQuantities"</span>,
 00048              <span class="stringliteral">"cannot get all initial quantities once importSelected() done"</span>);
-00049     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a31">BAD_SEL_QUANT</a>;
+00049     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a27">BAD_SEL_QUANT</a>;
 00050   }
 00051   <span class="keywordflow">if</span> (toBeLoaded) <span class="comment">// vectors with same size</span>
 00052        <a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.assign(maxSize, <span class="keyword">true</span>);
 00053   <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.assign(maxSize, <span class="keyword">false</span>);
-00054   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00054   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00055 }
 00056 
 00057 
@@ -68,18 +68,18 @@
 00071 <span class="comment">  */</span>
 00072   <span class="keywordtype">double</span> myRA=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[nRA].at(row);
 00073   <span class="keywordtype">double</span> myDEC=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[nDEC].at(row);
-00074   <span class="keywordflow">if</span> (isnan(myRA))  <span class="keywordflow">return</span> !(<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexRA</a>].m_rejectNaN);
-00075   <span class="keywordflow">if</span> (isnan(myDEC)) <span class="keywordflow">return</span> !(<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_indexDEC</a>].m_rejectNaN);
+00074   <span class="keywordflow">if</span> (isnan(myRA))  <span class="keywordflow">return</span> !(<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o27">m_indexRA</a>].m_rejectNaN);
+00075   <span class="keywordflow">if</span> (isnan(myDEC)) <span class="keywordflow">return</span> !(<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexDEC</a>].m_rejectNaN);
 00076   <span class="keywordtype">double</span> obj_cosP=cos(myRA * Angle_Conv);
 00077   <span class="keywordtype">double</span> obj_sinP=sin(myRA * Angle_Conv);
 00078   <span class="keywordtype">double</span> obj_sinT=cos(myDEC * Angle_Conv);
 00079   <span class="keywordtype">double</span> obj_cosT=sin(myDEC * Angle_Conv);
-00080   <span class="keywordtype">double</span> myAngle=obj_sinT*obj_cosP*<a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(2)*<a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(0)
-00081                 +obj_sinT*obj_sinP*<a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(2)*<a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(1)
-00082                 +obj_cosT*<a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(3);
+00080   <span class="keywordtype">double</span> myAngle=obj_sinT*obj_cosP*<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(2)*<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(0)
+00081                 +obj_sinT*obj_sinP*<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(2)*<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(1)
+00082                 +obj_cosT*<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(3);
 00083 <span class="comment">/*std::cout &lt;&lt; "cos(angle)*1E6 = " &lt;&lt; myAngle*1E6 &lt;&lt; " ? "</span>
 00084 <span class="comment">            &lt;&lt;  m_selEllipse.at(4)*1E6 &lt;&lt; std::endl;*/</span>
-00085   <span class="keywordflow">if</span> (myAngle &gt;= <a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(4)) <span class="keywordflow">return</span> <span class="keyword">true</span>;
+00085   <span class="keywordflow">if</span> (myAngle &gt;= <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(4)) <span class="keywordflow">return</span> <span class="keyword">true</span>;
 00086   <span class="keywordflow">return</span> <span class="keyword">false</span>;
 00087 }
 00088 
@@ -179,12 +179,12 @@
 00182   <span class="keywordflow">if</span> (m_criteriaORed) check=<span class="keyword">false</span>;
 00183   <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> currSel, test=2ul; <span class="comment">// bit0 reserved for check</span>
 00184 <span class="preprocessor">  #ifdef DEBUG_CAT</span>
-00185 <span class="preprocessor"></span>  std::cout &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o19">m_criteriaORed</a> &lt;&lt; <span class="stringliteral">"quantSize = "</span> &lt;&lt; vecSize;
+00185 <span class="preprocessor"></span>  std::cout &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o18">m_criteriaORed</a> &lt;&lt; <span class="stringliteral">"quantSize = "</span> &lt;&lt; vecSize;
 00186 <span class="preprocessor">  #endif</span>
 00187 <span class="preprocessor"></span>  <span class="keywordtype">int</span> j=0;
 00188   <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i=1; i&lt;=vecSize; ) {
 00189 
-00190     currSel=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].at(row);
+00190     currSel=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].at(row);
 00191     <span class="keywordflow">if</span> (quantSel[i-1]) {
 00192 <span class="preprocessor">      #ifdef DEBUG_CAT</span>
 00193 <span class="preprocessor"></span>      std::cout &lt;&lt; <span class="stringliteral">" (AND with "</span> &lt;&lt; currSel &lt;&lt;<span class="stringliteral">" &amp; "</span>&lt;&lt; test
@@ -207,9 +207,9 @@
 00210 
 00211   }
 00212   <span class="keywordflow">if</span> (check) <span class="comment">// setting bit0 to 1</span>
-00213     <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(row)|= 1ul;
+00213     <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(row)|= 1ul;
 00214   <span class="keywordflow">else</span>       <span class="comment">// setting bit0 to 0</span>
-00215     <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(row)&amp;= (Max_Test-1ul);
+00215     <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(row)&amp;= (Max_Test-1ul);
 00216 
 00217   <span class="keywordflow">return</span> check;
 00218 }
@@ -224,31 +224,31 @@
 00227   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_upperCut=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>;
 00228   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_listValN.clear();
 00229   <span class="comment">/* if no data: exit */</span>
-00230   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span>;
+00230   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span>;
 00231 
 00232   <span class="comment">// now, must check criteria on region and other quantities</span>
 00233   <span class="keywordtype">int</span> k;
 00234   std::vector&lt;bool&gt; isSelected;
-00235   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00235   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00236   <span class="keywordflow">if</span> (oneCriteria) {
 00237 
-00238     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00239     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00240     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00238     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00239     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00240     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00241       <span class="comment">// setting required bit to 0</span>
-00242       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00243       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00242       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00243       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00244     }<span class="comment">// loop on rows</span>
 00245 
 00246   }
 00247   <span class="keywordflow">else</span> {
-00248     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0) {
-00249       <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size(); <span class="comment">// to avoid compiler Warning</span>
+00248     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0) {
+00249       <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size(); <span class="comment">// to avoid compiler Warning</span>
 00250       <span class="keywordflow">for</span> (k=0; k&lt;quantSize; k++)
-00251         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
+00251         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
 00252     }
-00253     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00254     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+00253     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00254     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 00255   }
 00256 
 00257 }
@@ -256,13 +256,13 @@
 00259 <span class="comment">// unset all selection criteria relating to quantity "name"</span>
 <a name="l00260"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a51">00260</a> <span class="keywordtype">int</span> Catalog::unsetCuts(<span class="keyword">const</span> std::string name) {
 00261 
-00262   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"unsetCuts"</span>, <span class="keyword">true</span>);
-00263   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
-00264   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"unsetCuts"</span>, name);
+00262   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"unsetCuts"</span>, <span class="keyword">true</span>);
+00263   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00264   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"unsetCuts"</span>, name);
 00265   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00266 
 00267   <a class="code" href="classcatalog_access_1_1_catalog.html#a52">unsetCuts</a>(index);
-00268   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00268   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00269 }
 00270 
 00271 <span class="comment">/**********************************************************************/</span>
@@ -270,8 +270,8 @@
 00273 <span class="comment">// this also deletes the selection string</span>
 <a name="l00274"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a52">00274</a> <span class="keywordtype">int</span> Catalog::unsetCuts() {
 00275 
-00276   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"unsetCuts"</span>, <span class="keyword">true</span>);
-00277   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00276   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"unsetCuts"</span>, <span class="keyword">true</span>);
+00277   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
 00278   <span class="keywordtype">int</span> j;
 00279   <span class="comment">/*for (j=0; j&lt;quantSize; j++) unsetCuts(m_quantities.at(j).m_name);*/</span>
 00280   <span class="comment">//quicker to just check for selection ellipse</span>
@@ -281,35 +281,35 @@
 00284     <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(j).m_upperCut=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>;
 00285     <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(j).m_listValN.clear();
 00286   }
-00287   <a class="code" href="classcatalog_access_1_1_catalog.html#o18">m_selection</a>=<span class="stringliteral">""</span>;
+00287   <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_selection</a>=<span class="stringliteral">""</span>;
 00288   <span class="comment">/* if no data: exit */</span>
-00289   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00289   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00290 
 00291   <span class="comment">// now, must check criteria on region</span>
-00292   quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size();
+00292   quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size();
 00293   <span class="keywordflow">if</span> (m_selRegion) {
 00294 
 00295     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> currSel;
-00296     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00297     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
-00298       currSel=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i);
+00296     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00297     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
+00298       currSel=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i);
 00299       <span class="keywordflow">if</span> (currSel &amp; 2ul) {
-00300         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i)=3ul;
-00301         <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00300         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i)=3ul;
+00301         <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00302       }
-00303       <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i)=0ul;
+00303       <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i)=0ul;
 00304       <span class="comment">// setting all bits to 0 except first two</span>
-00305       <span class="keywordflow">for</span> (j=1; j&lt;quantSize; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].at(i)=0ul;
+00305       <span class="keywordflow">for</span> (j=1; j&lt;quantSize; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].at(i)=0ul;
 00306     }<span class="comment">// loop on rows</span>
 00307 
 00308   }
 00309   <span class="keywordflow">else</span> {
-00310     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0)
-00311       <span class="keywordflow">for</span> (j=0; j&lt;quantSize; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
-00312     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00313     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+00310     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0)
+00311       <span class="keywordflow">for</span> (j=0; j&lt;quantSize; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
+00312     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00313     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 00314   }
-00315   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00315   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00316 }
 00317 
 00318 <span class="comment">/**********************************************************************/</span>
@@ -317,22 +317,22 @@
 <a name="l00320"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a53">00320</a> <span class="keywordtype">int</span> Catalog::setCriteriaORed(<span class="keyword">const</span> <span class="keywordtype">bool</span> bitOR) {
 00321 
 00322   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"setCriteriaORed"</span>;
-00323   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00324   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00323   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00324   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
 00325 
 00326   <span class="comment">// if boolean is the same: do nothing</span>
-00327   <span class="keywordflow">if</span> (bitOR == <a class="code" href="classcatalog_access_1_1_catalog.html#o19">m_criteriaORed</a>) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
-00328   <a class="code" href="classcatalog_access_1_1_catalog.html#o19">m_criteriaORed</a>=bitOR;
+00327   <span class="keywordflow">if</span> (bitOR == <a class="code" href="classcatalog_access_1_1_catalog.html#o18">m_criteriaORed</a>) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
+00328   <a class="code" href="classcatalog_access_1_1_catalog.html#o18">m_criteriaORed</a>=bitOR;
 00329 
 00330   <span class="comment">/* if no data: exit */</span>
-00331   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
-00332   <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00331   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
+00332   <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00333   std::vector&lt;bool&gt; isSelected;
-00334   <a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
-00335   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
-00336     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00334   <a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
+00335   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
+00336     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00337   }
-00338   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00338   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00339 }
 00340       
 00341 
@@ -347,115 +347,115 @@
 00350   std::ostringstream sortie;
 00351 
 00352   <span class="comment">// first check that selection is possible</span>
-00353   <span class="keywordtype">int</span> numPb=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00354   <span class="keywordflow">if</span> (numPb &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> numPb;
-00355   <span class="keywordflow">if</span> ((<a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexRA</a> &lt; 0) || (<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_indexDEC</a> &lt; 0)) {
+00353   <span class="keywordtype">int</span> numPb=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00354   <span class="keywordflow">if</span> (numPb &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> numPb;
+00355   <span class="keywordflow">if</span> ((<a class="code" href="classcatalog_access_1_1_catalog.html#o27">m_indexRA</a> &lt; 0) || (<a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexDEC</a> &lt; 0)) {
 00356     text=<span class="stringliteral">"missing generic position quantities (RA and DEC)"</span>; 
-00357     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, text);
-00358     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a21">NO_RA_DEC</a>;
+00357     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, text);
+00358     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a17">NO_RA_DEC</a>;
 00359   }
 00360   numPb=0;
 00361   <span class="comment">//const std::_Ios_Fmtflags outDouble=std::ios::right | std::ios::scientific;</span>
-00362   <span class="keywordflow">if</span> ((centRA_deg &lt; 0.) || (centRA_deg &gt;= 360.)) numPb=<a class="code" href="namespacecatalog_access.html#a35a26">BAD_RA</a>;
-00363   <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((centDEC_deg &lt; -90.) || (centDEC_deg &gt; 90.)) numPb=<a class="code" href="namespacecatalog_access.html#a35a27">BAD_DEC</a>;
-00364   <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((rot_deg &lt; 0.) || (rot_deg &gt;= 180.)) numPb=<a class="code" href="namespacecatalog_access.html#a35a28">BAD_ROT</a>;
+00362   <span class="keywordflow">if</span> ((centRA_deg &lt; 0.) || (centRA_deg &gt;= 360.)) numPb=<a class="code" href="namespacecatalog_access.html#a31a22">BAD_RA</a>;
+00363   <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((centDEC_deg &lt; -90.) || (centDEC_deg &gt; 90.)) numPb=<a class="code" href="namespacecatalog_access.html#a31a23">BAD_DEC</a>;
+00364   <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((rot_deg &lt; 0.) || (rot_deg &gt;= 180.)) numPb=<a class="code" href="namespacecatalog_access.html#a31a24">BAD_ROT</a>;
 00365   <span class="keywordflow">if</span> (numPb &lt; 0) {
 00366     text=<span class="stringliteral">"bad ellipse position (impossible RA, DEC or rotation)"</span>; 
-00367     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, text);
+00367     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, text);
 00368     <span class="keywordflow">return</span> numPb;
 00369   }
-00370   <span class="keywordflow">if</span> ((majAxis_deg &lt; Min_Axis) || (majAxis_deg &gt; 90.)) numPb=<a class="code" href="namespacecatalog_access.html#a35a29">BAD_AXIS</a>;
-00371   <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((minAxis_deg &lt; Min_Axis) || (minAxis_deg &gt; 90.)) numPb=<a class="code" href="namespacecatalog_access.html#a35a29">BAD_AXIS</a>;
+00370   <span class="keywordflow">if</span> ((majAxis_deg &lt; Min_Axis) || (majAxis_deg &gt; 90.)) numPb=<a class="code" href="namespacecatalog_access.html#a31a25">BAD_AXIS</a>;
+00371   <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((minAxis_deg &lt; Min_Axis) || (minAxis_deg &gt; 90.)) numPb=<a class="code" href="namespacecatalog_access.html#a31a25">BAD_AXIS</a>;
 00372   <span class="comment">// size limited to one hemisphere</span>
 00373   <span class="keywordflow">if</span> (numPb &lt; 0) {
 00374     sortie &lt;&lt; <span class="stringliteral">"bad ellipse size, radius from "</span> &lt;&lt; std::setprecision(2)
 00375            &lt;&lt; Min_Axis*1000 &lt;&lt; <span class="stringliteral">"E-3 to 90 (in RA or DEC)"</span>;
-00376     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, sortie.str());
+00376     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
 00377     <span class="keywordflow">return</span> numPb;
 00378   }
 00379   <span class="keywordflow">if</span> (rot_deg &gt; 0.)
-00380     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, <span class="stringliteral">"whatever orientation, using 0"</span>); 
+00380     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"whatever orientation, using 0"</span>); 
 00381   <span class="keywordflow">if</span> (fabs(majAxis_deg/minAxis_deg - 1.) &gt; 10*Min_Prec)
-00382     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, <span class="stringliteral">"axis sizes differ, taking only major axis"</span>);
-00383   <a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selRegion</a>=<span class="keyword">true</span>;
-00384   <a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentRA_deg</a>=centRA_deg;
-00385   <a class="code" href="classcatalog_access_1_1_catalog.html#o22">m_selEllipseCentDEC_deg</a>=centDEC_deg;
-00386   <a class="code" href="classcatalog_access_1_1_catalog.html#o24">m_selEllipseMajAxis_deg</a>=majAxis_deg;
-00387   <a class="code" href="classcatalog_access_1_1_catalog.html#o23">m_selEllipseMinAxis_deg</a>=majAxis_deg; <span class="comment">//minAxis_deg;</span>
-00388   <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_selEllipseRot_deg</a>=0.; <span class="comment">//rot_deg;</span>
+00382     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"axis sizes differ, taking only major axis"</span>);
+00383   <a class="code" href="classcatalog_access_1_1_catalog.html#o19">m_selRegion</a>=<span class="keyword">true</span>;
+00384   <a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selEllipseCentRA_deg</a>=centRA_deg;
+00385   <a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentDEC_deg</a>=centDEC_deg;
+00386   <a class="code" href="classcatalog_access_1_1_catalog.html#o23">m_selEllipseMajAxis_deg</a>=majAxis_deg;
+00387   <a class="code" href="classcatalog_access_1_1_catalog.html#o22">m_selEllipseMinAxis_deg</a>=majAxis_deg; <span class="comment">//minAxis_deg;</span>
+00388   <a class="code" href="classcatalog_access_1_1_catalog.html#o24">m_selEllipseRot_deg</a>=0.; <span class="comment">//rot_deg;</span>
 00389   <span class="comment">// angles are phi=RA and theta=PI/2-DEC</span>
-00390   <a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(0)=cos(<a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentRA_deg</a> * Angle_Conv);
-00391   <a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(1)=sin(<a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentRA_deg</a> * Angle_Conv);
-00392   <a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(2)=cos(<a class="code" href="classcatalog_access_1_1_catalog.html#o22">m_selEllipseCentDEC_deg</a>* Angle_Conv);
-00393   <a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(3)=sin(<a class="code" href="classcatalog_access_1_1_catalog.html#o22">m_selEllipseCentDEC_deg</a>* Angle_Conv);
-00394   <a class="code" href="classcatalog_access_1_1_catalog.html#o30">m_selEllipse</a>.at(4)=cos(majAxis_deg * Angle_Conv);
+00390   <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(0)=cos(<a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selEllipseCentRA_deg</a> * Angle_Conv);
+00391   <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(1)=sin(<a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selEllipseCentRA_deg</a> * Angle_Conv);
+00392   <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(2)=cos(<a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentDEC_deg</a>* Angle_Conv);
+00393   <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(3)=sin(<a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentDEC_deg</a>* Angle_Conv);
+00394   <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.at(4)=cos(majAxis_deg * Angle_Conv);
 00395 
 00396   sortie &lt;&lt; <span class="stringliteral">"selection ellipse center RA="</span> &lt;&lt; std::setprecision(4)
-00397          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentRA_deg</a> &lt;&lt; <span class="stringliteral">" , DEC="</span>
-00398          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o22">m_selEllipseCentDEC_deg</a> &lt;&lt; <span class="stringliteral">" with radius "</span>
-00399          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o24">m_selEllipseMajAxis_deg</a> &lt;&lt; <span class="stringliteral">" * "</span>
-00400          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o23">m_selEllipseMinAxis_deg</a> &lt;&lt; <span class="stringliteral">" (degrees) orientated at "</span>
-00401          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_selEllipseRot_deg</a> &lt;&lt; <span class="stringliteral">" (with respect to North pole)"</span>;
-00402   <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());
+00397          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selEllipseCentRA_deg</a> &lt;&lt; <span class="stringliteral">" , DEC="</span>
+00398          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o21">m_selEllipseCentDEC_deg</a> &lt;&lt; <span class="stringliteral">" with radius "</span>
+00399          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o23">m_selEllipseMajAxis_deg</a> &lt;&lt; <span class="stringliteral">" * "</span>
+00400          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o22">m_selEllipseMinAxis_deg</a> &lt;&lt; <span class="stringliteral">" (degrees) orientated at "</span>
+00401          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o24">m_selEllipseRot_deg</a> &lt;&lt; <span class="stringliteral">" (with respect to North pole)"</span>;
+00402   <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());
 00403   <span class="comment">/* if no data: exit */</span>
-00404   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00404   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00405 
 00406   <span class="comment">// now, apply the selection ellipse</span>
 00407   std::vector&lt;bool&gt; isSelected;
-00408   <a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected); <span class="comment">// returns true (m_selRegion is true)</span>
+00408   <a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected); <span class="comment">// returns true (m_selRegion is true)</span>
 00409   <span class="keywordtype">bool</span> check;
-00410   <span class="keywordtype">int</span> nRA =<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexRA</a>].m_index,
-00411       nDEC=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_indexDEC</a>].m_index;
+00410   <span class="keywordtype">int</span> nRA =<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o27">m_indexRA</a>].m_index,
+00411       nDEC=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexDEC</a>].m_index;
 00412   <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> currSel;
-00413   <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00414   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00413   <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00414   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00415 
 00416     check=<a class="code" href="classcatalog_access_1_1_catalog.html#c2">checkRegion</a>(i, nRA, nDEC);
-00417     currSel=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i);
+00417     currSel=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i);
 00418     <span class="keywordflow">if</span> (check) <span class="comment">// setting 2nd bit to 1</span>
-00419       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i)=currSel | 2ul;
+00419       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i)=currSel | 2ul;
 00420     <span class="keywordflow">else</span>       <span class="comment">// setting 2nd bit to 0</span>
-00421       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i)=currSel &amp; (Max_Test-2ul);
-00422     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00421       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i)=currSel &amp; (Max_Test-2ul);
+00422     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00423 
 00424   }<span class="comment">// loop on all rows</span>
-00425   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00425   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00426 }
 00427 <span class="comment">/**********************************************************************/</span>
 00428 <span class="comment">// remove the effects of the ellipse selection</span>
 <a name="l00429"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a55">00429</a> <span class="keywordtype">int</span> Catalog::unsetSelEllipse() {
 00430 
-00431   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"unsetSelEllipse"</span>, <span class="keyword">true</span>);
-00432   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00431   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"unsetSelEllipse"</span>, <span class="keyword">true</span>);
+00432   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
 00433 
 00434   <span class="comment">// if region was already unset: do nothing</span>
-00435   <span class="keywordflow">if</span> (!<a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selRegion</a>) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
-00436   <a class="code" href="classcatalog_access_1_1_catalog.html#o20">m_selRegion</a>=<span class="keyword">false</span>;
+00435   <span class="keywordflow">if</span> (!<a class="code" href="classcatalog_access_1_1_catalog.html#o19">m_selRegion</a>) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
+00436   <a class="code" href="classcatalog_access_1_1_catalog.html#o19">m_selRegion</a>=<span class="keyword">false</span>;
 00437   <span class="comment">/* if no data: exit */</span>
-00438   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00438   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00439 
 00440   <span class="comment">// now, must check criteria on other quantities</span>
 00441   std::vector&lt;bool&gt; isSelected;
-00442   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00442   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00443   <span class="keywordflow">if</span> (oneCriteria) {
-00444     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00445     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00444     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00445     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00446 
 00447       <span class="comment">// setting 2nd bit to 0</span>
-00448       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i)&amp;= (Max_Test-2ul);
-00449       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00448       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i)&amp;= (Max_Test-2ul);
+00449       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00450  
 00451     }<span class="comment">// loop on rows</span>
 00452   }
 00453   <span class="keywordflow">else</span> {
-00454     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0) {
-00455       quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size();
-00456       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j=0; j&lt;quantSize; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
+00454     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0) {
+00455       quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size();
+00456       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j=0; j&lt;quantSize; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
 00457     }
-00458     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00459     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+00458     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00459     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 00460   }
-00461   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00461   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00462 }
 00463 
 00464 
@@ -465,46 +465,46 @@
 <a name="l00468"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a56">00468</a> <span class="keywordtype">int</span> Catalog::setLowerCut(<span class="keyword">const</span> std::string name, <span class="keywordtype">double</span> cutVal) {
 00469 
 00470   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"setLowerCut"</span>;
-00471   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00472   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00471   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00472   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
 00473 
-00474   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(origin, name);
+00474   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(origin, name);
 00475   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00476   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00477     std::string errText;
 00478     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00479     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, errText);
-00480     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00479     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, errText);
+00480     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00481   }
 00482 
 00483   <span class="comment">// if cut is the same: do nothing</span>
 00484   <span class="keywordflow">if</span> (cutVal &gt;= <a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>) cutVal=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>;
-00485   <span class="keywordflow">if</span> (cutVal == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_lowerCut) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00485   <span class="keywordflow">if</span> (cutVal == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_lowerCut) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00486   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_lowerCut=cutVal;
 00487 
 00488   <span class="comment">/* if no data: exit */</span>
-00489   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00489   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00490 
 00491   std::vector&lt;bool&gt; isSelected;
-00492   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00492   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00493   <span class="keywordtype">bool</span> check=<span class="keyword">true</span>;
 00494   <span class="keywordflow">if</span> (cutVal &gt;= <a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>) {
-00495     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, <span class="stringliteral">"Disabling lower cut (on "</span>+name+<span class="stringliteral">")"</span>);
+00495     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, <span class="stringliteral">"Disabling lower cut (on "</span>+name+<span class="stringliteral">")"</span>);
 00496     <span class="keywordflow">if</span> (!oneCriteria) {
-00497       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0) {
-00498         quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size();
+00497       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0) {
+00498         quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size();
 00499         <span class="keywordflow">for</span> (index=0; index&lt;quantSize; index++)
-00500           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[index].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
+00500           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[index].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
 00501       }
-00502       <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00502       <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00503       check=<span class="keyword">false</span>;
-00504       <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+00504       <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 00505     }
 00506   }
 00507   <span class="keywordflow">else</span> {
 00508     std::ostringstream sortie;
 00509     sortie &lt;&lt; <span class="stringliteral">"Enabling lower cut ("</span> &lt;&lt;cutVal&lt;&lt;<span class="stringliteral">" on "</span>&lt;&lt;name&lt;&lt; <span class="stringliteral">")"</span>;
-00510     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());  
+00510     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());  
 00511   }
 00512   
 00513   <span class="keywordflow">if</span> (check) {
@@ -515,38 +515,38 @@
 00518     <span class="keywordtype">int</span>  k,
 00519          pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
 00520     <span class="keywordtype">long</span> i;
-00521     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00522     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00521     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00522     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00523     <span class="comment">// true if given quantity is selected (list or lower/upper cut)</span>
 00524     oneCriteria=isSelected.at(index+1);
 00525     <span class="keywordflow">if</span> (oneCriteria) {
 00526 
 00527       <span class="comment">// due to NaN test, call checkNUM only if selection exists</span>
-00528       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00528       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00529         <span class="keywordflow">if</span> (!cutOR) <span class="comment">// usual case</span>
 00530           check=<a class="code" href="classcatalog_access_1_1_catalog.html#c3">checkNUM</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, miss, reject, precis);
 00531         <span class="keywordflow">else</span>
 00532           check=<a class="code" href="classcatalog_access_1_1_catalog.html#c4">checkNUMor</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, reject, precis);
 00533         <span class="comment">// setting required bit</span>
 00534         <span class="keywordflow">if</span> (check)
-00535           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+00535           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 00536         <span class="keywordflow">else</span>
-00537           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00538         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00537           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00538         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00539       }<span class="comment">// loop on rows</span>
 00540 
 00541     }
 00542     <span class="keywordflow">else</span> {
 00543 
-00544       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00544       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00545         <span class="comment">// required bit set to FALSE</span>
-00546         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00547         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00546         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00547         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00548       }<span class="comment">// loop on rows</span>
 00549 
 00550     }
 00551   }
-00552   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00552   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00553 }
 00554 <span class="comment">/**********************************************************************/</span>
 00555 <span class="comment">// set and apply a cut on given quantity such that all values &lt;= cutVal pass</span>
@@ -554,45 +554,45 @@
 <a name="l00557"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a57">00557</a> <span class="keywordtype">int</span> Catalog::setUpperCut(<span class="keyword">const</span> std::string name, <span class="keywordtype">double</span> cutVal) {
 00558 
 00559   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"setUpperCut"</span>;
-00560   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00561   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00560   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00561   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
 00562 
-00563   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(origin, name);
+00563   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(origin, name);
 00564   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00565   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00566     std::string errText;
 00567     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00568     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, errText);
-00569     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00568     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, errText);
+00569     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00570   }
 00571   <span class="comment">// if cut is the same: do nothing</span>
 00572   <span class="keywordflow">if</span> (cutVal &gt;= <a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>) cutVal=<a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>;
-00573   <span class="keywordflow">if</span> (cutVal == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_upperCut) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00573   <span class="keywordflow">if</span> (cutVal == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_upperCut) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00574   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_upperCut=cutVal;
 00575 
 00576   <span class="comment">/* if no data: exit */</span>
-00577   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00577   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00578 
 00579   std::vector&lt;bool&gt; isSelected;
-00580   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00580   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00581   <span class="keywordtype">bool</span> check=<span class="keyword">true</span>;
 00582   <span class="keywordflow">if</span> (cutVal &gt;= <a class="code" href="quantity_8h.html#a0">NO_SEL_CUT</a>) {
-00583     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, <span class="stringliteral">"Disabling upper cut (on "</span>+name+<span class="stringliteral">")"</span>);
+00583     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, <span class="stringliteral">"Disabling upper cut (on "</span>+name+<span class="stringliteral">")"</span>);
 00584     <span class="keywordflow">if</span> (!oneCriteria) {
-00585       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0) {
-00586         quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size();
+00585       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0) {
+00586         quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size();
 00587         <span class="keywordflow">for</span> (index=0; index&lt;quantSize; index++)
-00588           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[index].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
+00588           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[index].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
 00589       }
-00590       <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00590       <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00591       check=<span class="keyword">false</span>;
-00592       <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+00592       <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 00593     }
 00594   }
 00595   <span class="keywordflow">else</span> {
 00596     std::ostringstream sortie;
 00597     sortie &lt;&lt; <span class="stringliteral">"Enabling upper cut ("</span> &lt;&lt;cutVal&lt;&lt;<span class="stringliteral">" on "</span>&lt;&lt;name&lt;&lt; <span class="stringliteral">")"</span>;
-00598     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());  
+00598     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());  
 00599   }
 00600   
 00601   <span class="keywordflow">if</span> (check) {
@@ -603,38 +603,38 @@
 00606     <span class="keywordtype">int</span>  k,
 00607          pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
 00608     <span class="keywordtype">long</span> i;
-00609     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00610     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00609     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00610     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00611     <span class="comment">// true if given quantity is selected (list or lower/upper cut)</span>
 00612     oneCriteria=isSelected.at(index+1);
 00613     <span class="keywordflow">if</span> (oneCriteria) {
 00614 
 00615       <span class="comment">// due to NaN test, call checkNUM only if selection exists</span>
-00616       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00616       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00617         <span class="keywordflow">if</span> (!cutOR) <span class="comment">// usual case</span>
 00618           check=<a class="code" href="classcatalog_access_1_1_catalog.html#c3">checkNUM</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, miss, reject, precis);
 00619         <span class="keywordflow">else</span>
 00620           check=<a class="code" href="classcatalog_access_1_1_catalog.html#c4">checkNUMor</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, reject, precis);
 00621         <span class="comment">// setting required bit</span>
 00622         <span class="keywordflow">if</span> (check)
-00623           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+00623           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 00624         <span class="keywordflow">else</span>
-00625           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00626         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00625           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00626         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00627       }<span class="comment">// loop on rows</span>
 00628 
 00629     }
 00630     <span class="keywordflow">else</span> {
 00631 
-00632       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00632       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00633         <span class="comment">// required bit set to FALSE</span>
-00634         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00635         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00634         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00635         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00636       }<span class="comment">// loop on rows</span>
 00637 
 00638     }
 00639   }
-00640   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00640   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00641 }
 00642 
 00643 <span class="comment">/**********************************************************************/</span>
@@ -669,7 +669,7 @@
 00672   <span class="comment">/* if empty list as before: exit */</span>
 00673   <span class="keywordflow">if</span> (listSize == 0) {
 00674     <span class="comment">// if NO list, m_cutORed has no effect (false method quicker)</span>
-00675     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.size() == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00675     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.size() == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00676   }
 00677   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (code &gt; 1)
 00678     <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_cutORed=<span class="keyword">true</span>;
@@ -680,22 +680,22 @@
 00683      <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.push_back(listVal.at(j));
 00684 
 00685   <span class="comment">/* if no data: exit */</span>
-00686   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00686   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00687 
 00688   std::vector&lt;bool&gt; isSelected;
-00689   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00689   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00690   <span class="keywordtype">bool</span> check=<span class="keyword">true</span>;
 00691   <span class="keywordflow">if</span> (listSize == 0) {
-00692     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, <span class="stringliteral">"Disabling list selection (on "</span>+name+<span class="stringliteral">")"</span>);
+00692     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, <span class="stringliteral">"Disabling list selection (on "</span>+name+<span class="stringliteral">")"</span>);
 00693     <span class="keywordflow">if</span> (!oneCriteria) {
-00694       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0) {
-00695         listSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size(); <span class="comment">// to avoid compiler Warning</span>
+00694       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0) {
+00695         listSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size(); <span class="comment">// to avoid compiler Warning</span>
 00696         <span class="keywordflow">for</span> (j=0; j&lt;listSize; j++)
-00697           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
+00697           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
 00698       }
-00699       <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00699       <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00700       check=<span class="keyword">false</span>;
-00701       <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+00701       <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 00702     }
 00703   }
 00704   <span class="keywordflow">else</span> {
@@ -705,7 +705,7 @@
 00708       sortie &lt;&lt; <span class="stringliteral">"ORed with cut)"</span>;
 00709     <span class="keywordflow">else</span>
 00710       sortie &lt;&lt; <span class="stringliteral">"ANDed with cut)"</span>;
-00711     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());
+00711     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());
 00712   }
 00713   
 00714   <span class="keywordflow">if</span> (check) {
@@ -715,54 +715,54 @@
 00718     <span class="keywordtype">int</span>  k,
 00719          pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
 00720     <span class="keywordtype">long</span> i;
-00721     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00722     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+00721     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00722     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 00723     <span class="comment">// true if given quantity is selected (list or lower/upper cut)</span>
 00724     oneCriteria=isSelected.at(index+1);
 00725     <span class="keywordflow">if</span> (oneCriteria) {
 00726 
 00727       <span class="comment">// due to NaN test, call checkNUM only if selection exists</span>
-00728       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00728       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00729         <span class="keywordflow">if</span> (!cutOR) <span class="comment">// usual case</span>
 00730           check=<a class="code" href="classcatalog_access_1_1_catalog.html#c3">checkNUM</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, miss, reject, precis);
 00731         <span class="keywordflow">else</span>
 00732           check=<a class="code" href="classcatalog_access_1_1_catalog.html#c4">checkNUMor</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, reject, precis);
 00733         <span class="comment">// setting required bit</span>
 00734         <span class="keywordflow">if</span> (check)
-00735           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+00735           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 00736         <span class="keywordflow">else</span>
-00737           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00738         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00737           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00738         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00739       }<span class="comment">// loop on rows</span>
 00740 
 00741     }
 00742     <span class="keywordflow">else</span> {
 00743 
-00744       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00744       <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00745         <span class="comment">// required bit set to FALSE</span>
-00746         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00747         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00746         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00747         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00748       }<span class="comment">// loop on rows</span>
 00749 
 00750     }
 00751   }
-00752   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;  
+00752   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;  
 00753 }
 00754 <span class="comment">/**********************************************************************/</span>
 00755 <span class="comment">// include rows which value is NOT in the given list AND value within cut</span>
 <a name="l00756"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a60">00756</a> <span class="keywordtype">int</span> Catalog::excludeN(<span class="keyword">const</span> std::string name,
 00757                       <span class="keyword">const</span> std::vector&lt;double&gt; &amp;listVal) {
 00758 
-00759   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"excludeN"</span>, <span class="keyword">true</span>);
-00760   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> done;
-00761   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"excludeN"</span>, name);
+00759   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"excludeN"</span>, <span class="keyword">true</span>);
+00760   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> done;
+00761   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"excludeN"</span>, name);
 00762   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00763 
 00764   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00765     std::string errText;
 00766     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00767     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"excludeN"</span>, errText);
-00768     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00767     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"excludeN"</span>, errText);
+00768     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00769   }
 00770   done=<a class="code" href="classcatalog_access_1_1_catalog.html#c8">doSelN</a>(name, index, 0, listVal);
 00771   <span class="keywordflow">return</span> done;
@@ -772,16 +772,16 @@
 <a name="l00775"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a61">00775</a> <span class="keywordtype">int</span> Catalog::useOnlyN(<span class="keyword">const</span> std::string name,
 00776                       <span class="keyword">const</span> std::vector&lt;double&gt; &amp;listVal) {
 00777 
-00778   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"useOnlyN"</span>, <span class="keyword">true</span>);
-00779   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> done;
-00780   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"useOnlyN"</span>, name);
+00778   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"useOnlyN"</span>, <span class="keyword">true</span>);
+00779   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> done;
+00780   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"useOnlyN"</span>, name);
 00781   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00782 
 00783   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00784     std::string errText;
 00785     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00786     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"useOnlyN"</span>, errText);
-00787     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00786     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"useOnlyN"</span>, errText);
+00787     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00788   }
 00789   done=<a class="code" href="classcatalog_access_1_1_catalog.html#c8">doSelN</a>(name, index, 1, listVal);
 00790   <span class="keywordflow">return</span> done;
@@ -791,16 +791,16 @@
 <a name="l00794"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a62">00794</a> <span class="keywordtype">int</span> Catalog::includeN(<span class="keyword">const</span> std::string name,
 00795                       <span class="keyword">const</span> std::vector&lt;double&gt; &amp;listVal) {
 00796 
-00797   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"includeN"</span>, <span class="keyword">true</span>);
-00798   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> done;
-00799   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"includeN"</span>, name);
+00797   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"includeN"</span>, <span class="keyword">true</span>);
+00798   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> done;
+00799   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"includeN"</span>, name);
 00800   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00801 
 00802   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00803     std::string errText;
 00804     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00805     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"includeN"</span>, errText);
-00806     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00805     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"includeN"</span>, errText);
+00806     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00807   }
 00808   done=<a class="code" href="classcatalog_access_1_1_catalog.html#c8">doSelN</a>(name, index, 3, listVal); <span class="comment">// 3 to set bit 0 to 1.</span>
 00809   <span class="keywordflow">return</span> done;
@@ -811,25 +811,25 @@
 <a name="l00814"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a63">00814</a> <span class="keywordtype">int</span> Catalog::setRejectNaN(<span class="keyword">const</span> std::string name, <span class="keyword">const</span> <span class="keywordtype">bool</span> rejectNaN) {
 00815 
 00816   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"setRejectNaN"</span>;
-00817   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00818   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
-00819   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(origin, name);
+00817   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00818   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00819   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(origin, name);
 00820   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00821   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00822     std::string errText;
 00823     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00824     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, errText);
-00825     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00824     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, errText);
+00825     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00826   }
 00827   <span class="comment">// if same boolean: do nothing</span>
-00828   <span class="keywordflow">if</span> (rejectNaN == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_rejectNaN) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00828   <span class="keywordflow">if</span> (rejectNaN == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_rejectNaN) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00829   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_rejectNaN=rejectNaN;
 00830 
 00831   <span class="comment">/* if no data: exit */</span>
-00832   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00832   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00833 
 00834   std::vector&lt;bool&gt; isSelected;
-00835   <a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00835   <a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00836   <span class="keywordflow">if</span> (isSelected.at(index+1)) {
 00837     <span class="comment">// apply the selection with new behaviour on NaN</span>
 00838 
@@ -837,153 +837,153 @@
 00840     <span class="keywordflow">if</span> (rejectNaN) text=text+<span class="stringliteral">" rejected (on "</span>;
 00841     <span class="keywordflow">else</span> text=text+<span class="stringliteral">" accepted (on "</span>;
 00842     text=text+name+ <span class="stringliteral">")"</span>;
-00843     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, text);
+00843     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, text);
 00844     <span class="keywordtype">bool</span> check,
 00845          cutOR=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_cutORed,
 00846          miss=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_excludeList;
 00847     <span class="keywordtype">double</span> precis=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_precision;
 00848     <span class="keywordtype">int</span>  k,
 00849          pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
-00850     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00851     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00852     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00850     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00851     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00852     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00853 
 00854       <span class="keywordflow">if</span> (!cutOR) <span class="comment">// usual case</span>
 00855         check=<a class="code" href="classcatalog_access_1_1_catalog.html#c3">checkNUM</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, miss, rejectNaN, precis);
 00856       <span class="keywordflow">else</span>
 00857         check=<a class="code" href="classcatalog_access_1_1_catalog.html#c4">checkNUMor</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, rejectNaN, precis);
 00858       <span class="keywordflow">if</span> (check)
-00859         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+00859         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 00860       <span class="keywordflow">else</span>
-00861         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00862       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00861         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00862       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00863 
 00864     }<span class="comment">// loop on rows</span>
 00865 
 00866   }
-00867   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;  
+00867   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;  
 00868 }
 00869 <span class="comment">/**********************************************************************/</span>
 00870 <span class="comment">// set quantity member and apply (if quantity has a non empty selection list)</span>
 <a name="l00871"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a64">00871</a> <span class="keywordtype">int</span> Catalog::setMatchPercent(<span class="keyword">const</span> std::string name, <span class="keywordtype">double</span> percent) {
 00872 
 00873   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"setMatchPercent"</span>;
-00874   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00875   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
-00876   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(origin, name);
+00874   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00875   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00876   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(origin, name);
 00877   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00878   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00879     std::string errText;
 00880     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00881     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, errText);
-00882     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00881     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, errText);
+00882     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00883   }
 00884   std::ostringstream sortie;
 00885   <span class="keywordflow">if</span> (percent &lt;= 100.*NearZero) {
 00886     sortie &lt;&lt; <span class="stringliteral">"Percentage must be &gt; "</span> &lt;&lt; 100.*NearZero;
-00887     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, sortie.str());
-00888     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a30">BAD_SEL_LIM</a>;
+00887     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
+00888     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a26">BAD_SEL_LIM</a>;
 00889   }
 00890   <span class="comment">// if limit is the same: do nothing</span>
 00891   percent/=100.;
-00892   <span class="keywordflow">if</span> (percent == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_precision) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00892   <span class="keywordflow">if</span> (percent == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_precision) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00893   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_precision=percent;
 00894 
 00895   <span class="comment">/* if no data: exit */</span>
-00896   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00896   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00897   <span class="comment">/* if empty list: exit */</span>
-00898   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.size() == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00898   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.size() == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00899 
 00900   std::vector&lt;bool&gt; isSelected;
-00901   <a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00901   <a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00902   <span class="comment">// quantity is selected since list is not empty</span>
 00903   sortie &lt;&lt; <span class="stringliteral">"Relative precision for values in list (for "</span>&lt;&lt;name&lt;&lt; <span class="stringliteral">")"</span>
 00904          &lt;&lt; <span class="stringliteral">" is: "</span> &lt;&lt; percent &lt;&lt; <span class="stringliteral">" (absolute precision around 0)"</span>;
-00905   <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());
+00905   <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());
 00906   <span class="keywordtype">bool</span> check,
 00907        cutOR=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_cutORed,
 00908        reject=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_rejectNaN,
 00909        miss=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_excludeList;
 00910   <span class="keywordtype">int</span>  k,
 00911        pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
-00912   <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00913   <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00914   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00912   <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00913   <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00914   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00915 
 00916     <span class="keywordflow">if</span> (!cutOR) <span class="comment">// usual case</span>
 00917       check=<a class="code" href="classcatalog_access_1_1_catalog.html#c3">checkNUM</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, miss, reject, percent);
 00918     <span class="keywordflow">else</span>
 00919       check=<a class="code" href="classcatalog_access_1_1_catalog.html#c4">checkNUMor</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, reject, percent);
 00920     <span class="keywordflow">if</span> (check)
-00921       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+00921       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 00922     <span class="keywordflow">else</span>
-00923       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00924     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00923       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00924     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00925 
 00926   }<span class="comment">// loop on rows</span>
 00927 
-00928   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;  
+00928   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;  
 00929 }
 00930 <span class="comment">/**********************************************************************/</span>
 00931 <span class="comment">// set quantity member and apply (if quantity has a non empty selection list)</span>
 <a name="l00932"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a65">00932</a> <span class="keywordtype">int</span> Catalog::setMatchEpsilon(<span class="keyword">const</span> std::string name, <span class="keyword">const</span> <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> step)
 00933 {
 00934   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"setMatchEpsilon"</span>;
-00935   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-00936   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
-00937   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(origin, name);
+00935   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+00936   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+00937   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(origin, name);
 00938   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 00939   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 00940     std::string errText;
 00941     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-00942     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, errText);
-00943     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+00942     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, errText);
+00943     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 00944   }
 00945   std::ostringstream sortie;
 00946   <span class="keywordflow">if</span> (step == 0ul) {
 00947     sortie &lt;&lt; <span class="stringliteral">"Number of epsilon must be &gt; 0"</span>;
-00948     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, sortie.str());
-00949     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a30">BAD_SEL_LIM</a>;
+00948     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
+00949     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a26">BAD_SEL_LIM</a>;
 00950   }
 00951   <span class="comment">// if limit is the same: do nothing</span>
 00952   <span class="keywordtype">double</span> precis=step*std::numeric_limits&lt;double&gt;::epsilon();
-00953   <span class="keywordflow">if</span> (precis == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_precision) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00953   <span class="keywordflow">if</span> (precis == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_precision) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00954   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_precision=precis;
 00955 
 00956   <span class="comment">/* if no data: exit */</span>
-00957   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00957   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00958   <span class="comment">/* if empty list: exit */</span>
-00959   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.size() == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+00959   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValN.size() == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 00960 
 00961   std::vector&lt;bool&gt; isSelected;
-00962   <a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+00962   <a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 00963   <span class="comment">// quantity is selected since list is not empty</span>
 00964   sortie &lt;&lt; <span class="stringliteral">"Relative precision for values in list (for "</span>&lt;&lt;name&lt;&lt; <span class="stringliteral">")"</span>
 00965          &lt;&lt; <span class="stringliteral">" is: "</span> &lt;&lt; precis &lt;&lt; <span class="stringliteral">" (absolute precision around 0)"</span>;
-00966   <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());
+00966   <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());
 00967   <span class="keywordtype">bool</span> check,
 00968        cutOR=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_cutORed,
 00969        reject=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_rejectNaN,
 00970        miss=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_excludeList;
 00971   <span class="keywordtype">int</span>  k,
 00972        pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
-00973   <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-00974   <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-00975   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+00973   <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+00974   <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+00975   <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 00976 
 00977     <span class="keywordflow">if</span> (!cutOR) <span class="comment">// usual case</span>
 00978       check=<a class="code" href="classcatalog_access_1_1_catalog.html#c3">checkNUM</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, miss, reject, precis);
 00979     <span class="keywordflow">else</span>
 00980       check=<a class="code" href="classcatalog_access_1_1_catalog.html#c4">checkNUMor</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[pos].at(i), index, reject, precis);
 00981     <span class="keywordflow">if</span> (check)
-00982       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+00982       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 00983     <span class="keywordflow">else</span>
-00984       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-00985     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+00984       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+00985     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 00986 
 00987   }<span class="comment">// loop on rows</span>
 00988 
-00989   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;  
+00989   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;  
 00990 }
 00991 
 00992 <span class="comment">/**********************************************************************/</span>
@@ -995,15 +995,15 @@
 00998   *cutUp=<span class="keyword">false</span>;
 00999   *checkResult=0;
 01000   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"checkValWithinCut"</span>;
-01001   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(origin, <span class="keyword">true</span>);
-01002   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
-01003   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(origin, name);
+01001   <span class="keywordtype">int</span> quantSize=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">true</span>);
+01002   <span class="keywordflow">if</span> (quantSize &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> quantSize;
+01003   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(origin, name);
 01004   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 01005   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::NUM) {  
 01006     std::string errText;
 01007     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of NUM type"</span>;
-01008     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, errText);
-01009     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+01008     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, errText);
+01009     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 01010   }  
 01011 
 01012   <span class="keywordtype">double</span> myLimit, r=value;
@@ -1029,7 +1029,7 @@
 01032     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (value &gt; myLimit) *checkResult=1;
 01033   }
 01034 
-01035   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;  
+01035   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;  
 01036 }
 01037 
 01038 
@@ -1051,7 +1051,7 @@
 01054     sortie &lt;&lt; <span class="stringliteral">"Exclude rows"</span>;
 01055   }
 01056   <span class="keywordtype">int</span> listSize=list.size();
-01057   <span class="keywordflow">if</span> ((!listSize) &amp;&amp; (!<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValS.size())) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01057   <span class="keywordflow">if</span> ((!listSize) &amp;&amp; (!<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValS.size())) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01058   <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_listValS.clear();
 01059   <span class="keywordtype">int</span> j;
 01060   int (*pfunc)(int)=tolower; <span class="comment">// function used by transform</span>
@@ -1074,36 +1074,36 @@
 01077 <span class="preprocessor">  #endif</span>
 01078 <span class="preprocessor"></span>
 01079   <span class="comment">/* if no data: exit */</span>
-01080   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01080   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == 0) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01081 
 01082   std::vector&lt;bool&gt; isSelected;
-01083   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c27">existCriteria</a>(&amp;isSelected);
+01083   <span class="keywordtype">bool</span> oneCriteria=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">existCriteria</a>(&amp;isSelected);
 01084   <span class="keywordtype">bool</span> check=<span class="keyword">true</span>;
 01085   <span class="keywordflow">if</span> (listSize == 0) {
-01086     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, <span class="stringliteral">"Disabling list selection (on "</span>+name+<span class="stringliteral">")"</span>);
+01086     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, <span class="stringliteral">"Disabling list selection (on "</span>+name+<span class="stringliteral">")"</span>);
 01087     <span class="keywordflow">if</span> (!oneCriteria) {
-01088       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &gt; 0) {
-01089         listSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size(); <span class="comment">// to avoid compiler Warning</span>
+01088       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &gt; 0) {
+01089         listSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size(); <span class="comment">// to avoid compiler Warning</span>
 01090         <span class="keywordflow">for</span> (j=0; j&lt;listSize; j++)
-01091           <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>, 0);
+01091           <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
 01092       }
-01093       <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
+01093       <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
 01094       check=<span class="keyword">false</span>;
-01095       <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
+01095       <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, <span class="stringliteral">"All rows unselected"</span>);
 01096     }
 01097   }
 01098   <span class="keywordflow">else</span> {
 01099     sortie &lt;&lt; <span class="stringliteral">" with \""</span> &lt;&lt; name &lt;&lt;<span class="stringliteral">"\" string in list ("</span>
 01100            &lt;&lt; listSize &lt;&lt; <span class="stringliteral">" elements, "</span>;
 01101     <span class="keywordflow">if</span> (exact) sortie &lt;&lt; <span class="stringliteral">"exact match)"</span>; <span class="keywordflow">else</span> sortie &lt;&lt; <span class="stringliteral">"caseless match)"</span>; 
-01102     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(1, sortie.str());
+01102     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(1, sortie.str());
 01103   }
 01104   
 01105   <span class="keywordflow">if</span> (check) {
 01106     <span class="keywordtype">int</span> k, pos=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
-01107     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c28">bitPosition</a>(index, &amp;k);
-01108     <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-01109     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
+01107     <span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> test=<a class="code" href="classcatalog_access_1_1_catalog.html#c29">bitPosition</a>(index, &amp;k);
+01108     <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+01109     <span class="keywordflow">for</span> (<span class="keywordtype">long</span> i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
 01110 
 01111       mot=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[pos].at(i);
 01112       <span class="keywordflow">if</span> (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
@@ -1113,31 +1113,31 @@
 01116       }
 01117       <span class="comment">// setting required bit</span>
 01118       <span class="keywordflow">if</span> (check)
-01119         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)|= test;
+01119         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)|= test;
 01120       <span class="keywordflow">else</span>
-01121         <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
-01122       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>++;
+01121         <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[k].at(i)&amp;= (Max_Test-test);
+01122       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#c5">rowSelect</a>(i, isSelected) == <span class="keyword">true</span>) <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>++;
 01123  
 01124     }<span class="comment">// loop on rows</span>
 01125   }
 01126 
-01127   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01127   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01128 }
 01129 <span class="comment">/**********************************************************************/</span>
 01130 <span class="comment">// exclude all rows which have string value in the given list</span>
 <a name="l01131"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a58">01131</a> <span class="keywordtype">int</span> Catalog::excludeS(<span class="keyword">const</span> std::string name,
 01132                       <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;list, <span class="keyword">const</span> <span class="keywordtype">bool</span> exact) {
 01133 
-01134   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"excludeS"</span>, <span class="keyword">true</span>);
-01135   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> done;
-01136   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"excludeS"</span>, name);
+01134   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"excludeS"</span>, <span class="keyword">true</span>);
+01135   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> done;
+01136   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"excludeS"</span>, name);
 01137   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 01138 
 01139   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::STRING) {  
 01140     std::string errText;
 01141     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of STRING type"</span>;
-01142     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"excludeS"</span>, errText);
-01143     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+01142     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"excludeS"</span>, errText);
+01143     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 01144   }
 01145   done=<a class="code" href="classcatalog_access_1_1_catalog.html#c7">doSelS</a>(name, index, 0, list, exact);
 01146   <span class="keywordflow">return</span> done;
@@ -1147,16 +1147,16 @@
 <a name="l01150"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a59">01150</a> <span class="keywordtype">int</span> Catalog::useOnlyS(<span class="keyword">const</span> std::string name,
 01151                       <span class="keyword">const</span> std::vector&lt;std::string&gt; &amp;list, <span class="keyword">const</span> <span class="keywordtype">bool</span> exact) {
 01152 
-01153   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">checkImport</a>(<span class="stringliteral">"useOnlyS"</span>, <span class="keyword">true</span>);
-01154   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>) <span class="keywordflow">return</span> done;
-01155   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkQuant_name</a>(<span class="stringliteral">"useOnlyS"</span>, name);
+01153   <span class="keywordtype">int</span> done=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(<span class="stringliteral">"useOnlyS"</span>, <span class="keyword">true</span>);
+01154   <span class="keywordflow">if</span> (done &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> done;
+01155   <span class="keywordtype">int</span> index=<a class="code" href="classcatalog_access_1_1_catalog.html#c26">checkQuant_name</a>(<span class="stringliteral">"useOnlyS"</span>, name);
 01156   <span class="keywordflow">if</span> (index &lt; 0) <span class="keywordflow">return</span> index;
 01157 
 01158   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(index).m_type != Quantity::STRING) {  
 01159     std::string errText;
 01160     errText=<span class="stringliteral">"given Quantity name ("</span>+name+<span class="stringliteral">") is not of STRING type"</span>;
-01161     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(<span class="stringliteral">"useOnlyS"</span>, errText);
-01162     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a24">BAD_QUANT_TYPE</a>;
+01161     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(<span class="stringliteral">"useOnlyS"</span>, errText);
+01162     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a20">BAD_QUANT_TYPE</a>;
 01163   }
 01164   done=<a class="code" href="classcatalog_access_1_1_catalog.html#c7">doSelS</a>(name, index, 1, list, exact);
 01165   <span class="keywordflow">return</span> done;
@@ -1168,46 +1168,46 @@
 <a name="l01171"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a67">01171</a> <span class="keywordtype">int</span> Catalog::eraseNonSelected() {
 01172 
 01173   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"eraseNonSelected"</span>;
-01174   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> &lt;= 0) {
-01175     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, <span class="stringliteral">"catalog is empty"</span>);
-01176     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>; 
+01174   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> &lt;= 0) {
+01175     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"catalog is empty"</span>);
+01176     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>; 
 01177   }
 01178   <span class="comment">// test below avoid deleting NOTHING</span>
-01179   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>) {
-01180     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, <span class="stringliteral">"all rows selected, nothing done"</span>);
-01181     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>; 
+01179   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>) {
+01180     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"all rows selected, nothing done"</span>);
+01181     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>; 
 01182   }
 01183   <span class="comment">// log if ALL is deleted</span>
 01184   std::string text;
-01185   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> == 0) {
+01185   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> == 0) {
 01186     text=<span class="stringliteral">"no row selected, calling deleteContent()"</span>;
-01187     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(2, text);
+01187     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(2, text);
 01188     <a class="code" href="classcatalog_access_1_1_catalog.html#a23">deleteContent</a>();
-01189     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01189     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01190   }
 01191   <span class="keywordflow">try</span> {
 01192     <span class="keywordtype">long</span> i, tot=0;
 01193     <span class="keywordtype">int</span> j;
 01194     <span class="keywordtype">int</span> sizeS=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>.size();
 01195     <span class="keywordtype">int</span> sizeN=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>.size();
-01196     <span class="keywordtype">int</span> vecSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size();
+01196     <span class="keywordtype">int</span> vecSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size();
 01197     <span class="comment">// to speed-up, will not change (avoid reading size in loop)</span>
 01198 
 01199     std::vector&lt;std::vector&lt;double&gt; &gt; myNum;
 01200     myNum.resize(sizeN);
-01201     <span class="keywordflow">for</span> (j=0; j&lt;sizeN; j++) myNum[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>, 0.0);
+01201     <span class="keywordflow">for</span> (j=0; j&lt;sizeN; j++) myNum[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>, 0.0);
 01202     std::vector&lt;std::vector&lt;std::string&gt; &gt; myStr;
 01203     myStr.resize(sizeS);
-01204     <span class="keywordflow">for</span> (j=0; j&lt;sizeS; j++) myStr[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>, <span class="stringliteral">""</span>);
+01204     <span class="keywordflow">for</span> (j=0; j&lt;sizeS; j++) myStr[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>, <span class="stringliteral">""</span>);
 01205     std::vector&lt;std::vector&lt;unsigned long&gt; &gt; myBits;
 01206     myBits.resize(vecSize);
-01207     <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>, 0ul);
-01208     <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
-01209       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i) &amp; 1) {
+01207     <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>, 0ul);
+01208     <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
+01209       <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i) &amp; 1) {
 01210         <span class="keywordflow">for</span> (j=0; j&lt;sizeN; j++) myNum[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[j].at(i);
 01211         <span class="keywordflow">for</span> (j=0; j&lt;sizeS; j++) myStr[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[j].at(i);
-01212         <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].at(i);
-01213         <span class="keywordflow">if</span> (++tot == <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>) <span class="keywordflow">break</span>; <span class="comment">// to speed up</span>
+01212         <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].at(i);
+01213         <span class="keywordflow">if</span> (++tot == <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>) <span class="keywordflow">break</span>; <span class="comment">// to speed up</span>
 01214       }
 01215     }
 01216     <span class="keywordflow">for</span> (j=0; j&lt;sizeN; j++) {
@@ -1223,7 +1223,7 @@
 01226     }
 01227     myStr.clear();
 01228     <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++)  {
-01229       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].insert(<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].begin(),
+01229       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].insert(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].begin(),
 01230                                 myBits[j].begin(), myBits[j].end());
 01231       myBits[j].clear();
 01232     }
@@ -1268,45 +1268,45 @@
 01271   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
 01272     text=<span class="stringliteral">"EXCEPTION erasing m_strings, m_numericals or m_rowIsSelected: "</span>;
 01273     text=text+prob.what();
-01274     <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(origin, text);
+01274     <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
 01275     <span class="keywordflow">throw</span>;
 01276   }
 01277   std::ostringstream sortie;
-01278   sortie &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>-<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &lt;&lt; <span class="stringliteral">" row(s) deleted"</span>;
-01279   <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, sortie.str());
-01280   <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>=<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>;
+01278   sortie &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>-<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &lt;&lt; <span class="stringliteral">" row(s) deleted"</span>;
+01279   <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, sortie.str());
+01280   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>;
 01281   <span class="comment">//if (!keepCriteria) m_numSelRows=0;</span>
-01282   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01282   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01283 }
 01284 <span class="comment">/**********************************************************************/</span>
 01285 <span class="comment">// erase all selected rows from memory</span>
 <a name="l01286"></a><a class="code" href="classcatalog_access_1_1_catalog.html#a68">01286</a> <span class="keywordtype">int</span> Catalog::eraseSelected() {
 01287 
 01288   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"eraseSelected"</span>;
-01289   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> &lt;= 0) {
-01290     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, <span class="stringliteral">"catalog is empty"</span>);
-01291     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a12">IS_VOID</a>; 
+01289   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> &lt;= 0) {
+01290     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"catalog is empty"</span>);
+01291     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>; 
 01292   }
 01293   <span class="comment">// test below avoid deleting NOTHING</span>
-01294   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> == 0) {
-01295     <a class="code" href="namespacecatalog_access.html#a33">printWarn</a>(origin, <span class="stringliteral">"no row selected, nothing done"</span>);
-01296     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>; 
+01294   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> == 0) {
+01295     <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"no row selected, nothing done"</span>);
+01296     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>; 
 01297   }
 01298   <span class="comment">// log if ALL is deleted</span>
 01299   std::string text;
-01300   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a> == <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>) {
+01300   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>) {
 01301     text=<span class="stringliteral">"all rows selected, calling deleteContent()"</span>;
-01302     <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(2, text);
+01302     <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(2, text);
 01303     <a class="code" href="classcatalog_access_1_1_catalog.html#a23">deleteContent</a>();
-01304     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01304     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01305   }
 01306   <span class="keywordflow">try</span> {
 01307     <span class="keywordtype">long</span> i, tot=0,
-01308          numRows=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>-<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>;
+01308          numRows=<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>-<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>;
 01309     <span class="keywordtype">int</span> j;
 01310     <span class="keywordtype">int</span> sizeS=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>.size();
 01311     <span class="keywordtype">int</span> sizeN=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>.size();
-01312     <span class="keywordtype">int</span> vecSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>.size();
+01312     <span class="keywordtype">int</span> vecSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.size();
 01313     <span class="comment">// to speed-up, will not change (avoid reading size in loop)</span>
 01314 
 01315     std::vector&lt;std::vector&lt;double&gt; &gt; myNum;
@@ -1318,11 +1318,11 @@
 01321     std::vector&lt;std::vector&lt;unsigned long&gt; &gt; myBits;
 01322     myBits.resize(vecSize);
 01323     <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].assign(numRows, 0ul);
-01324     <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>; i++) {
-01325       <span class="keywordflow">if</span> (!(<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[0].at(i) &amp; 1)) {
+01324     <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; i++) {
+01325       <span class="keywordflow">if</span> (!(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(i) &amp; 1)) {
 01326         <span class="keywordflow">for</span> (j=0; j&lt;sizeN; j++) myNum[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[j].at(i);
 01327         <span class="keywordflow">for</span> (j=0; j&lt;sizeS; j++) myStr[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[j].at(i);
-01328         <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].at(i);
+01328         <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) myBits[j].at(tot)=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].at(i);
 01329         <span class="keywordflow">if</span> (++tot == numRows) <span class="keywordflow">break</span>; <span class="comment">// to speed up</span>
 01330       }
 01331     }
@@ -1339,7 +1339,7 @@
 01342     }
 01343     myStr.clear();
 01344     <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++)  {
-01345       <a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].insert(<a class="code" href="classcatalog_access_1_1_catalog.html#o17">m_rowIsSelected</a>[j].begin(),
+01345       <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].insert(<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].begin(),
 01346                                 myBits[j].begin(), myBits[j].end());
 01347       myBits[j].clear();
 01348     }
@@ -1359,19 +1359,19 @@
 01362   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
 01363     text=<span class="stringliteral">"EXCEPTION erasing m_strings, m_numericals or m_rowIsSelected: "</span>;
 01364     text=text+prob.what();
-01365     <a class="code" href="namespacecatalog_access.html#a32">printErr</a>(origin, text);
+01365     <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
 01366     <span class="keywordflow">throw</span>;
 01367   }
 01368   std::ostringstream sortie;
-01369   sortie &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a> &lt;&lt; <span class="stringliteral">" row(s) deleted"</span>;
-01370   <a class="code" href="namespacecatalog_access.html#a34">printLog</a>(0, sortie.str());
-01371   <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>=<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_numRows</a>-<a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>;
-01372   <a class="code" href="classcatalog_access_1_1_catalog.html#o26">m_numSelRows</a>=0;
-01373   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a35a11">IS_OK</a>;
+01369   sortie &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a> &lt;&lt; <span class="stringliteral">" row(s) deleted"</span>;
+01370   <a class="code" href="namespacecatalog_access.html#a30">printLog</a>(0, sortie.str());
+01371   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>-<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>;
+01372   <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>=0;
+01373   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
 01374 }
 01375 
 01376 } <span class="comment">// namespace catalogAccess</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Mon Jun 20 15:18:15 2005 for catalogAccess by
+</pre></div><hr><address style="align: right;"><small>Generated on Tue Jun 28 10:46:03 2005 for catalogAccess by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

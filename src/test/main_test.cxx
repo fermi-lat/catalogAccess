@@ -17,7 +17,6 @@ void show_string(const std::string name, const std::string val);
 void show_double(const std::string name, const double val);
 
 static const std::_Ios_Fmtflags outDouble=std::ios::right|std::ios::scientific;
-static const double aNAN = 0/0.;
 
 int main(int iargc, char * argv[]) {
 
@@ -63,7 +62,8 @@ int main(int iargc, char * argv[]) {
             <<", "<< sizeof(float) <<", "<< sizeof(double)
             <<", "<< sizeof(void *) << std::endl;
   std::cout << "screen output of Nan, +infinite, -infinite: " 
-            << aNAN << ",  " << 1/0. << ",  " << -1/0. << "\n" << std::endl;
+            << catalogAccess::MissNAN << ",  " << 1/0. << ",  " << -1/0.
+            << "\n" << std::endl;
 
   std::cout << "Number to unselect = " << std::setiosflags(outDouble)
             << NO_SEL_CUT << "\nConstant arcsecond = "
@@ -215,6 +215,7 @@ int main(int iargc, char * argv[]) {
             << " and " << i << std::endl;
 
   std::cout << "\n* Calling: importSelected" << std::endl;
+  myCat->selectQuantity("recno", false);
   err=myCat->importSelected();
   std::cout << "* Value returned = " << err << std::endl;
   myCat->getNumRows(&numRows);
@@ -445,12 +446,25 @@ try {
   err=aCat.minVal("POS_EQ_RA", &rVal);
   if (err > 0) show_double("POS_EQ_RA minimum", rVal);
   err=aCat.maxVal("POS_EQ_RA", &rVal);
-  if (err > 0) show_double("POS_EQ_RA maximum)", rVal);
+  if (err > 0) show_double("POS_EQ_RA maximum", rVal);
   err=aCat.maxVal("SRC_3EG", &rVal);
   vecSize=aCat.getSValues("SRC_3EG", &catNames);
   std::cout << "* SRC_3EG vector (size=" << vecSize << ")" << std::endl;
 
+  std::cout << "\n* Calling: importSelected on same file" << std::endl;
+  aCat.deleteContent();
+//  aCat.selectQuantity("POS_EQ_RA", false);
+  err=aCat.importSelected();
+  std::cout << "* Value returned = " << err << std::endl;
+  err=aCat.minVal("POS_EQ_RA", &rVal);
+  if (err > 0) show_double("POS_EQ_RA minimum", rVal);
+  err=aCat.maxVal("POS_EQ_RA", &rVal);
+  if (err > 0) show_double("POS_EQ_RA maximum", rVal);
+  err=aCat.minVal("TEST_U9", &rVal);
+  if (err > 0) show_double("TEST_U9 minimum", rVal);
+
   std::cout << "\n* Calling: saveFits to create test1out.fits" << std::endl;
+//  err=aCat.saveFits("test1out.fits", "MYTEST", true);
   err=aCat.saveFits("test1out.fits", "", true);
   aCat.deleteContent();
 
@@ -644,7 +658,7 @@ try {
   if (err > 0) show_double("L_Extent maximum", rVal);
 
   listVal.assign(2, 1.0);
-  listVal.at(1)=aNAN;
+  listVal.at(1)=catalogAccess::MissNAN;
   std::cout << "\n* Setting list of values: "<< listVal[0]<<", " << listVal[1]
             << "\n with default behaviour (reject NaN), anyway NaN is checked"
             << " first, before list or cut tests" << std::endl;
@@ -710,9 +724,9 @@ void show_STEP(const std::string text) {
 void show_quant(const catalogAccess::Quantity &nQ) {
   std::cout << nQ.m_name <<": ucd=\""<< nQ.m_ucd <<"\", type="<< nQ.m_type
            <<", unit=\""<< nQ.m_unit <<"\", format=\""<< nQ.m_format
-          <<"\",\n     index="<< nQ.m_index
-         <<", boolGeneric="<< nQ.m_isGeneric <<", boolNaN="<< nQ.m_rejectNaN
-        <<"\n     selectList sizes=("<< nQ.m_listValN.size() <<" num, "
+          <<"\",\n     index="<< nQ.m_index <<", boolGeneric="<< nQ.m_isGeneric
+         <<", boolNaN="<< nQ.m_rejectNaN <<", TNULL=\""<< nQ.m_null
+        <<"\",\n     selectList sizes=("<< nQ.m_listValN.size() <<" num, "
        << nQ.m_listValS.size() <<" str), cuts=" << nQ.m_lowerCut <<" to "
       << nQ.m_upperCut << "\ncomment=\""<< nQ.m_comment << "\"" << std::endl;
 }

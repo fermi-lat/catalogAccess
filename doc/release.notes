@@ -3,6 +3,8 @@
     @author A. Sauvageon
 
 @verbatim
+28-Jun-2005  v0r2p2  AS  Corrected bug in importSelected. If input fits has
+                         TNULL (integers only), save column with same format.
 20-Jun-2005  v0r2p1  AS  Add: saveFits and saveSelected???? methods
 10-Jun-2005  v0r2    AS  Use tip to read fits (and first Doxygen doc)
 

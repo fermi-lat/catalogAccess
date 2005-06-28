@@ -13,6 +13,7 @@
 
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
+#include "tip/Header.h"
 #include "quantity.h"
 // can compile without first three
 //#include <cctype>      //for toupper, tolower
@@ -60,7 +61,8 @@ public:
                          const bool isCode=true);
       // return a list of all supported web site names
 
-  int getMaxNumRows(long *nrows, const std::string &fileName);
+  int getMaxNumRows(long *nrows, const std::string &fileName,
+                    const std::string ext="1");
   int getMaxNumRowsWeb(long *nrows, const std::string catName,
                        const std::string urlCode="cds"); 
       // to know the maximal number of rows in the file or in the CDS catalog 
@@ -84,7 +86,7 @@ public:
       // other negative number for loading error
 
 
-  int import(const std::string &fileName, const long maxRow=0,
+  int import(const std::string &fileName, const long maxRows=0,
              const std::string ext="1");
   int importWeb(const std::string catName, const std::string urlCode="cds",
                 const long maxRow=44000, const std::string &fileName="");
@@ -375,7 +377,7 @@ private:
   std::string m_catRef;
   std::string m_tableName;
   std::string m_tableRef;
-  std::fstream myFile;    // input/output file
+  std::string m_filename; // input file (with extension for fits)
   long        m_filePos;  // position where data start for importSelected()
   double m_posErrSys;
   double m_posErrFactor;
@@ -396,8 +398,8 @@ private:
 
   // comment: the number of numerical quantities == m_numericals.size()
 
-  long m_numOriRows;            // maximal number of rows in CDS catalog
-  long m_numReadRows;           // maximal number of rows user reads in file
+  long m_numOriRows;
+      // maximal number of rows in CDS catalog
   long m_numRows;
       // number of catalog rows loaded into memory
       // ( == m_strings[0].size() if m_strings.size() != 0 which should always
@@ -471,28 +473,31 @@ private:
       // called by setGeneric() to set m_posErrFactor
   void setGeneric(const int whichCat);
       // called just after "import..." to set m_isGeneric, m_index*
-  void create_tables(const int nbQuantAscii);
+  void create_tables(const int nbQuantAscii, const long maxRows);
       // creates a new column in m_strings, m_numericals
-  void add_rows();
+  void add_rows(const long maxRows);
       // creates a new row in m_strings, m_numericals
   void translate_cell(std::string mot, const int index);
       // loads one quantity at last row (m_numRows);
 
   int analyze_fits(const tip::Table *myDOL, const bool getDescr,
-                   const std::string origin);
-  int analyze_head(unsigned long *tot, int *what, bool *testCR);
+                   const std::string origin, long *maxRows);
+  int analyze_head(unsigned long *tot, int *what, bool *testCR, std::fstream*);
   int analyze_body(unsigned long *tot, int *what, const bool testCR,
-                   const bool getDescr);
+                   const bool getDescr, std::fstream*, long *maxRows);
       // 3 methods read file for import or importDescription (getDescr=true)
       // returns IS_OK for completion, otherwise strictly negative number
 
   int load(const std::string &fileName, const std::string ext,
-           const bool getDescr);
+           const bool getDescr, long *maxRows);
       // common code between import and importDescription
   int loadWeb(const std::string catName, const std::string urlCode,
               const std::string &fileName, const long maxRow);
       // common code between importWeb and importDescriptionWeb
-  int loadSelected(unsigned long *tot);
+  int loadSelectFits(const std::string &fileName, const std::string ext,
+                     long *maxRows);
+      // code for fits file importSelected()
+  int loadSelected(unsigned long *tot, std::fstream*, long *maxRows);
       // code for ASCII file importSelected()
 
   // create catalog header from memory to a text file
@@ -548,13 +553,13 @@ inline Catalog::Catalog() {
   m_catRef    ="";
   m_tableName ="";
   m_tableRef  ="";
+  m_filename  ="";
   m_filePos   =0;
   m_posErrSys = -1.0;
   m_posErrFactor=1.0;  // "deg" by default
 
   m_numRows   =IMPORT_NEED;
   m_numOriRows=0;
-  m_numReadRows=0;
   m_selection ="";
   m_criteriaORed=false;
   m_selRegion =false;
