@@ -1,5 +1,16 @@
 ------------------------------------------------------------
 User: landriu  Tue Jun 28 02:18:23 PDT 2005
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx quantity.cxx quantity.h 
+Added Files:
+	catalog_ioText.cxx 
+Log Message:
+importSelected works only on whole column
+    *
+------------------------------------------------------------
+User: landriu  Tue Jun 28 02:18:23 PDT 2005
 catalogAccess/doc/doxy-html
 
 Modified Files:
