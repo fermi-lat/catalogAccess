@@ -14,7 +14,7 @@
 #include "catalog.h"
 
 namespace catalogAccess {
-
+  using namespace tip;
 /**********************************************************************/
 /*  DEFINING CLASS CONSTANTS                                          */
 /**********************************************************************/
@@ -94,7 +94,8 @@ void Catalog::deleteDescription() {
   m_catRef    ="";
   m_tableName ="";
   m_tableRef  ="";
-  if ( myFile.is_open() ) myFile.close();
+
+  m_filename  ="";
   m_filePos   =0;
   m_posErrSys = -1.0;
   m_posErrFactor=1.0;  // "deg" by default
@@ -103,13 +104,14 @@ void Catalog::deleteDescription() {
 
   m_numRows   =IMPORT_NEED;
   m_numOriRows=0;
-  m_numReadRows=0;
   m_selection="";
-  m_selRegion=false;
-  m_selEllipse.clear();
+  m_criteriaORed=false;
+  m_numSelRows=0;
   m_indexErr= -1;
   m_indexRA = -1;
   m_indexDEC= -1;
+  m_selRegion=false;
+  m_selEllipse.clear();
 }
 /**********************************************************************/
 // erase elements in m_quantities according to m_loadQuantity,
@@ -132,8 +134,8 @@ void Catalog::deleteQuantities() {
   quantIter=m_quantities.begin();
   for (unsigned int i=0; i<maxSize; i++) {
     if (m_loadQuantity[i]) {/* change the index in 2D tables */
-      if ((*quantIter).m_format[0] == 'A') (*quantIter).m_index=nbA++;
-      else (*quantIter).m_index=nbD++;
+      if (quantIter->m_format[0] == 'A') quantIter->m_index=nbA++;
+      else quantIter->m_index=nbD++;
       quantIter++;
     }
     else m_quantities.erase(quantIter);
@@ -160,18 +162,14 @@ Catalog::Catalog(const Catalog & myCat) {
   m_catRef    =myCat.m_catRef;
   m_tableName =myCat.m_tableName;
   m_tableRef  =myCat.m_tableRef;
-  m_numRows   =myCat.m_numRows;
-  m_numOriRows=myCat.m_numOriRows;
-  m_numReadRows=myCat.m_numReadRows;
-//  if ( myCat.myFile.is_open() ) { DO NOT COMPILE
-  if ( myCat.m_filePos > 0 ) {
-    // the file read is left opened, don't know how to get stream on same file
-    errText="FILE isn't CLOSED (in this version), FORBIDS importSelected";
-    printWarn("Catalog copy constructor", errText);
-  }
-  m_filePos=0;
+
+  m_filename   =myCat.m_filename;
+  m_filePos    =myCat.m_filePos;
   m_posErrSys=myCat.m_posErrSys;
   m_posErrFactor=myCat.m_posErrFactor;
+
+  m_numRows   =myCat.m_numRows;
+  m_numOriRows=myCat.m_numOriRows;
   m_selection =myCat.m_selection;
   m_criteriaORed=myCat.m_criteriaORed;
   // following three data members needed for efficient selection
@@ -344,13 +342,13 @@ void Catalog::getWebList(std::vector<std::string> *names, const bool isCode) {
 
 /**********************************************************************/
 // to know the maximal number of rows in the file
-int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
+int Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
+                           const std::string ext) {
 
   int i, err;
   std::string text, origin="getMaxNumRows";
   *nrows=0;
   err=checkImport(origin, false);
-  // after this check, m_numReadRows is 0
   if (err < IS_VOID) return err;
 
   m_numRows=0;
@@ -362,44 +360,88 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
     m_numRows=err;
     return err;
   }
-  if (fileName.at(i-1) == ']') {
-    // file should be a fits;
- 
-    text=": fits FILE not handled now";
+  std::fstream myFile (fileName.c_str(), std::ios::in);
+  // file can be opened ?
+  if ( !myFile.is_open() ) {
+    text=": FILENAME \""+fileName+"\" cannot be opened";
+    printErr(origin, text);
+    err=BAD_FILENAME;
+    m_numRows=err;
+    return err;
+  }
+/*  DIR *testDir=opendir(fileName.c_str());
+  if (testDir != NULL) {
+    closedir(testDir);
+    text=": FILENAME \""+fileName+"\" is a directory";
     printErr(origin, text);
     err=BAD_FILETYPE;
     m_numRows=err;
     return err;
+  }*/
+  myFile.close();
+  std::ostringstream sortie;
+  bool  myTest;
+  const Extension *myEXT = 0;
+  // cannot use readTable because FITS IMAGE returns also error 1
+  try {
+    myEXT=IFileSvc::instance().readExtension(fileName, ext);
   }
-  else {
+  catch (const TipException &x) {
+    err=x.code();
+    if (err == 1) {
+      // This non-cfitsio error number means the file does not exist
+      // or is not a table, or is not in either Root nor Fits format. 
+      err=BAD_FITS;
+/*      printWarn(origin, "FILENAME is NOT fits");*/
+    }
+    else {
+      // Other errors come from cfitsio, but apply to a file
+      // which is in FITS format but has some sort of format error.
+      sortie << ": FILENAME is FITS, but cfitsio returned error=" << err;
+      printErr(origin, sortie.str());
+      err=BAD_FITS;
+      m_numRows=err;
+      delete myEXT;
+      return err;
+    }
+  }
+  if (err == IS_OK) myTest=myEXT->isTable();
+  delete myEXT;
+  if (err == IS_OK) {
+ 
+    if (!myTest) {
+      text=": FILENAME is FITS, but NOT a TABLE";
+      printErr(origin, text);
+      err=BAD_FITS;
+      m_numRows=err;
+      return err;
+    }
+    const Table *myDOL = 0;
+    try {
+      myDOL=IFileSvc::instance().readTable(fileName, ext);
+      *nrows=myDOL->getNumRecords();
+    }
+    catch (const TipException &x) {
+      sortie << ": FITS is TABLE, but cfitsio returned error=" << err;
+      printErr(origin, sortie.str());
+      err=BAD_FITS;
+      m_numRows=err;
+      delete myDOL;
+      return err;
+    }
+    delete myDOL;
 
-    std::ostringstream sortie;
+  }
+  else { // (err == BAD_FITS)
+
+    err=IS_OK;
     unsigned long tot=0ul; // number of lines read
     bool testCR=false; // true if lines ends with CR (on windows)
     int what=0;        // 0 for unkwown, >0 for csv, <0 to tsv
                        // fabs()=1 for standard, =2 for meta QUERY
 
-    if ( myFile.is_open() ) myFile.close();
     myFile.open(fileName.c_str(), std::ios::in);
-    // file can be opened ?
-    if ( !myFile.is_open() ) {
-      text=": FILENAME \""+fileName+"\" cannot be opened";
-      printErr(origin, text);
-      err=BAD_FILENAME;
-      m_numRows=err;
-      return err;
-    }
-/*    DIR *testDir=opendir(fileName.c_str());
-    if (testDir != NULL) {
-      closedir(testDir);
-      myFile.close();
-      text=": FILENAME \""+fileName+"\" is a directory";
-      printErr(origin, text);
-      err=BAD_FILETYPE;
-      m_numRows=err;
-      return err;
-    }*/
-    err=analyze_head(&tot, &what, &testCR);
+    err=analyze_head(&tot, &what, &testCR, &myFile);
     if (!tot) {
       text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
       printErr(origin, text);
@@ -421,8 +463,9 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
     }
     else {
       unsigned long refRow=0ul;
+      long maxRows=0l;
       // get columns description and units, data
-      err=analyze_body(&tot, &what, testCR, true);
+      err=analyze_body(&tot, &what, testCR, true, &myFile, &maxRows);
       // only possible error: found < 4
       if (err == IS_OK) {
         // decription is read until separation line starting with ---
@@ -470,10 +513,11 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName) {
       sortie << "closing input text file: " << tot << " lines read";
       printLog(0, sortie.str());
     }// analyze_head() is OK
+    myFile.close();
 
   }// file is read
 
-  deleteDescription(); // close input file if left opened
+  deleteDescription();
   return err;
 }
 /**********************************************************************/

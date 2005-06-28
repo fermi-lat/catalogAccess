@@ -35,6 +35,7 @@ static const double Min_Prec = std::numeric_limits<double>::epsilon();
 static const double NearZero = 10*std::numeric_limits<double>::min();
 static const unsigned long Max_Test = std::numeric_limits<unsigned long>::max();
 static const double Angle_Conv = M_PI/180.;
+static const double MissNAN = 0/0.;
 
 enum { IS_OK = 1, IS_VOID = 0,
       IMPORT_BIS = -1, IMPORT_NEED = -2, BAD_CATNAME = -3, BAD_FILENAME = -4,
@@ -91,7 +92,8 @@ public:
   std::string m_ucd;
       // Unified contents descriptor (if available, "" otherwise)
       // follows either UCD1 standard or UCD1+ (still t.b.d.)
-  std::string  m_format;        // format used in CDS database
+  std::string  m_format;        // format used in CDS database or BINTABLE
+  std::string  m_null;          // TNULL keyword in BINTABLE 
   QuantityType m_type;
   std::string  m_unit;
       // The unit description, "1" if dimensionless, "" if string
