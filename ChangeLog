@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Tue Jun 28 02:18:21 PDT 2005
+catalogAccess/doc
+
+Modified Files:
+	release.notes used_packages.html 
+Log Message:
+importSelected works only on whole column
+    *
+------------------------------------------------------------
+User: landriu  Tue Jun 28 02:18:21 PDT 2005
 catalogAccess/data/outref
 
 Modified Files:
