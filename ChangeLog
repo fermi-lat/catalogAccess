@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Tue Jun 28 02:18:23 PDT 2005
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+importSelected works only on whole column
+    *
+------------------------------------------------------------
+User: landriu  Tue Jun 28 02:18:23 PDT 2005
 catalogAccess/src
 
 Modified Files:
