@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Tue Jun 28 02:18:21 PDT 2005
+catalogAccess/data/outref
+
+Modified Files:
+	screenOut.txt 
+Log Message:
+importSelected works only on whole column
+    *
+------------------------------------------------------------
+User: landriu  Tue Jun 28 02:18:21 PDT 2005
 catalogAccess/data
 
 Modified Files:
