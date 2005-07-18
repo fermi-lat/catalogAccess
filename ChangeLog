@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Mon Jul 18 06:05:06 PDT 2005
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+importSelected row selection
+    *
+------------------------------------------------------------
+User: landriu  Mon Jul 18 06:05:06 PDT 2005
 catalogAccess/src
 
 Modified Files:
