@@ -7,769 +7,1006 @@
 <center>
 <a class="qindex" href="main.html">Main Page</a> &nbsp; <a class="qindex" href="namespaces.html">Namespace List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="namespacemembers.html">Namespace Members</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
 <hr><h1>catalog_ioText.cxx</h1><a href="catalog__io_text_8cxx.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 
-00012 <span class="preprocessor">#include "<a class="code" href="catalog_8h.html">catalog.h</a>"</span>
-00013 
-00014 <span class="keyword">namespace </span>catalogAccess {
-00015 
-00016 <span class="comment">/**********************************************************************/</span>
-00017 <span class="comment">// loads Ascii input in m_quantities (private method)</span>
-00018 <span class="comment">// suppose that index really exists: 0 &lt;= index &lt; m_quantities.size()</span>
-00019 <span class="keywordtype">void</span> Catalog::translate_cell(std::string mot, <span class="keyword">const</span> <span class="keywordtype">int</span> index) {
-00020 
-00021   <span class="keywordtype">int</span>  j, last;
-00022   <span class="keywordtype">char</span> form; 
-00023 
-00024   <span class="comment">// remove trailing spaces</span>
-00025   last=mot.length();
-00026 <span class="comment">/* useless Warning, happen many times for last column of 3EG objects (EGRET)</span>
-00027 <span class="comment">  if (last == 0) {</span>
-00028 <span class="comment">    std::ostringstream sortie;</span>
-00029 <span class="comment">    sortie &lt;&lt; "one quantity has no character (row #" &lt;&lt; m_numRows+1 &lt;&lt; ")";</span>
-00030 <span class="comment">    printWarn("private translate_cell", sortie.str());</span>
-00031 <span class="comment">  }</span>
-00032 <span class="comment">  else {*/</span>
-00033   <span class="keywordflow">if</span> (last) {
-00034     <span class="keywordflow">do</span> last--;
-00035     <span class="keywordflow">while</span> ( (last &gt;= 0) &amp;&amp; (mot.at(last) == <span class="charliteral">' '</span>) );
-00036   }
-00037   last++;
-00038   j=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
-00039   form=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_format.at(0);
-00040   <span class="keywordflow">if</span> (form == <span class="charliteral">'A'</span>) {
-00041     <a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[j].at(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>)=mot.substr(0, last);
-00042   }
-00043   <span class="keywordflow">else</span> {
-00044     <span class="keywordflow">if</span> (last) {
-00045       <a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[j].at(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>)=std::atof(mot.c_str());
-00046     }
-00047     <span class="keywordflow">else</span>
-00048       <a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[j].at(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>)=MissNAN;
-00049   }
-00050 
-00051 }
-00052 
-00053 <span class="comment">/**********************************************************************/</span>
-00054 <span class="comment">/* PRIVATE METHOD is only called by: load in "catalog_io.cxx"</span>
-00055 <span class="comment">/* read the catalog header from CDS text file</span>
-00056 <span class="comment">*/</span>
-00057 <span class="keywordtype">int</span> Catalog::analyze_head(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> *tot, <span class="keywordtype">int</span> *what, <span class="keywordtype">bool</span> *testCR,
-00058                           std::fstream *myFile) {
-00059 
-00060   std::string text, mot;
-00061   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
-00062   <span class="keywordtype">char</span> line[<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>];
-00063   <span class="keywordtype">int</span>  i, last,
-00064        found=0,
-00065        err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00066 
-00067   <span class="comment">// must use good instead eof, because eof is still false</span>
-00068   <span class="comment">// if getline reads MAX_LINE char ==&gt; infinite loop</span>
-00069   <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a>=<span class="stringliteral">""</span>;   <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a> =<span class="stringliteral">""</span>;
-00070   <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a>=<span class="stringliteral">""</span>; <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a> =<span class="stringliteral">""</span>;
-00071   myFile-&gt;clear();  
-00072   <span class="comment">// to reset the state flags (checked by the previous load call)</span>
-00073   <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
-00074 
-00075     <span class="comment">// extract line with delimiter \n which is discarded</span>
-00076     myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
-00077     text=line; <span class="comment">/* convert C string to C++ string */</span>
-00078     <span class="keywordflow">if</span> (*tot == 0) {
-00079       pos=text.find(<span class="charliteral">' '</span>);
-00080       <span class="keywordflow">if</span> (pos != std::string::npos) {
-00081         mot=text.substr(0, pos);
-00082         <span class="comment">// fits starts with "SIMPLE  ="</span>
-00083         <span class="keywordflow">if</span> (mot == <span class="stringliteral">"SIMPLE"</span>) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a12">BAD_FILENAME</a>;
-00084       }
-00085     }
-00086     (*tot)++;
-00087 
-00088     <span class="comment">/* should find something like:</span>
-00089 <span class="comment">#RESOURCE=21230079</span>
-00090 <span class="comment">#Name: J/ApJS/123/79</span>
-00091 <span class="comment">#Title: Third EGRET catalog (3EG) (Hartman+, 1999)</span>
-00092 <span class="comment">#Table  J_ApJS_123_79_3eg:</span>
-00093 <span class="comment">#Name: J/ApJS/123/79/3eg</span>
-00094 <span class="comment">#Title: Third EGRET Source Catalog (table 4)</span>
-00095 <span class="comment">#blabla(CoosysG:galactic)</span>
-00096 <span class="comment">#Column</span>
-00097 <span class="comment">// Column must be followed by at least one separation line </span>
-00098 <span class="comment"></span>
-00099 <span class="comment">    OR (-meta.all for description)</span>
-00100 <span class="comment"></span>
-00101 <span class="comment">#RESOURCE=J/ApJS/123/79/3eg</span>
-00102 <span class="comment">#INFO   =271Total number of tuples (rows) in the table</span>
-00103 <span class="comment">#INFO   =CGRO</span>
-00104 <span class="comment">#INFO   =Gamma-ray</span>
-00105 <span class="comment">#    Third EGRET catalog (3EG) (Hartman+, 1999)</span>
-00106 <span class="comment">#    Third EGRET Source Catalog (table 4)</span>
-00107 <span class="comment">#</span>
-00108 <span class="comment">*/</span>
-00109     <span class="keywordflow">switch</span> (found) {
-00110     <span class="keywordflow">case</span> 0:
-00111       pos=text.find(<span class="stringliteral">"#RESOURCE="</span>);
-00112       <span class="keywordflow">if</span> (pos == 0) {
-00113         found++;
-00114         last=text.length();
-00115         <span class="comment">// test if last char is CR from WINDOWS</span>
-00116         <span class="keywordflow">if</span> (text[last-1] == 0x0D) {
-00117           *testCR=<span class="keyword">true</span>;
-00118           last--;
-00119           text.erase(last);
-00120         }
-00121         <span class="keywordflow">else</span> *testCR=<span class="keyword">false</span>;
-00122         mot=text.substr(10);
-00123         pos=mot.find(<span class="charliteral">'/'</span>);
-00124         <span class="keywordflow">if</span> (pos == std::string::npos) {
-00125           <span class="comment">// standard desciption  printf("|%s|\n", mot.c_str());</span>
-00126           *what=1;
-00127         }
-00128         <span class="keywordflow">else</span> {
-00129           <span class="comment">// -meta.all OR -meta QUERY</span>
-00130           *what=2;
-00131           pos=mot.rfind(<span class="charliteral">'/'</span>);
-00132           <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a>=mot.substr(0,pos);
-00133           <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a>=mot;
-00134         }
-00135       }
-00136       <span class="keywordflow">break</span>;
-00137 
-00138     <span class="keywordflow">case</span> 1: <span class="keywordflow">case</span> 3:
-00139       <span class="keywordflow">if</span> (*what &lt; 2) mot=<span class="stringliteral">"#Name:"</span>;  <span class="keywordflow">else</span> mot=<span class="stringliteral">"#INFO"</span>; 
-00140       pos=text.find(mot);
-00141       <span class="keywordflow">if</span> (pos == 0) {
-00142         found++;
-00143         last=text.length();
-00144         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
-00145         <span class="comment">// remove heading spaces</span>
-00146         <span class="keywordflow">for</span> (i=mot.length(); i&lt;last; i++) {
-00147           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
-00148         }
-00149         <span class="keywordflow">if</span> (i == last) mot=<span class="stringliteral">""</span>;
-00150         <span class="keywordflow">else</span> {
-00151           mot=text.substr(i, last-i);
-00152           <span class="comment">// remove trailing spaces</span>
-00153           pos=mot.length();
-00154           <span class="keywordflow">do</span> pos--;
-00155           <span class="keywordflow">while</span> ((mot[pos] == <span class="charliteral">' '</span>) || (mot[pos] == 0x09));
-00156           mot.erase(pos+1);
-00157         }
-00158         <span class="keywordflow">if</span> (*what &lt; 2) {
-00159           <span class="keywordflow">if</span> (found &gt; 2) <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a>=mot; <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a>=mot;
-00160         }
-00161         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (found == 2) {
-00162           <span class="keywordflow">if</span> ((!<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>) &amp;&amp; ((last=mot.length()) &gt; 1)) {
-00163             <span class="keywordflow">if</span> (mot[0] == <span class="charliteral">'='</span>) mot[0]=<span class="charliteral">' '</span>;
-00164             <span class="keywordflow">for</span> (i=1; i&lt;last; i++) { <span class="keywordflow">if</span> (!isdigit(mot[i])) <span class="keywordflow">break</span>; } 
-00165             mot.erase(i);
-00166             <a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>=atol(mot.c_str());
-00167           }
-00168         }
-00169       }
-00170       <span class="keywordflow">break</span>;
-00171 
-00172     <span class="keywordflow">case</span> 2: <span class="keywordflow">case</span> 4:
-00173       <span class="keywordflow">if</span> (*what &lt; 2) mot=<span class="stringliteral">"#Title:"</span>;  <span class="keywordflow">else</span> mot=<span class="stringliteral">"#INFO"</span>;
-00174       pos=text.find(mot);
-00175       <span class="keywordflow">if</span> (pos == 0) {
-00176         <span class="keywordflow">if</span> (*what &gt;= 2) <span class="keywordflow">break</span>; <span class="comment">// read lines until do not start with #INFO</span>
-00177         found++;
-00178         last=text.length();
-00179         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
-00180         <span class="comment">// remove heading spaces</span>
-00181         <span class="keywordflow">for</span> (i=mot.length(); i&lt;last; i++) {
-00182           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
-00183         }
-00184         <span class="keywordflow">if</span> (i == last) mot=<span class="stringliteral">""</span>;
-00185         <span class="keywordflow">else</span> {
-00186           mot=text.substr(i, last-i);
-00187           <span class="comment">// remove trailing spaces</span>
-00188           pos=mot.length();
-00189           <span class="keywordflow">do</span> pos--;
-00190           <span class="keywordflow">while</span> ((mot[pos] == <span class="charliteral">' '</span>) || (mot[pos] == 0x09));
-00191           mot.erase(pos+1);
-00192         }
-00193         <span class="keywordflow">if</span> (found &gt; 3) <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a>=mot; <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a>=mot;
-00194       }
-00195       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (*what &gt;= 2) {
-00196         <span class="comment">// separation '#' found,</span>
-00197         <span class="keywordflow">if</span> ((last=text.length()) &lt; 3) { found=5; <span class="keywordflow">break</span>;}
-00198         found++;
-00199         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
-00200         <span class="comment">// remove heading spaces</span>
-00201         <span class="keywordflow">for</span> (i=1; i&lt;last; i++) {
-00202           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
-00203         }
-00204         <span class="keywordflow">if</span> (i == last) mot=<span class="stringliteral">""</span>;
-00205         <span class="keywordflow">else</span> {
-00206           mot=text.substr(i, last-i);
-00207           <span class="comment">// remove trailing spaces</span>
-00208           pos=mot.length();
-00209           <span class="keywordflow">do</span> pos--;
-00210           <span class="keywordflow">while</span> ((mot[pos] == <span class="charliteral">' '</span>) || (mot[pos] == 0x09));
-00211           mot.erase(pos+1);
-00212         }
-00213         <span class="keywordflow">if</span> (found &gt; 3)  <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a>=mot; 
-00214         <span class="keywordflow">else</span> { found=4; <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a>=mot; }
-00215       }
-00216       <span class="keywordflow">break</span>;
-00217 
-00218     <span class="keywordflow">default</span>:
-00219       <span class="comment">// case only for META file, read until #RESOURCE= or # [ucd=]</span>
-00220       <span class="keywordflow">if</span> ((last=text.length()) &gt; 7) {
-00221         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
-00222         <span class="comment">// for META file with several tables, start of 2nd table</span>
-00223         mot=<span class="stringliteral">"#RESOURCE="</span>;
-00224         <span class="keywordflow">if</span> (text.find(mot) == 0) { found++; <span class="keywordflow">break</span>; }
-00225         <span class="comment">// otherwise, remove heading spaces</span>
-00226         <span class="keywordflow">for</span> (i=1; i&lt;last; i++) {
-00227           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
-00228         }
-00229         mot=text.substr(i, last-i);
-00230         <span class="comment">// before #Column, metaALL must end with following string</span>
-00231         <span class="keywordflow">if</span> (mot == <span class="stringliteral">"[ucd=]"</span>) found++;
-00232       }
-00233       <span class="keywordflow">break</span>;
-00234     }
-00235 <span class="preprocessor">    #ifdef DEBUG_CAT</span>
-00236 <span class="preprocessor"></span>    std::cout &lt;&lt; *tot &lt;&lt;<span class="stringliteral">","</span>;
-00237     <span class="keywordflow">if</span> (*tot &lt; 60ul) std::cout &lt;&lt; line &lt;&lt;<span class="stringliteral">"|\n"</span>;
-00238 <span class="preprocessor">    #endif</span>
-00239 <span class="preprocessor"></span>    err=-1*found;
-00240     <span class="keywordflow">if</span> (*what &lt; 2) {
-00241       <span class="keywordflow">if</span> (found == 5) { err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>; <span class="keywordflow">break</span>; }
-00242     }
-00243     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (found &gt; 5) { err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>; <span class="keywordflow">break</span>; }
-00244 
-00245   }<span class="comment">// loop on inFile lines</span>
-00246 <span class="preprocessor">  #ifdef DEBUG_CAT</span>
-00247 <span class="preprocessor"></span>  std::cout &lt;&lt; std::endl;
-00248 <span class="preprocessor">  #endif</span>
-00249 <span class="preprocessor"></span>
-00250   <span class="keywordflow">return</span> err;
-00251 }
-00252 
-00253 <span class="comment">/**********************************************************************/</span>
-00254 <span class="comment">/* PRIVATE METHOD is called by: load in "catalog_io.cxx"</span>
-00255 <span class="comment">/*                              getMaxNumRows in "catalog.cxx"</span>
-00256 <span class="comment">/* read catalog data from text file (read only column/quantity description</span>
-00257 <span class="comment">/* if getDescr is true, otherwise read row data)</span>
-00258 <span class="comment">*/</span>
-00259 <span class="keywordtype">int</span> Catalog::analyze_body(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> *tot, <span class="keywordtype">int</span> *what, <span class="keyword">const</span> <span class="keywordtype">bool</span> testCR,
-00260                      <span class="keyword">const</span> <span class="keywordtype">bool</span> getDescr, std::fstream *myFile, <span class="keywordtype">long</span> *maxRows){
-00261 
-00262   std::string  origin, text, mot;
-00263   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
-00264   <span class="keywordtype">char</span> sep=<span class="charliteral">';'</span>,
-00265        line[<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>];
-00266   std::ostringstream sortie;
-00267   <span class="keywordtype">bool</span> foundColumn=<span class="keyword">false</span>,
-00268        lineSkipped=<span class="keyword">false</span>;
-00269   <span class="keywordtype">int</span>  i, last, err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>,
-00270        found=0,
-00271        nbQuantAscii=0,
-00272        maxLine=<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>-1; <span class="comment">// to avoid computation each line</span>
-00273   int (*pfunc)(int)=toupper; <span class="comment">// function used by transform</span>
-00274 
-00275   <span class="keywordflow">if</span> (getDescr) origin=<span class="stringliteral">"importDescription"</span>; <span class="keywordflow">else</span> origin=<span class="stringliteral">"import"</span>;
-00276   <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
-00277 
-00278     <span class="comment">// extract line with delimiter \n which is discarded</span>
-00279     myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
-00280     (*tot)++;
-00281     <span class="keywordflow">switch</span> (found) {
-00282     <span class="keywordflow">case</span> 0:
-00283       mot=<span class="stringliteral">"#Column"</span>;
-00284       text=line; <span class="comment">/* convert C string to C++ string */</span>
-00285       pos=text.find(mot);
-00286       <span class="keywordflow">if</span> (pos == 0) {
-00287         Quantity readQ;
-00288         foundColumn=<span class="keyword">true</span>;
-00289       <span class="keywordflow">do</span> {
-00290         <span class="comment">// column NAME, FORMAT, DESCR, UCD separated by only 1 TAB</span>
-00291         last=text.length();
-00292         <span class="keywordflow">for</span> (i=mot.length(); i&lt;last; i++) {
-00293           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
-00294         }
-00295         <span class="keywordflow">if</span> (i == last) <span class="keywordflow">break</span>; <span class="comment">//no NAME found</span>
-00296         mot=text.substr(i, last-i);
-00297         pos=mot.find(0x09);
-00298         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack end of data</span>
-00299 
-00300         readQ.m_name=mot.substr(0, pos);
-00301         text=mot;
-00302         text.erase(0, pos+1);
-00303         pos=text.find(0x09);
-00304         <span class="keywordflow">if</span> ((pos == std::string::npos) || (pos &lt; 3)) <span class="keywordflow">break</span>;
-00305 
-00306         readQ.m_format=text.substr(1, pos-2); <span class="comment">// disregard ( ) </span>
-00307         text.erase(0, pos+1);
-00308         last=text.length();
-00309         <span class="keywordflow">for</span> (i=0; i&lt;last; i++) {
-00310           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
-00311         }
-00312         <span class="keywordflow">if</span> (i == last) <span class="keywordflow">break</span>; <span class="comment">// no DESCR found</span>
-00313         mot=text.substr(i, last-i);
-00314         pos=mot.find(0x09);
-00315         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack end of data</span>
-00316  
-00317         text=mot;
-00318         text.erase(0, pos+1);
-00319         <span class="comment">// remove trailing blanks</span>
-00320         <span class="keywordflow">do</span> pos--; <span class="keywordflow">while</span> (mot[pos] == <span class="charliteral">' '</span>);
-00321         readQ.m_comment=mot.substr(0, pos+1);
-00322         mot=<span class="stringliteral">"[ucd="</span>;
-00323         pos=text.find(mot);
-00324         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack end of data</span>
-00325         text.erase(0, mot.length());
-00326         pos=text.find(<span class="charliteral">']'</span>);
-00327         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack last ]</span>
-00328 
-00329         mot=text.substr(0, pos);
-00330         transform(mot.begin(), mot.end(), mot.begin(), pfunc);
-00331         readQ.m_ucd=mot;
-00332         <span class="keywordflow">if</span> (readQ.m_format[0] == <span class="charliteral">'A'</span>) {
-00333           readQ.m_index=nbQuantAscii;
-00334           nbQuantAscii++;
-00335           readQ.m_type=Quantity::STRING;
-00336         }
-00337         <span class="keywordflow">else</span> {
-00338           readQ.m_index=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size()-nbQuantAscii;
-00339           readQ.m_type=Quantity::NUM;
-00340         }
-00341         <span class="keywordflow">try</span> { <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.push_back(readQ); }
-00342         <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
-00343           text=std::string(<span class="stringliteral">"EXCEPTION filling m_quantities: "</span>)+prob.what();
-00344           <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
-00345           <span class="keywordflow">throw</span>;
-00346         }
-00347       }<span class="keywordflow">while</span>(0);
-00348         <span class="keywordflow">if</span> (readQ.m_type == Quantity::VECTOR) {
-00349           sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" wrong column description"</span>;
-00350           <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, sortie.str());
-00351           sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00352           <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.clear();
-00353           found++; <span class="keywordflow">break</span>; <span class="comment">// to stop reading file</span>
-00354         }
-00355       }
-00356       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (foundColumn) found++;
-00357       <span class="comment">// skip lines before #Column (foundColumn is false);</span>
-00358       <span class="comment">// then: at least one line without any information</span>
-00359       <span class="keywordflow">break</span>;
-00360 
-00361     <span class="keywordflow">case</span> 1:
-00362       <span class="comment">// If lines are separated by  ;  ==&gt; CSV (what unchanged)</span>
-00363       <span class="comment">// If lines are separated by TAB ==&gt; TSV (what * -1)</span>
-00364       <span class="comment">// Check that first word match first quantity,</span>
-00365       <span class="comment">// if not: considered as separation line and loop on case 1.</span>
-00366       text=line; <span class="comment">/* convert C string to C++ string */</span>
-00367       pos=text.find(sep);
-00368       <span class="keywordflow">if</span> (pos != std::string::npos) {
-00369         mot=text.substr(0, pos);
-00370         <span class="keywordflow">if</span> (mot == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(0).m_name) found++;
-00371       }
-00372       <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((pos=text.find(0x09)) != std::string::npos) {
-00373         <span class="comment">// suppose there is at least 2 columns</span>
-00374         mot=text.substr(0, pos);
-00375         <span class="keywordflow">if</span> (mot == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(0).m_name) {
-00376           (*what)*=-1;
-00377           found++;
-00378           sep=0x09;
-00379         }
-00380       }
-00381       <span class="keywordflow">break</span>;
-00382 
-00383     <span class="keywordflow">case</span> 2:
-00384       <span class="comment">// most of decription is read, units on separate line</span>
-00385       last=strlen(line);
-00386       <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
-00387       <span class="keywordflow">if</span> (last &gt; 0) {
-00388         found++;
-00389         text=line; <span class="comment">/* convert C string to C++ string */</span>
-00390         i=0;
-00391         last=text.find(sep);
-00392         <span class="keywordflow">do</span> {
-00393           pos=last;
-00394           mot=text.substr(0, pos);
-00395           <span class="keywordflow">if</span> (pos != std::string::npos) {
-00396             text.erase(0, pos+1); <span class="comment">// pos); to test exception below</span>
-00397             last=text.find(sep);
-00398           }
-00399           <span class="keywordflow">try</span> { <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(i).m_unit=mot; }
-00400           <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
-00401             <span class="keywordflow">if</span> (i == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size())
-00402               text=<span class="stringliteral">"more units than quantities, ignoring last unit(s)"</span>;
-00403             <span class="keywordflow">else</span>
-00404               text=std::string(<span class="stringliteral">"EXCEPTION setting m_unit in m_quantities "</span>)
-00405                    +prob.what();
-00406             <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, text);
-00407             <span class="keywordflow">break</span>;
-00408           }
-00409           i++;
-00410         }
-00411         <span class="keywordflow">while</span> (pos != std::string::npos);
-00412         <span class="keywordflow">if</span> (i &lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size())
-00413           <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"less units than quantities !"</span>);
-00414       }
-00415       <span class="keywordflow">break</span>;
-00416 
-00417     <span class="keywordflow">case</span> 3:
-00418       <span class="comment">// decription is read, separation line starting with ---</span>
-00419       last=strlen(line);
-00420       <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
-00421       <span class="keywordflow">if</span> ((last &gt; 0) &amp;&amp; (line[0] == <span class="charliteral">'-'</span>)) {
-00422         found++;
-00423         <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=0;
-00424         <a class="code" href="classcatalog_access_1_1_catalog.html#o7">m_filePos</a>=myFile-&gt;tellg();
-00425         <span class="keywordflow">if</span> (getDescr) <span class="keywordflow">break</span>; <span class="comment">// must NOT read all file and create tables</span>
-00426         <span class="keywordflow">if</span> ( !*maxRows ) {
-00427           <span class="comment">// read the total number of rows to have a maximal value</span>
-00428           <span class="comment">// to allocate m_strings, m_numericals buffers.</span>
-00429           <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
-00430             myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
-00431             <span class="keywordflow">if</span> (strlen(line) &lt; 2) <span class="keywordflow">break</span>; <span class="comment">// 1 CR for WINDOWS</span>
-00432             (*maxRows)++;
-00433           }
-00434           <span class="comment">// go back to initial position printf("%ld ReadRows\n", *maxRows);</span>
-00435           myFile-&gt;clear(); <span class="comment">// needed to reset flags before seekg</span>
-00436           myFile-&gt;seekg(<a class="code" href="classcatalog_access_1_1_catalog.html#o7">m_filePos</a>);
-00437           <a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>=*maxRows; <span class="comment">// used by importSelected();</span>
-00438         }
-00439         <a class="code" href="classcatalog_access_1_1_catalog.html#c11">create_tables</a>(nbQuantAscii, *maxRows);
-00440       }
-00441       <span class="keywordflow">break</span>;
-00442 
-00443     <span class="keywordflow">default</span>:
-00444       last=strlen(line);
-00445       <span class="keywordflow">if</span> ((last == 0) || (line[0] == 0x0D)) {
-00446         lineSkipped=<span class="keyword">true</span>; <span class="comment">// to have Warning messages below</span>
-00447         <span class="keywordflow">break</span>;
-00448       }
-00449       <span class="comment">// string max size is MAX_LINE-1;</span>
-00450       <span class="keywordflow">if</span> (last &gt;= maxLine) {
-00451         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" exceeds maximal size ("</span>
-00452                &lt;&lt; <a class="code" href="catalog_8h.html#a3">MAX_LINE</a> &lt;&lt; <span class="stringliteral">")"</span>;
-00453         <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, sortie.str());
-00454         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00455         err=<a class="code" href="namespacecatalog_access.html#a31a15">BAD_FILELINE</a>;
-00456         <span class="keywordflow">break</span>;
-00457       }
-00458       i=strncmp(line, <span class="stringliteral">"#Table"</span>, 6);
-00459       <span class="keywordflow">if</span> (i == 0) {
-00460         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">": second table start (not read)"</span>;
-00461         <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00462         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00463         err=<a class="code" href="namespacecatalog_access.html#a31a18">BAD_ROW</a>;
-00464         <span class="keywordflow">break</span>;
-00465       }
-00466       <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
-00467       text=line; <span class="comment">/* convert C string to C++ string */</span>
-00468       pos=text.find(sep);
-00469       <span class="keywordflow">if</span> (pos == std::string::npos) {
-00470         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" without separator, line skipped"</span>;
-00471         <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00472         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00473         <span class="keywordflow">break</span>;
-00474       }
-00475       <span class="keywordflow">if</span> ((<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == *maxRows) || lineSkipped) {
-00476         err=<a class="code" href="namespacecatalog_access.html#a31a18">BAD_ROW</a>;
-00477         <span class="keywordflow">break</span>;
-00478       }
-00479       i=0;
-00480       err=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
-00481       <span class="keywordflow">do</span> {
-00482         mot=text.substr(0, pos);
-00483         <span class="keywordflow">if</span> (i &lt; err) <a class="code" href="classcatalog_access_1_1_catalog.html#c13">translate_cell</a>(mot, i);
-00484         <span class="keywordflow">else</span> {
-00485           sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" contains too many quantities"</span>;
-00486           <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00487           sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00488           <span class="keywordflow">break</span>;
-00489         }
-00490         i++;
-00491         <span class="keywordflow">if</span> (pos != std::string::npos) {
-00492           text.erase(0, pos+1);
-00493           pos=text.find(sep);
-00494         }
-00495         <span class="keywordflow">else</span> <span class="keywordflow">break</span>;
-00496       }
-00497       <span class="keywordflow">while</span> (1);
-00498       <span class="keywordflow">if</span> (i &lt;  err) {
-00499         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" does not contain all quantities"</span>;
-00500         <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00501         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00502       }
-00503       err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00504       <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>++;
-00505       <span class="comment">//found++;</span>
-00506       <span class="keywordflow">break</span>;
-00507     }
-00508     <span class="comment">// to have only 1 test when reading all file</span>
-00509     <span class="keywordflow">if</span> (found &lt; 4) {
-00510       <span class="comment">// when separation line after Column is found,</span>
-00511       <span class="comment">// Quantities must be set.</span>
-00512       <span class="keywordflow">if</span> (found == 1) {
-00513         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size() == 0) { found--; <span class="keywordflow">break</span>; }
-00514         <span class="keywordflow">if</span> (*what &gt;= 2) { found=4; <span class="keywordflow">break</span>; }
-00515                        <span class="comment">// found changed, no error on META ALL</span>
-00516       }
-00517     }
-00518     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (getDescr) <span class="keywordflow">break</span>;
-00519     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (err == <a class="code" href="namespacecatalog_access.html#a31a18">BAD_ROW</a>) <span class="keywordflow">break</span>; <span class="comment">// just stop, error not taken into account</span>
-00520 
-00521   }<span class="comment">// loop on file lines</span>
-00522   <span class="comment">//only possible errors: BAD_FILELINE or BAD_ROW</span>
-00523   <span class="keywordflow">if</span> (err == <a class="code" href="namespacecatalog_access.html#a31a18">BAD_ROW</a>) err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00524   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (err == <a class="code" href="namespacecatalog_access.html#a31a15">BAD_FILELINE</a>) <span class="keywordflow">return</span> err;
-00525   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (found &lt; 4) <span class="keywordflow">return</span> (-1*found);
-00526   
-00527   <span class="keywordflow">return</span> err;
-00528 }
+00011 <span class="preprocessor">#include "<a class="code" href="catalog_8h.html">catalog.h</a>"</span>
+00012 
+00013 <span class="keyword">namespace </span>catalogAccess {
+00014 
+00015 <span class="comment">/**********************************************************************/</span>
+00016 <span class="comment">// loads Ascii input in m_quantities (private method)</span>
+00017 <span class="comment">// suppose that index really exists: 0 &lt;= index &lt; m_quantities.size()</span>
+00018 <span class="keywordtype">void</span> Catalog::translate_cell(std::string mot, <span class="keyword">const</span> <span class="keywordtype">int</span> index) {
+00019 
+00020   <span class="keywordtype">int</span>  j, last;
+00021   <span class="keywordtype">char</span> form; 
+00022 
+00023   <span class="comment">// remove trailing spaces</span>
+00024   last=mot.length();
+00025 <span class="comment">/* useless Warning, happen many times for last column of 3EG objects (EGRET)</span>
+00026 <span class="comment">  if (last == 0) {</span>
+00027 <span class="comment">    std::ostringstream sortie;</span>
+00028 <span class="comment">    sortie &lt;&lt; "one quantity has no character (row #" &lt;&lt; m_numRows+1 &lt;&lt; ")";</span>
+00029 <span class="comment">    printWarn("private translate_cell", sortie.str());</span>
+00030 <span class="comment">  }</span>
+00031 <span class="comment">  else {*/</span>
+00032   <span class="keywordflow">if</span> (last) {
+00033     <span class="keywordflow">do</span> last--;
+00034     <span class="keywordflow">while</span> ( (last &gt;= 0) &amp;&amp; (mot.at(last) == <span class="charliteral">' '</span>) );
+00035   }
+00036   last++;
+00037   j=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_index;
+00038   form=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[index].m_format.at(0);
+00039   <span class="keywordflow">if</span> (form == <span class="charliteral">'A'</span>) {
+00040     <a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[j].at(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>)=mot.substr(0, last);
+00041   }
+00042   <span class="keywordflow">else</span> {
+00043     <span class="keywordflow">if</span> (last) {
+00044       <a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[j].at(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>)=std::atof(mot.c_str());
+00045     }
+00046     <span class="keywordflow">else</span>
+00047       <a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[j].at(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>)=MissNAN;
+00048   }
+00049 
+00050 }
+00051 
+00052 <span class="comment">/**********************************************************************/</span>
+00053 <span class="comment">/* PRIVATE METHOD is only called by: load in "catalog_io.cxx"</span>
+00054 <span class="comment">   read the catalog header from CDS text file</span>
+00055 <span class="comment">*/</span>
+00056 <span class="keywordtype">int</span> Catalog::analyze_head(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> *tot, <span class="keywordtype">int</span> *what, <span class="keywordtype">bool</span> *testCR,
+00057                           std::fstream *myFile) {
+00058 
+00059   std::string text, mot;
+00060   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
+00061   <span class="keywordtype">char</span> line[<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>];
+00062   <span class="keywordtype">int</span>  i, last,
+00063        found=0,
+00064        err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00065 
+00066   <span class="comment">// must use good instead eof, because eof is still false</span>
+00067   <span class="comment">// if getline reads MAX_LINE char ==&gt; infinite loop</span>
+00068   <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a>=<span class="stringliteral">""</span>;   <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a> =<span class="stringliteral">""</span>;
+00069   <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a>=<span class="stringliteral">""</span>; <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a> =<span class="stringliteral">""</span>;
+00070   myFile-&gt;clear();  
+00071   <span class="comment">// to reset the state flags (checked by the previous load call)</span>
+00072   <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
+00073 
+00074     <span class="comment">// extract line with delimiter \n which is discarded</span>
+00075     myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
+00076     text=line; <span class="comment">/* convert C string to C++ string */</span>
+00077     <span class="keywordflow">if</span> (*tot == 0) {
+00078       pos=text.find(<span class="charliteral">' '</span>);
+00079       <span class="keywordflow">if</span> (pos != std::string::npos) {
+00080         mot=text.substr(0, pos);
+00081         <span class="comment">// fits starts with "SIMPLE  ="</span>
+00082         <span class="keywordflow">if</span> (mot == <span class="stringliteral">"SIMPLE"</span>) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a18">BAD_FILENAME</a>;
+00083       }
+00084     }
+00085     (*tot)++;
+00086 
+00087     <span class="comment">/* should find something like:</span>
+00088 <span class="comment">#RESOURCE=21230079</span>
+00089 <span class="comment">#Name: J/ApJS/123/79</span>
+00090 <span class="comment">#Title: Third EGRET catalog (3EG) (Hartman+, 1999)</span>
+00091 <span class="comment">#Table  J_ApJS_123_79_3eg:</span>
+00092 <span class="comment">#Name: J/ApJS/123/79/3eg</span>
+00093 <span class="comment">#Title: Third EGRET Source Catalog (table 4)</span>
+00094 <span class="comment">#blabla(CoosysG:galactic)</span>
+00095 <span class="comment">#Column</span>
+00096 <span class="comment">// Column must be followed by at least one separation line </span>
+00097 <span class="comment"></span>
+00098 <span class="comment">    OR (-meta.all for description)</span>
+00099 <span class="comment"></span>
+00100 <span class="comment">#RESOURCE=J/ApJS/123/79/3eg</span>
+00101 <span class="comment">#INFO   =271Total number of tuples (rows) in the table</span>
+00102 <span class="comment">#INFO   =CGRO</span>
+00103 <span class="comment">#INFO   =Gamma-ray</span>
+00104 <span class="comment">#    Third EGRET catalog (3EG) (Hartman+, 1999)</span>
+00105 <span class="comment">#    Third EGRET Source Catalog (table 4)</span>
+00106 <span class="comment">#</span>
+00107 <span class="comment">*/</span>
+00108     <span class="keywordflow">switch</span> (found) {
+00109     <span class="keywordflow">case</span> 0:
+00110       pos=text.find(<span class="stringliteral">"#RESOURCE="</span>);
+00111       <span class="keywordflow">if</span> (pos == 0) {
+00112         found++;
+00113         last=text.length();
+00114         <span class="comment">// test if last char is CR from WINDOWS</span>
+00115         <span class="keywordflow">if</span> (text[last-1] == 0x0D) {
+00116           *testCR=<span class="keyword">true</span>;
+00117           last--;
+00118           text.erase(last);
+00119         }
+00120         <span class="keywordflow">else</span> *testCR=<span class="keyword">false</span>;
+00121         mot=text.substr(10);
+00122         pos=mot.find(<span class="charliteral">'/'</span>);
+00123         <span class="keywordflow">if</span> (pos == std::string::npos) {
+00124           <span class="comment">// standard desciption  printf("|%s|\n", mot.c_str());</span>
+00125           *what=1;
+00126         }
+00127         <span class="keywordflow">else</span> {
+00128           <span class="comment">// -meta.all OR -meta QUERY</span>
+00129           *what=2;
+00130           pos=mot.rfind(<span class="charliteral">'/'</span>);
+00131           <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a>=mot.substr(0,pos);
+00132           <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a>=mot;
+00133         }
+00134       }
+00135       <span class="keywordflow">break</span>;
+00136 
+00137     <span class="keywordflow">case</span> 1: <span class="keywordflow">case</span> 3:
+00138       <span class="keywordflow">if</span> (*what &lt; 2) mot=<span class="stringliteral">"#Name:"</span>;  <span class="keywordflow">else</span> mot=<span class="stringliteral">"#INFO"</span>; 
+00139       pos=text.find(mot);
+00140       <span class="keywordflow">if</span> (pos == 0) {
+00141         found++;
+00142         last=text.length();
+00143         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
+00144         <span class="comment">// remove heading spaces</span>
+00145         <span class="keywordflow">for</span> (i=mot.length(); i&lt;last; i++) {
+00146           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
+00147         }
+00148         <span class="keywordflow">if</span> (i == last) mot=<span class="stringliteral">""</span>;
+00149         <span class="keywordflow">else</span> {
+00150           mot=text.substr(i, last-i);
+00151           <span class="comment">// remove trailing spaces</span>
+00152           pos=mot.length();
+00153           <span class="keywordflow">do</span> pos--;
+00154           <span class="keywordflow">while</span> ((mot[pos] == <span class="charliteral">' '</span>) || (mot[pos] == 0x09));
+00155           mot.erase(pos+1);
+00156         }
+00157         <span class="keywordflow">if</span> (*what &lt; 2) {
+00158           <span class="keywordflow">if</span> (found &gt; 2) <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a>=mot; <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a>=mot;
+00159         }
+00160         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (found == 2) {
+00161           <span class="keywordflow">if</span> ((!<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>) &amp;&amp; ((last=mot.length()) &gt; 1)) {
+00162             <span class="keywordflow">if</span> (mot[0] == <span class="charliteral">'='</span>) mot[0]=<span class="charliteral">' '</span>;
+00163             <span class="keywordflow">for</span> (i=1; i&lt;last; i++) { <span class="keywordflow">if</span> (!isdigit(mot[i])) <span class="keywordflow">break</span>; } 
+00164             mot.erase(i);
+00165             <a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>=atol(mot.c_str());
+00166           }
+00167         }
+00168       }
+00169       <span class="keywordflow">break</span>;
+00170 
+00171     <span class="keywordflow">case</span> 2: <span class="keywordflow">case</span> 4:
+00172       <span class="keywordflow">if</span> (*what &lt; 2) mot=<span class="stringliteral">"#Title:"</span>;  <span class="keywordflow">else</span> mot=<span class="stringliteral">"#INFO"</span>;
+00173       pos=text.find(mot);
+00174       <span class="keywordflow">if</span> (pos == 0) {
+00175         <span class="keywordflow">if</span> (*what &gt;= 2) <span class="keywordflow">break</span>; <span class="comment">// read lines until do not start with #INFO</span>
+00176         found++;
+00177         last=text.length();
+00178         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
+00179         <span class="comment">// remove heading spaces</span>
+00180         <span class="keywordflow">for</span> (i=mot.length(); i&lt;last; i++) {
+00181           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
+00182         }
+00183         <span class="keywordflow">if</span> (i == last) mot=<span class="stringliteral">""</span>;
+00184         <span class="keywordflow">else</span> {
+00185           mot=text.substr(i, last-i);
+00186           <span class="comment">// remove trailing spaces</span>
+00187           pos=mot.length();
+00188           <span class="keywordflow">do</span> pos--;
+00189           <span class="keywordflow">while</span> ((mot[pos] == <span class="charliteral">' '</span>) || (mot[pos] == 0x09));
+00190           mot.erase(pos+1);
+00191         }
+00192         <span class="keywordflow">if</span> (found &gt; 3) <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a>=mot; <span class="keywordflow">else</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a>=mot;
+00193       }
+00194       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (*what &gt;= 2) {
+00195         <span class="comment">// separation '#' found,</span>
+00196         <span class="keywordflow">if</span> ((last=text.length()) &lt; 3) { found=5; <span class="keywordflow">break</span>;}
+00197         found++;
+00198         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
+00199         <span class="comment">// remove heading spaces</span>
+00200         <span class="keywordflow">for</span> (i=1; i&lt;last; i++) {
+00201           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
+00202         }
+00203         <span class="keywordflow">if</span> (i == last) mot=<span class="stringliteral">""</span>;
+00204         <span class="keywordflow">else</span> {
+00205           mot=text.substr(i, last-i);
+00206           <span class="comment">// remove trailing spaces</span>
+00207           pos=mot.length();
+00208           <span class="keywordflow">do</span> pos--;
+00209           <span class="keywordflow">while</span> ((mot[pos] == <span class="charliteral">' '</span>) || (mot[pos] == 0x09));
+00210           mot.erase(pos+1);
+00211         }
+00212         <span class="keywordflow">if</span> (found &gt; 3)  <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a>=mot; 
+00213         <span class="keywordflow">else</span> { found=4; <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a>=mot; }
+00214       }
+00215       <span class="keywordflow">break</span>;
+00216 
+00217     <span class="keywordflow">default</span>:
+00218       <span class="comment">// case only for META file, read until #RESOURCE= or # [ucd=]</span>
+00219       <span class="keywordflow">if</span> ((last=text.length()) &gt; 7) {
+00220         <span class="keywordflow">if</span> (*testCR) text.erase(--last);
+00221         <span class="comment">// for META file with several tables, start of 2nd table</span>
+00222         mot=<span class="stringliteral">"#RESOURCE="</span>;
+00223         <span class="keywordflow">if</span> (text.find(mot) == 0) { found++; <span class="keywordflow">break</span>; }
+00224         <span class="comment">// otherwise, remove heading spaces</span>
+00225         <span class="keywordflow">for</span> (i=1; i&lt;last; i++) {
+00226           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
+00227         }
+00228         mot=text.substr(i, last-i);
+00229         <span class="comment">// before #Column, metaALL must end with following string</span>
+00230         <span class="keywordflow">if</span> (mot == <span class="stringliteral">"[ucd=]"</span>) found++;
+00231       }
+00232       <span class="keywordflow">break</span>;
+00233     }
+00234 <span class="preprocessor">    #ifdef DEBUG_CAT</span>
+00235 <span class="preprocessor"></span>    std::cout &lt;&lt; *tot &lt;&lt;<span class="stringliteral">","</span>;
+00236     <span class="keywordflow">if</span> (*tot &lt; 60ul) std::cout &lt;&lt; line &lt;&lt;<span class="stringliteral">"|\n"</span>;
+00237 <span class="preprocessor">    #endif</span>
+00238 <span class="preprocessor"></span>    err=-1*found;
+00239     <span class="keywordflow">if</span> (*what &lt; 2) {
+00240       <span class="keywordflow">if</span> (found == 5) { err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>; <span class="keywordflow">break</span>; }
+00241     }
+00242     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (found &gt; 5) { err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>; <span class="keywordflow">break</span>; }
+00243 
+00244   }<span class="comment">// loop on inFile lines</span>
+00245 <span class="preprocessor">  #ifdef DEBUG_CAT</span>
+00246 <span class="preprocessor"></span>  std::cout &lt;&lt; std::endl;
+00247 <span class="preprocessor">  #endif</span>
+00248 <span class="preprocessor"></span>
+00249   <span class="keywordflow">return</span> err;
+00250 }
+00251 
+00252 <span class="comment">/**********************************************************************/</span>
+00253 <span class="comment">/* PRIVATE METHOD is called by: load in "catalog_io.cxx"</span>
+00254 <span class="comment">                                getMaxNumRows in "catalog.cxx"</span>
+00255 <span class="comment">   read catalog data from text file (read only column/quantity description</span>
+00256 <span class="comment">   if getDescr is true, otherwise read row data)</span>
+00257 <span class="comment">*/</span>
+00258 <span class="keywordtype">int</span> Catalog::analyze_body(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> *tot, <span class="keywordtype">int</span> *what, <span class="keyword">const</span> <span class="keywordtype">bool</span> testCR,
+00259                      <span class="keyword">const</span> <span class="keywordtype">bool</span> getDescr, std::fstream *myFile, <span class="keywordtype">long</span> *maxRows){
+00260 
+00261   std::string  origin, text, mot;
+00262   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
+00263   <span class="keywordtype">char</span> sep=<span class="charliteral">';'</span>,
+00264        line[<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>];
+00265   std::ostringstream sortie;
+00266   <span class="keywordtype">bool</span> foundColumn=<span class="keyword">false</span>,
+00267        lineSkipped=<span class="keyword">false</span>;
+00268   <span class="keywordtype">int</span>  i, last, err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>,
+00269        found=0,
+00270        nbQuantAscii=0,
+00271        maxLine=<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>-1; <span class="comment">// to avoid computation each line</span>
+00272   int (*pfunc)(int)=toupper; <span class="comment">// function used by transform</span>
+00273 
+00274   <span class="keywordflow">if</span> (getDescr) origin=<span class="stringliteral">"importDescription"</span>; <span class="keywordflow">else</span> origin=<span class="stringliteral">"import"</span>;
+00275   <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
+00276 
+00277     <span class="comment">// extract line with delimiter \n which is discarded</span>
+00278     myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
+00279     (*tot)++;
+00280     <span class="keywordflow">switch</span> (found) {
+00281     <span class="keywordflow">case</span> 0:
+00282       mot=<span class="stringliteral">"#Column"</span>;
+00283       text=line; <span class="comment">/* convert C string to C++ string */</span>
+00284       pos=text.find(mot);
+00285       <span class="keywordflow">if</span> (pos == 0) {
+00286         Quantity readQ;
+00287         foundColumn=<span class="keyword">true</span>;
+00288       <span class="keywordflow">do</span> {
+00289         <span class="comment">// column NAME, FORMAT, DESCR, UCD separated by only 1 TAB</span>
+00290         last=text.length();
+00291         <span class="keywordflow">for</span> (i=mot.length(); i&lt;last; i++) {
+00292           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
+00293         }
+00294         <span class="keywordflow">if</span> (i == last) <span class="keywordflow">break</span>; <span class="comment">//no NAME found</span>
+00295         mot=text.substr(i, last-i);
+00296         pos=mot.find(0x09);
+00297         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack end of data</span>
+00298 
+00299         readQ.m_name=mot.substr(0, pos);
+00300         text=mot;
+00301         text.erase(0, pos+1);
+00302         pos=text.find(0x09);
+00303         <span class="keywordflow">if</span> ((pos == std::string::npos) || (pos &lt; 3)) <span class="keywordflow">break</span>;
+00304 
+00305         readQ.m_format=text.substr(1, pos-2); <span class="comment">// disregard ( ) </span>
+00306         text.erase(0, pos+1);
+00307         last=text.length();
+00308         <span class="keywordflow">for</span> (i=0; i&lt;last; i++) {
+00309           <span class="keywordflow">if</span> ((text[i] != <span class="charliteral">' '</span>) &amp;&amp; (text[i] != 0x09)) <span class="keywordflow">break</span>;
+00310         }
+00311         <span class="keywordflow">if</span> (i == last) <span class="keywordflow">break</span>; <span class="comment">// no DESCR found</span>
+00312         mot=text.substr(i, last-i);
+00313         pos=mot.find(0x09);
+00314         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack end of data</span>
+00315  
+00316         text=mot;
+00317         text.erase(0, pos+1);
+00318         <span class="comment">// remove trailing blanks</span>
+00319         <span class="keywordflow">do</span> pos--; <span class="keywordflow">while</span> (mot[pos] == <span class="charliteral">' '</span>);
+00320         readQ.m_comment=mot.substr(0, pos+1);
+00321         mot=<span class="stringliteral">"[ucd="</span>;
+00322         pos=text.find(mot);
+00323         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack end of data</span>
+00324         text.erase(0, mot.length());
+00325         pos=text.find(<span class="charliteral">']'</span>);
+00326         <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">break</span>;  <span class="comment">// lack last ]</span>
+00327 
+00328         mot=text.substr(0, pos);
+00329         transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+00330         readQ.m_ucd=mot;
+00331         <span class="keywordflow">if</span> (readQ.m_format[0] == <span class="charliteral">'A'</span>) {
+00332           readQ.m_index=nbQuantAscii;
+00333           nbQuantAscii++;
+00334           readQ.m_type=Quantity::STRING;
+00335         }
+00336         <span class="keywordflow">else</span> {
+00337           readQ.m_index=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size()-nbQuantAscii;
+00338           readQ.m_type=Quantity::NUM;
+00339         }
+00340         <span class="keywordflow">try</span> { <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.push_back(readQ); }
+00341         <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
+00342           text=std::string(<span class="stringliteral">"EXCEPTION filling m_quantities: "</span>)+prob.what();
+00343           <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00344           <span class="keywordflow">throw</span>;
+00345         }
+00346       }<span class="keywordflow">while</span>(0);
+00347         <span class="keywordflow">if</span> (readQ.m_type == Quantity::VECTOR) {
+00348           sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" wrong column description"</span>;
+00349           <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, sortie.str());
+00350           sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00351           <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.clear();
+00352           found++; <span class="keywordflow">break</span>; <span class="comment">// to stop reading file</span>
+00353         }
+00354       }
+00355       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (foundColumn) found++;
+00356       <span class="comment">// skip lines before #Column (foundColumn is false);</span>
+00357       <span class="comment">// then: at least one line without any information</span>
+00358       <span class="keywordflow">break</span>;
+00359 
+00360     <span class="keywordflow">case</span> 1:
+00361       <span class="comment">// If lines are separated by  ;  ==&gt; CSV (what unchanged)</span>
+00362       <span class="comment">// If lines are separated by TAB ==&gt; TSV (what * -1)</span>
+00363       <span class="comment">// Check that first word match first quantity,</span>
+00364       <span class="comment">// if not: considered as separation line and loop on case 1.</span>
+00365       text=line; <span class="comment">/* convert C string to C++ string */</span>
+00366       pos=text.find(sep);
+00367       <span class="keywordflow">if</span> (pos != std::string::npos) {
+00368         mot=text.substr(0, pos);
+00369         <span class="keywordflow">if</span> (mot == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(0).m_name) found++;
+00370       }
+00371       <span class="keywordflow">else</span> <span class="keywordflow">if</span> ((pos=text.find(0x09)) != std::string::npos) {
+00372         <span class="comment">// suppose there is at least 2 columns</span>
+00373         mot=text.substr(0, pos);
+00374         <span class="keywordflow">if</span> (mot == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(0).m_name) {
+00375           (*what)*=-1;
+00376           found++;
+00377           sep=0x09;
+00378         }
+00379       }
+00380       <span class="keywordflow">break</span>;
+00381 
+00382     <span class="keywordflow">case</span> 2:
+00383       <span class="comment">// most of decription is read, units on separate line</span>
+00384       last=strlen(line);
+00385       <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
+00386       <span class="keywordflow">if</span> (last &gt; 0) {
+00387         found++;
+00388         text=line; <span class="comment">/* convert C string to C++ string */</span>
+00389         i=0;
+00390         last=text.find(sep);
+00391         <span class="keywordflow">do</span> {
+00392           pos=last;
+00393           mot=text.substr(0, pos);
+00394           <span class="keywordflow">if</span> (pos != std::string::npos) {
+00395             text.erase(0, pos+1); <span class="comment">// pos); to test exception below</span>
+00396             last=text.find(sep);
+00397           }
+00398           <span class="keywordflow">try</span> { <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.at(i).m_unit=mot; }
+00399           <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
+00400             <span class="keywordflow">if</span> (i == <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size())
+00401               text=<span class="stringliteral">"more units than quantities, ignoring last unit(s)"</span>;
+00402             <span class="keywordflow">else</span>
+00403               text=std::string(<span class="stringliteral">"EXCEPTION setting m_unit in m_quantities "</span>)
+00404                    +prob.what();
+00405             <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, text);
+00406             <span class="keywordflow">break</span>;
+00407           }
+00408           i++;
+00409         }
+00410         <span class="keywordflow">while</span> (pos != std::string::npos);
+00411         <span class="keywordflow">if</span> (i &lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size())
+00412           <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, <span class="stringliteral">"less units than quantities !"</span>);
+00413       }
+00414       <span class="keywordflow">break</span>;
+00415 
+00416     <span class="keywordflow">case</span> 3:
+00417       <span class="comment">// decription is read, separation line starting with ---</span>
+00418       last=strlen(line);
+00419       <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
+00420       <span class="keywordflow">if</span> ((last &gt; 0) &amp;&amp; (line[0] == <span class="charliteral">'-'</span>)) {
+00421         found++;
+00422         <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=0;
+00423         <a class="code" href="classcatalog_access_1_1_catalog.html#o7">m_filePos</a>=myFile-&gt;tellg();
+00424         <span class="keywordflow">if</span> (getDescr) <span class="keywordflow">break</span>; <span class="comment">// must NOT read all file and create tables</span>
+00425         <span class="keywordflow">if</span> ( !*maxRows ) {
+00426           <span class="comment">// read the total number of rows to have a maximal value</span>
+00427           <span class="comment">// to allocate m_strings, m_numericals buffers.</span>
+00428           <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
+00429             myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
+00430             <span class="keywordflow">if</span> (strlen(line) &lt; 2) <span class="keywordflow">break</span>; <span class="comment">// 1 CR for WINDOWS</span>
+00431             (*maxRows)++;
+00432           }
+00433           <span class="comment">// go back to initial position printf("%ld ReadRows\n", *maxRows);</span>
+00434           myFile-&gt;clear(); <span class="comment">// needed to reset flags before seekg</span>
+00435           myFile-&gt;seekg(<a class="code" href="classcatalog_access_1_1_catalog.html#o7">m_filePos</a>);
+00436           <a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>=*maxRows; <span class="comment">// used by importSelected();</span>
+00437         }
+00438         <a class="code" href="classcatalog_access_1_1_catalog.html#c12">create_tables</a>(nbQuantAscii, *maxRows);
+00439       }
+00440       <span class="keywordflow">break</span>;
+00441 
+00442     <span class="keywordflow">default</span>:
+00443       last=strlen(line);
+00444       <span class="keywordflow">if</span> ((last == 0) || (line[0] == 0x0D)) {
+00445         lineSkipped=<span class="keyword">true</span>; <span class="comment">// to have Warning messages below</span>
+00446         <span class="keywordflow">break</span>;
+00447       }
+00448       <span class="comment">// string max size is MAX_LINE-1;</span>
+00449       <span class="keywordflow">if</span> (last &gt;= maxLine) {
+00450         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" exceeds maximal size ("</span>
+00451                &lt;&lt; <a class="code" href="catalog_8h.html#a3">MAX_LINE</a> &lt;&lt; <span class="stringliteral">")"</span>;
+00452         <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, sortie.str());
+00453         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00454         err=<a class="code" href="namespacecatalog_access.html#a37a21">BAD_FILELINE</a>;
+00455         <span class="keywordflow">break</span>;
+00456       }
+00457       i=strncmp(line, <span class="stringliteral">"#Table"</span>, 6);
+00458       <span class="keywordflow">if</span> (i == 0) {
+00459         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">": second table start (not read)"</span>;
+00460         <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00461         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00462         err=<a class="code" href="namespacecatalog_access.html#a37a24">BAD_ROW</a>;
+00463         <span class="keywordflow">break</span>;
+00464       }
+00465       <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
+00466       text=line; <span class="comment">/* convert C string to C++ string */</span>
+00467       pos=text.find(sep);
+00468       <span class="keywordflow">if</span> (pos == std::string::npos) {
+00469         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" without separator, line skipped"</span>;
+00470         <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00471         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00472         <span class="keywordflow">break</span>;
+00473       }
+00474       <span class="keywordflow">if</span> ((<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == *maxRows) || lineSkipped) {
+00475         err=<a class="code" href="namespacecatalog_access.html#a37a24">BAD_ROW</a>;
+00476         <span class="keywordflow">break</span>;
+00477       }
+00478       i=0;
+00479       err=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
+00480       <span class="keywordflow">do</span> {
+00481         mot=text.substr(0, pos);
+00482         <span class="keywordflow">if</span> (i &lt; err) <a class="code" href="classcatalog_access_1_1_catalog.html#c14">translate_cell</a>(mot, i);
+00483         <span class="keywordflow">else</span> {
+00484           sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" contains too many quantities"</span>;
+00485           <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00486           sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00487           <span class="keywordflow">break</span>;
+00488         }
+00489         i++;
+00490         <span class="keywordflow">if</span> (pos != std::string::npos) {
+00491           text.erase(0, pos+1);
+00492           pos=text.find(sep);
+00493         }
+00494         <span class="keywordflow">else</span> <span class="keywordflow">break</span>;
+00495       }
+00496       <span class="keywordflow">while</span> (1);
+00497       <span class="keywordflow">if</span> (i &lt;  err) {
+00498         sortie &lt;&lt; <span class="stringliteral">"line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" does not contain all quantities"</span>;
+00499         <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00500         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00501       }
+00502       err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00503       <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>++;
+00504       <span class="comment">//found++;</span>
+00505       <span class="keywordflow">break</span>;
+00506     }
+00507     <span class="comment">// to have only 1 test when reading all file</span>
+00508     <span class="keywordflow">if</span> (found &lt; 4) {
+00509       <span class="comment">// when separation line after Column is found,</span>
+00510       <span class="comment">// Quantities must be set.</span>
+00511       <span class="keywordflow">if</span> (found == 1) {
+00512         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size() == 0) { found--; <span class="keywordflow">break</span>; }
+00513         <span class="keywordflow">if</span> (*what &gt;= 2) { found=4; <span class="keywordflow">break</span>; }
+00514                        <span class="comment">// found changed, no error on META ALL</span>
+00515       }
+00516     }
+00517     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (getDescr) <span class="keywordflow">break</span>;
+00518     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (err == <a class="code" href="namespacecatalog_access.html#a37a24">BAD_ROW</a>) <span class="keywordflow">break</span>; <span class="comment">// just stop, error not taken into account</span>
+00519 
+00520   }<span class="comment">// loop on file lines</span>
+00521   <span class="comment">//only possible errors: BAD_FILELINE or BAD_ROW</span>
+00522   <span class="keywordflow">if</span> (err == <a class="code" href="namespacecatalog_access.html#a37a24">BAD_ROW</a>) err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00523   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (err == <a class="code" href="namespacecatalog_access.html#a37a21">BAD_FILELINE</a>) <span class="keywordflow">return</span> err;
+00524   <span class="keywordflow">else</span> <span class="keywordflow">if</span> (found &lt; 4) <span class="keywordflow">return</span> (-1*found);
+00525   
+00526   <span class="keywordflow">return</span> err;
+00527 }
+00528 
 00529 
-00530 
-00531 <span class="comment">/**********************************************************************/</span>
-00532 <span class="comment">/* PRIVATE METHOD is called by: importSelected() in "catalog_io.cxx"  */</span>
-00533 <span class="keywordtype">int</span> Catalog::loadSelected(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> *tot, std::fstream *myFile,
-00534                           <span class="keywordtype">long</span> *maxRows) {
-00535 
-00536   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"importSelected"</span>;
-00537   <span class="keywordtype">int</span>  i, last,
-00538        maxLine=<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>-1, <span class="comment">// to avoid computation each line</span>
-00539        err=0;
-00540   <span class="keywordtype">char</span> sep=<span class="charliteral">';'</span>,
-00541        line[<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>];
-00542 
-00543   <span class="keywordflow">if</span> ( !<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a> ) {
-00544     <span class="comment">// read the total number of rows to have a maximal value</span>
-00545     <span class="comment">// to allocate m_strings, m_numericals buffers.</span>
-00546     <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
-00547       myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
-00548       <span class="keywordflow">if</span> (strlen(line) &lt; 2) <span class="keywordflow">break</span>; <span class="comment">// 1 CR for WINDOWS</span>
-00549       <a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>++;
-00550     }
-00551     <span class="comment">// go back to initial position</span>
-00552     myFile-&gt;clear(); <span class="comment">// needed to reset flags before seekg</span>
-00553     myFile-&gt;seekg(<a class="code" href="classcatalog_access_1_1_catalog.html#o7">m_filePos</a>);
-00554   }
-00555   last=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
-00556   <span class="keywordflow">for</span> (i=0; i&lt;last; i++)
-00557     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[i].m_type == Quantity::STRING) err++;
-00558 <span class="comment">//printf("%ld OriRows\n", m_numOriRows);</span>
-00559   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=0;
-00560   <span class="keywordflow">if</span> ( !*maxRows ) *maxRows=<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>;
-00561   <span class="keywordflow">if</span> ( !<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a> ) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00562 
-00563   <a class="code" href="classcatalog_access_1_1_catalog.html#c11">create_tables</a>(err, *maxRows);
-00564   <span class="keywordtype">bool</span> testCR=<span class="keyword">false</span>,
-00565        first=<span class="keyword">true</span>,
-00566        lineSkipped=<span class="keyword">false</span>;
-00567   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
-00568   std::ostringstream sortie;
-00569   std::string text, mot;
-00570 
-00571   err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00572   <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
-00573 
-00574     <span class="comment">// extract line with delimiter \n which is discarded</span>
-00575     myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
-00576     (*tot)++;
-00577     last=strlen(line);
-00578     <span class="keywordflow">if</span> ((last == 0) || (line[0] == 0x0D)) {
-00579       lineSkipped=<span class="keyword">true</span>; <span class="comment">// to have Warning messages below</span>
-00580       <span class="keywordflow">continue</span>;
-00581     }
-00582     <span class="comment">// string max size is MAX_LINE-1;</span>
-00583     <span class="keywordflow">if</span> (last &gt;= maxLine) {
-00584       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" exceeds maximal size ("</span>
-00585              &lt;&lt; <a class="code" href="catalog_8h.html#a3">MAX_LINE</a> &lt;&lt; <span class="stringliteral">")"</span>;
-00586       <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, sortie.str());
-00587       err=<a class="code" href="namespacecatalog_access.html#a31a15">BAD_FILELINE</a>;
-00588       <span class="keywordflow">break</span>;
-00589     }
-00590     <span class="keywordflow">if</span> (first) {
-00591       first=<span class="keyword">false</span>;
-00592       <span class="comment">// test if last char is CR from WINDOWS</span>
-00593       <span class="keywordflow">if</span> (line[last-1] == 0x0D) testCR=<span class="keyword">true</span>;
-00594       <span class="keywordtype">char</span> *posC=strchr(line, sep);
-00595       <span class="comment">// if separator isn't the default ; search for TAB</span>
-00596       <span class="comment">// suppose there is at least 2 columns</span>
-00597       <span class="keywordflow">if</span> (posC == NULL) {
-00598         posC=strchr(line, 0x09);
-00599         <span class="keywordflow">if</span> (posC != NULL) sep=0x09;
-00600         <span class="keywordflow">else</span> {
-00601           <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, <span class="stringliteral">"first data line has no separator"</span>);
-00602           err=<a class="code" href="namespacecatalog_access.html#a31a13">BAD_FILETYPE</a>;
-00603           <span class="keywordflow">break</span>;
-00604         }
-00605       }
-00606     }
-00607     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
-00608     i=strncmp(line, <span class="stringliteral">"#Table"</span>, 6);
-00609     <span class="keywordflow">if</span> (i == 0) {
-00610       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">": second table start (not read)"</span>;
-00611       <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00612       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00613       <span class="keywordflow">break</span>;
-00614     }
-00615     text=line; <span class="comment">/* convert C string to C++ string */</span>
-00616     pos=text.find(sep);
-00617     <span class="keywordflow">if</span> (pos == std::string::npos) {
-00618       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" without separator, line skipped"</span>;
-00619       <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00620       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00621       <span class="keywordflow">continue</span>;
-00622     }
-00623     i=0;
-00624     <span class="keywordflow">if</span> (lineSkipped) <span class="keywordflow">break</span>;
-00625     err=<a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.size();
-00626     last=0;
-00627     <span class="keywordflow">do</span> {
-00628       mot=text.substr(0, pos);
-00629       <span class="keywordflow">if</span> (i &gt;= err) {
-00630         sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" contains too many quantities"</span>;
-00631         <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00632         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00633         <span class="keywordflow">break</span>;
-00634       }
-00635       <span class="keywordflow">else</span> {
-00636         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>[i]) <a class="code" href="classcatalog_access_1_1_catalog.html#c13">translate_cell</a>(mot, i-last);
-00637         <span class="keywordflow">else</span> last++;
-00638       }
-00639       i++;
-00640       <span class="keywordflow">if</span> (pos != std::string::npos) {
-00641         text.erase(0, pos+1);
-00642         pos=text.find(sep);
-00643       }
-00644       <span class="keywordflow">else</span> <span class="keywordflow">break</span>;
-00645     }
-00646     <span class="keywordflow">while</span> (1);
-00647     <span class="keywordflow">if</span> (i &lt;  err) {
-00648       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" does not contain all quantities"</span>;
-00649       <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, sortie.str());
-00650       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
-00651     }
-00652     err=<a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00653     <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>++;
-00654   }
-00655   <span class="keywordflow">return</span> err;
-00656 }
+00530 <span class="comment">/**********************************************************************/</span>
+00531 <span class="comment">/* PRIVATE METHOD is called by: importSelected() in "catalog_io.cxx"  */</span>
+00532 <span class="keywordtype">int</span> Catalog::loadSelected(<span class="keywordtype">unsigned</span> <span class="keywordtype">long</span> *tot, std::fstream *myFile,
+00533                           <span class="keywordtype">long</span> *maxRows) {
+00534 
+00535   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"importSelected"</span>;
+00536   <span class="keywordtype">int</span>  i, last,
+00537        maxLine=<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>-1, <span class="comment">// to avoid computation each line</span>
+00538        err=0;
+00539   <span class="keywordtype">char</span> sep=<span class="charliteral">';'</span>,
+00540        line[<a class="code" href="catalog_8h.html#a3">MAX_LINE</a>];
+00541 
+00542   <span class="keywordflow">if</span> ( !<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a> ) {
+00543     <span class="comment">// read the total number of rows to have a maximal value</span>
+00544     <span class="comment">// to allocate m_strings, m_numericals buffers.</span>
+00545     <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
+00546       myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
+00547       <span class="keywordflow">if</span> (strlen(line) &lt; 2) <span class="keywordflow">break</span>; <span class="comment">// 1 CR for WINDOWS</span>
+00548       <a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>++;
+00549     }
+00550     <span class="comment">// go back to initial position</span>
+00551     myFile-&gt;clear(); <span class="comment">// needed to reset flags before seekg</span>
+00552     myFile-&gt;seekg(<a class="code" href="classcatalog_access_1_1_catalog.html#o7">m_filePos</a>);
+00553   }
+00554   last=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
+00555   <span class="keywordflow">for</span> (i=0; i&lt;last; i++)
+00556     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[i].m_type == Quantity::STRING) err++;
+00557 <span class="comment">//std::cout &lt;&lt; m_numOriRows &lt;&lt; " OriRows" &lt;&lt; std::endl;</span>
+00558   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=0;
+00559   <span class="keywordflow">if</span> ( !*maxRows ) *maxRows=<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a>;
+00560   <span class="keywordflow">if</span> ( !<a class="code" href="classcatalog_access_1_1_catalog.html#o14">m_numOriRows</a> ) <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00561 
+00562   <a class="code" href="classcatalog_access_1_1_catalog.html#c12">create_tables</a>(err, *maxRows);
+00563   <span class="keywordtype">bool</span> testCR=<span class="keyword">false</span>,
+00564        first=<span class="keyword">true</span>,
+00565        lineSkipped=<span class="keyword">false</span>;
+00566   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
+00567   std::ostringstream sortie;
+00568   std::string text, mot;
+00569 
+00570   err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00571   <span class="keywordflow">while</span> ( myFile-&gt;good() ) {
+00572 
+00573     <span class="comment">// extract line with delimiter \n which is discarded</span>
+00574     myFile-&gt;getline(line, <a class="code" href="catalog_8h.html#a3">MAX_LINE</a>);
+00575     (*tot)++;
+00576     last=strlen(line);
+00577     <span class="keywordflow">if</span> ((last == 0) || (line[0] == 0x0D)) {
+00578       lineSkipped=<span class="keyword">true</span>; <span class="comment">// to have Warning messages below</span>
+00579       <span class="keywordflow">continue</span>;
+00580     }
+00581     <span class="comment">// string max size is MAX_LINE-1;</span>
+00582     <span class="keywordflow">if</span> (last &gt;= maxLine) {
+00583       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" exceeds maximal size ("</span>
+00584              &lt;&lt; <a class="code" href="catalog_8h.html#a3">MAX_LINE</a> &lt;&lt; <span class="stringliteral">")"</span>;
+00585       <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, sortie.str());
+00586       err=<a class="code" href="namespacecatalog_access.html#a37a21">BAD_FILELINE</a>;
+00587       <span class="keywordflow">break</span>;
+00588     }
+00589     <span class="keywordflow">if</span> (first) {
+00590       first=<span class="keyword">false</span>;
+00591       <span class="comment">// test if last char is CR from WINDOWS</span>
+00592       <span class="keywordflow">if</span> (line[last-1] == 0x0D) testCR=<span class="keyword">true</span>;
+00593       <span class="keywordtype">char</span> *posC=strchr(line, sep);
+00594       <span class="comment">// if separator isn't the default ; search for TAB</span>
+00595       <span class="comment">// suppose there is at least 2 columns</span>
+00596       <span class="keywordflow">if</span> (posC == NULL) {
+00597         posC=strchr(line, 0x09);
+00598         <span class="keywordflow">if</span> (posC != NULL) sep=0x09;
+00599         <span class="keywordflow">else</span> {
+00600           <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, <span class="stringliteral">"first data line has no separator"</span>);
+00601           err=<a class="code" href="namespacecatalog_access.html#a37a19">BAD_FILETYPE</a>;
+00602           <span class="keywordflow">break</span>;
+00603         }
+00604       }
+00605     }
+00606     <span class="keywordflow">else</span> <span class="keywordflow">if</span> (testCR) line[--last]=<span class="charliteral">'\0'</span>;
+00607     i=strncmp(line, <span class="stringliteral">"#Table"</span>, 6);
+00608     <span class="keywordflow">if</span> (i == 0) {
+00609       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">": second table start (not read)"</span>;
+00610       <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00611       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00612       <span class="keywordflow">break</span>;
+00613     }
+00614     text=line; <span class="comment">/* convert C string to C++ string */</span>
+00615     pos=text.find(sep);
+00616     <span class="keywordflow">if</span> (pos == std::string::npos) {
+00617       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" without separator, line skipped"</span>;
+00618       <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00619       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00620       <span class="keywordflow">continue</span>;
+00621     }
+00622     i=0;
+00623     <span class="keywordflow">if</span> (lineSkipped) <span class="keywordflow">break</span>;
+00624     err=<a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>.size();
+00625     last=0;
+00626     <span class="keywordflow">do</span> {
+00627       mot=text.substr(0, pos);
+00628       <span class="keywordflow">if</span> (i &gt;= err) {
+00629         sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" contains too many quantities"</span>;
+00630         <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00631         sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00632         <span class="keywordflow">break</span>;
+00633       }
+00634       <span class="keywordflow">else</span> {
+00635         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o11">m_loadQuantity</a>[i]) <a class="code" href="classcatalog_access_1_1_catalog.html#c14">translate_cell</a>(mot, i-last);
+00636         <span class="keywordflow">else</span> last++;
+00637       }
+00638       i++;
+00639       <span class="keywordflow">if</span> (pos != std::string::npos) {
+00640         text.erase(0, pos+1);
+00641         pos=text.find(sep);
+00642       }
+00643       <span class="keywordflow">else</span> <span class="keywordflow">break</span>;
+00644     }
+00645     <span class="keywordflow">while</span> (1);
+00646     <span class="keywordflow">if</span> (i &lt;  err) {
+00647       sortie &lt;&lt; <span class="stringliteral">"data line #"</span> &lt;&lt; *tot &lt;&lt; <span class="stringliteral">" does not contain all quantities"</span>;
+00648       <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, sortie.str());
+00649       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string.</span>
+00650     }
+00651     err=<a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00652     <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>++;
+00653   }
+00654   <span class="keywordflow">return</span> err;
+00655 }
+00656 
 00657 
-00658 
-00659 <span class="comment">/**********************************************************************/</span>
-00660 <span class="comment">// common code between importWeb and importDescriptionWeb (private method)</span>
-00661 <span class="keywordtype">int</span> Catalog::loadWeb(<span class="keyword">const</span> std::string catName, <span class="keyword">const</span> std::string urlCode,
-00662                      <span class="keyword">const</span> std::string &amp;fileName, <span class="keyword">const</span> <span class="keywordtype">long</span> maxRow) {
-00663 
-00664   std::string origin, text, web;
-00665   <span class="keywordtype">int</span> i, err;
-00666   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
-00667   <span class="keywordflow">if</span> (maxRow &gt;= 0) origin=<span class="stringliteral">"importWeb"</span>; <span class="keywordflow">else</span> origin=<span class="stringliteral">"importDescriptionWeb"</span>;
-00668 
-00669   err=<a class="code" href="namespacecatalog_access.html#a31a16">BAD_URL</a>;
-00670   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=err;
-00671   <span class="keywordflow">if</span> (urlCode.length() == 0) {
-00672     text=<span class="stringliteral">": CODE for URL (web http address) is empty"</span>;
-00673     <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
-00674     <span class="keywordflow">return</span> err;
-00675   }
-00676   <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="catalog_8h.html#a2">MAX_URL</a>; i++) {
-00677     text=Catalog::s_CatalogURL[i]; <span class="comment">/* convert C string to C++ string */</span>
-00678     pos=text.find(<span class="charliteral">' '</span>);
-00679     <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">continue</span>;
-00680     <span class="keywordflow">if</span> (text.substr(0, pos) == urlCode) <span class="keywordflow">break</span>;
-00681   }
-00682   <span class="keywordflow">if</span> (i == <a class="code" href="catalog_8h.html#a2">MAX_URL</a>) {
-00683     text=<span class="stringliteral">": CODE for URL (web http address) do not exist"</span>;
-00684     <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
-00685     <span class="keywordflow">return</span> err;
-00686   }
-00687   <a class="code" href="classcatalog_access_1_1_catalog.html#o1">m_URL</a>=urlCode;
-00688   pos=text.rfind(<span class="charliteral">' '</span>);
-00689   <span class="keywordflow">if</span> (pos == std::string::npos) web=text;
-00690   <span class="keywordflow">else</span> web=text.substr(pos+1, text.length()-pos);
-00691 
-00692   <span class="keywordtype">int</span> iCat=<a class="code" href="classcatalog_access_1_1_catalog.html#c24">checkCatName</a>(origin, catName);
-00693   <span class="keywordflow">if</span> (iCat &lt; 0) {
-00694     <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=iCat;
-00695     <span class="keywordflow">return</span> iCat;
-00696   }
-00697   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c23">checkImport</a>(origin, <span class="keyword">false</span>);
-00698   <span class="comment">// after this check, m_numOriRows is 0</span>
-00699   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a31a8">IS_VOID</a>) <span class="keywordflow">return</span> err;
-00700 
-00701   <span class="keywordflow">if</span> (maxRow == 0) <a class="code" href="namespacecatalog_access.html#a29">printWarn</a>(origin, <span class="stringliteral">"trying to query whole catalog"</span>);
-00702   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=0;
-00703 <span class="comment">/* now, ASCII query must be created</span>
-00704 <span class="comment">  and sent, using CDS package to given URL</span>
-00705 <span class="comment">*/</span>
-00706   err=-9;
-00707   text=<span class="stringliteral">"Web query not implemented"</span>;
-00708   <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
+00658 <span class="comment">/**********************************************************************/</span>
+00659 <span class="comment">// common code between importWeb and importDescriptionWeb (private method)</span>
+00660 <span class="keywordtype">int</span> Catalog::loadWeb(<span class="keyword">const</span> std::string catName, <span class="keyword">const</span> std::string urlCode,
+00661                      <span class="keyword">const</span> std::string &amp;fileName, <span class="keyword">const</span> <span class="keywordtype">long</span> maxRow) {
+00662 
+00663   std::string origin, text, web;
+00664   <span class="keywordtype">int</span> i, err;
+00665   <span class="keywordtype">unsigned</span> <span class="keywordtype">int</span> pos;
+00666   <span class="keywordflow">if</span> (maxRow &gt;= 0) origin=<span class="stringliteral">"importWeb"</span>; <span class="keywordflow">else</span> origin=<span class="stringliteral">"importDescriptionWeb"</span>;
+00667 
+00668   err=<a class="code" href="namespacecatalog_access.html#a37a22">BAD_URL</a>;
+00669   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=err;
+00670   <span class="keywordflow">if</span> (urlCode.length() == 0) {
+00671     text=<span class="stringliteral">": CODE for URL (web http address) is empty"</span>;
+00672     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00673     <span class="keywordflow">return</span> err;
+00674   }
+00675   <span class="keywordflow">for</span> (i=0; i&lt;<a class="code" href="catalog_8h.html#a2">MAX_URL</a>; i++) {
+00676     text=Catalog::s_CatalogURL[i]; <span class="comment">/* convert C string to C++ string */</span>
+00677     pos=text.find(<span class="charliteral">' '</span>);
+00678     <span class="keywordflow">if</span> (pos == std::string::npos) <span class="keywordflow">continue</span>;
+00679     <span class="keywordflow">if</span> (text.substr(0, pos) == urlCode) <span class="keywordflow">break</span>;
+00680   }
+00681   <span class="keywordflow">if</span> (i == <a class="code" href="catalog_8h.html#a2">MAX_URL</a>) {
+00682     text=<span class="stringliteral">": CODE for URL (web http address) do not exist"</span>;
+00683     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00684     <span class="keywordflow">return</span> err;
+00685   }
+00686   <a class="code" href="classcatalog_access_1_1_catalog.html#o1">m_URL</a>=urlCode;
+00687   pos=text.rfind(<span class="charliteral">' '</span>);
+00688   <span class="keywordflow">if</span> (pos == std::string::npos) web=text;
+00689   <span class="keywordflow">else</span> web=text.substr(pos+1, text.length()-pos);
+00690 
+00691   <span class="keywordtype">int</span> iCat=<a class="code" href="classcatalog_access_1_1_catalog.html#c25">checkCatName</a>(origin, catName);
+00692   <span class="keywordflow">if</span> (iCat &lt; 0) {
+00693     <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=iCat;
+00694     <span class="keywordflow">return</span> iCat;
+00695   }
+00696   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c24">checkImport</a>(origin, <span class="keyword">false</span>);
+00697   <span class="comment">// after this check, m_numOriRows is 0</span>
+00698   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a37a14">IS_VOID</a>) <span class="keywordflow">return</span> err;
+00699 
+00700   <span class="keywordflow">if</span> (maxRow == 0) <a class="code" href="namespacecatalog_access.html#a35">printWarn</a>(origin, <span class="stringliteral">"trying to query whole catalog"</span>);
+00701   <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=0;
+00702 <span class="comment">/* now, ASCII query must be created</span>
+00703 <span class="comment">  and sent, using CDS package to given URL</span>
+00704 <span class="comment">*/</span>
+00705   err=-9;
+00706   text=<span class="stringliteral">"Web query not implemented"</span>;
+00707   <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00708 
 00709 
-00710 
-00711   <span class="keywordflow">if</span> (err &lt; 0) {
-00712     <a class="code" href="classcatalog_access_1_1_catalog.html#a23">deleteContent</a>(); <span class="comment">// to erase data already loaded in memory</span>
-00713     <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=err;
-00714     <span class="keywordflow">return</span> err;
-00715   }
-00716   <span class="keywordflow">try</span> { <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.assign(7, 0.0); }
-00717   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
-00718     text=std::string(<span class="stringliteral">"EXCEPTION on creating m_selEllipse: "</span>)+prob.what();
-00719     <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(origin, text);
-00720     <span class="keywordflow">throw</span>;
-00721   }
-00722   <a class="code" href="classcatalog_access_1_1_catalog.html#o0">m_code</a>=catName;
-00723   <a class="code" href="classcatalog_access_1_1_catalog.html#c10">setGeneric</a>(iCat);
-00724   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>;
-00725 }
-00726 <span class="comment">/**********************************************************************/</span>
-00727 <span class="comment">// load only the catalog description from CDS web site</span>
-00728 <span class="keywordtype">int</span> Catalog::importDescriptionWeb(<span class="keyword">const</span> std::string catName,
-00729                                   <span class="keyword">const</span> std::string urlCode,
-00730                                   <span class="keyword">const</span> std::string &amp;fileName) {
-00731 
-00732   <span class="keywordtype">int</span> err;
-00733   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c18">loadWeb</a>(catName, urlCode, fileName, -1);
-00734   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>) <span class="keywordflow">return</span> err;
-00735 
-00736   <span class="keywordflow">return</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
-00737 }
-00738 <span class="comment">/**********************************************************************/</span>
-00739 <span class="comment">// load from CDS web site an entire catalog without selection</span>
-00740 <span class="keywordtype">int</span> Catalog::importWeb(<span class="keyword">const</span> std::string catName,
-00741                        <span class="keyword">const</span> std::string urlCode, <span class="keyword">const</span> <span class="keywordtype">long</span> maxRow,
-00742                        <span class="keyword">const</span> std::string &amp;fileName) {
-00743 
-00744   <span class="keywordtype">int</span> err;
-00745   <span class="keywordtype">long</span> limitRow=maxRow;
-00746   <span class="keywordflow">if</span> (limitRow &lt; 0) limitRow=0; <span class="comment">// to avoid confusion with importDescriptionWeb</span>
-00747   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c18">loadWeb</a>(catName, urlCode, fileName, limitRow);
-00748   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a31a7">IS_OK</a>) <span class="keywordflow">return</span> err;
-00749   <a class="code" href="classcatalog_access_1_1_catalog.html#a5">getRAMsize</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, <span class="keyword">true</span>);
-00750 
-00751   <span class="keywordflow">try</span> {
-00752     err=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size()+2;
-00753     <span class="comment">// number of required bits including global and region</span>
-00754     err=1+(err-1)/(<span class="keyword">sizeof</span>(long)*8);
-00755     <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.resize(err);
-00756 <span class="preprocessor">    #ifdef DEBUG_CAT</span>
-00757 <span class="preprocessor"></span>    std::cout &lt;&lt; <span class="stringliteral">"Number of unsigned long required for m_rowIsSelected = "</span>
-00758               &lt;&lt; err &lt;&lt; std::endl;
-00759 <span class="preprocessor">    #endif</span>
-00760 <span class="preprocessor"></span>    <span class="keywordflow">if</span> (m_numRows)
-00761       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j=0; j&lt;err; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
-00762     <span class="comment">// above lines can be commented to test the try catch mechanism</span>
-00763   }
-00764   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
-00765     std::string text;
-00766     text=std::string(<span class="stringliteral">"EXCEPTION filling m_rowIsSelected: "</span>)+prob.what();
-00767     <a class="code" href="namespacecatalog_access.html#a28">printErr</a>(<span class="stringliteral">"importWeb"</span>, text);
-00768     <span class="keywordflow">throw</span>;
-00769   }
-00770   <span class="keywordflow">return</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>;
-00771 }
+00710   <span class="keywordflow">if</span> (err &lt; 0) {
+00711     <a class="code" href="classcatalog_access_1_1_catalog.html#a23">deleteContent</a>(); <span class="comment">// to erase data already loaded in memory</span>
+00712     <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>=err;
+00713     <span class="keywordflow">return</span> err;
+00714   }
+00715   <span class="keywordflow">try</span> { <a class="code" href="classcatalog_access_1_1_catalog.html#o29">m_selEllipse</a>.assign(7, 0.0); }
+00716   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
+00717     text=std::string(<span class="stringliteral">"EXCEPTION on creating m_selEllipse: "</span>)+prob.what();
+00718     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00719     <span class="keywordflow">throw</span>;
+00720   }
+00721   <a class="code" href="classcatalog_access_1_1_catalog.html#o0">m_code</a>=catName;
+00722   <a class="code" href="classcatalog_access_1_1_catalog.html#c11">setGeneric</a>(iCat);
+00723   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00724 }
+00725 <span class="comment">/**********************************************************************/</span>
+00726 <span class="comment">// load only the catalog description from CDS web site</span>
+00727 <span class="keywordtype">int</span> Catalog::importDescriptionWeb(<span class="keyword">const</span> std::string catName,
+00728                                   <span class="keyword">const</span> std::string urlCode,
+00729                                   <span class="keyword">const</span> std::string &amp;fileName) {
+00730 
+00731   <span class="keywordtype">int</span> err;
+00732   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c19">loadWeb</a>(catName, urlCode, fileName, -1);
+00733   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>) <span class="keywordflow">return</span> err;
+00734 
+00735   <span class="keywordflow">return</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
+00736 }
+00737 <span class="comment">/**********************************************************************/</span>
+00738 <span class="comment">// load from CDS web site an entire catalog without selection</span>
+00739 <span class="keywordtype">int</span> Catalog::importWeb(<span class="keyword">const</span> std::string catName,
+00740                        <span class="keyword">const</span> std::string urlCode, <span class="keyword">const</span> <span class="keywordtype">long</span> maxRow,
+00741                        <span class="keyword">const</span> std::string &amp;fileName) {
+00742 
+00743   <span class="keywordtype">int</span> err;
+00744   <span class="keywordtype">long</span> limitRow=maxRow;
+00745   <span class="keywordflow">if</span> (limitRow &lt; 0) limitRow=0; <span class="comment">// to avoid confusion with importDescriptionWeb</span>
+00746   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c19">loadWeb</a>(catName, urlCode, fileName, limitRow);
+00747   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>) <span class="keywordflow">return</span> err;
+00748   <a class="code" href="classcatalog_access_1_1_catalog.html#a5">getRAMsize</a>(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, <span class="keyword">true</span>);
+00749 
+00750   <span class="keywordflow">try</span> {
+00751     err=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size()+2;
+00752     <span class="comment">// number of required bits including global and region</span>
+00753     err=1+(err-1)/(<span class="keyword">sizeof</span>(long)*8);
+00754     <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>.resize(err);
+00755 <span class="preprocessor">    #ifdef DEBUG_CAT</span>
+00756 <span class="preprocessor"></span>    std::cout &lt;&lt; <span class="stringliteral">"Number of unsigned long required for m_rowIsSelected = "</span>
+00757               &lt;&lt; err &lt;&lt; std::endl;
+00758 <span class="preprocessor">    #endif</span>
+00759 <span class="preprocessor"></span>    <span class="keywordflow">if</span> (m_numRows)
+00760       <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j=0; j&lt;err; j++) <a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[j].assign(<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>, 0);
+00761     <span class="comment">// above lines can be commented to test the try catch mechanism</span>
+00762   }
+00763   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
+00764     std::string text;
+00765     text=std::string(<span class="stringliteral">"EXCEPTION filling m_rowIsSelected: "</span>)+prob.what();
+00766     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(<span class="stringliteral">"importWeb"</span>, text);
+00767     <span class="keywordflow">throw</span>;
+00768   }
+00769   <span class="keywordflow">return</span> <a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>;
+00770 }
+00771 
 00772 
-00773 } <span class="comment">// namespace catalogAccess</span>
-</pre></div><hr><address style="align: right;"><small>Generated on Tue Jun 28 10:46:02 2005 for catalogAccess by
+00773 <span class="comment">/**********************************************************************/</span>
+00774 <span class="comment">// create catalog header from memory to a text file</span>
+00775 <span class="keywordtype">int</span> Catalog::createText(<span class="keyword">const</span> std::string &amp;fileName, <span class="keywordtype">bool</span> clobber,
+00776                         <span class="keyword">const</span> std::string origin) {
+00777   std::string  text;
+00778   std::fstream file;
+00779   <span class="keywordtype">int</span> err;
+00780 
+00781   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c24">checkImport</a>(origin, <span class="keyword">true</span>);
+00782   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a37a14">IS_VOID</a>) <span class="keywordflow">return</span> err;
+00783 
+00784   err=fileName.length();
+00785   <span class="keywordflow">if</span> (err == 0) {
+00786     text=<span class="stringliteral">": FILENAME is EMPTY"</span>;
+00787     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00788     err=<a class="code" href="namespacecatalog_access.html#a37a18">BAD_FILENAME</a>;
+00789     <span class="keywordflow">return</span> err;
+00790   }
+00791 
+00792   <span class="comment">// overwrite existing file ?</span>
+00793   <span class="keywordflow">if</span> (!clobber) {
+00794     file.open(fileName.c_str(), std::ios::in);
+00795     <span class="keywordflow">if</span> (file) {
+00796       file.close();
+00797       text=<span class="stringliteral">": FILENAME \""</span>+fileName+<span class="stringliteral">"\" exist (clobber=no)"</span>;
+00798       <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00799       <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a18">BAD_FILENAME</a>;
+00800     }
+00801     file.clear();  <span class="comment">// clears all flags associated with the current stream</span>
+00802   }
+00803   <span class="comment">// open in write mode, if the file already existed it is erased</span>
+00804   file.open(fileName.c_str(), std::ios::out | std::ios::trunc);
+00805   <span class="keywordflow">if</span> (!file) {
+00806     text=<span class="stringliteral">": FILENAME \""</span>+fileName+<span class="stringliteral">"\" cannot be written"</span>;
+00807     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00808     <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a18">BAD_FILENAME</a>;
+00809   }
+00810 
+00811   <span class="keywordtype">char</span> tab=0x09, sep=<span class="charliteral">';'</span>;
+00812   <span class="keywordtype">int</span> j, vecSize;
+00813   <span class="keywordtype">long</span> tot=0l, totData=0l;
+00814   <span class="keywordtype">bool</span> saveAll=(origin == <span class="stringliteral">"saveText"</span>);
+00815   <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a> == <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>) saveAll=<span class="keyword">true</span>;
+00816 
+00817   file &lt;&lt; <span class="stringliteral">"#RESOURCE=catalogAccess("</span> &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o0">m_code</a> &lt;&lt; <span class="stringliteral">")"</span> &lt;&lt; std::endl;
+00818   file &lt;&lt; <span class="stringliteral">"#Name: "</span> &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o2">m_catName</a> &lt;&lt; std::endl;
+00819   file &lt;&lt; <span class="stringliteral">"#Title:"</span> &lt;&lt; tab &lt;&lt;  <a class="code" href="classcatalog_access_1_1_catalog.html#o3">m_catRef</a> &lt;&lt; std::endl;
+00820   file &lt;&lt; <span class="stringliteral">"#Name: "</span> &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o4">m_tableName</a> &lt;&lt; std::endl;
+00821   file &lt;&lt; <span class="stringliteral">"#Title:"</span> &lt;&lt; tab &lt;&lt;  <a class="code" href="classcatalog_access_1_1_catalog.html#o5">m_tableRef</a> &lt;&lt; std::endl;
+00822   tot+=5;
+00823   vecSize=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>.size();
+00824   <span class="keywordflow">for</span> (j=0; j&lt;vecSize; j++) {
+00825     file &lt;&lt; <span class="stringliteral">"#Column"</span> &lt;&lt; tab &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_name &lt;&lt; tab &lt;&lt; <span class="stringliteral">"("</span>
+00826          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_format &lt;&lt; <span class="stringliteral">")"</span> &lt;&lt; tab;
+00827     <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_name.length() &lt; 8) file &lt;&lt; <span class="stringliteral">"        "</span>;
+00828     file &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_comment &lt;&lt; tab &lt;&lt; <span class="stringliteral">"[ucd="</span>
+00829          &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_ucd &lt;&lt; <span class="stringliteral">"]"</span>
+00830          &lt;&lt; std::endl;
+00831   }
+00832   file &lt;&lt; std::endl;
+00833   tot+=vecSize+1;
+00834   <span class="comment">// line do NOT end with separator</span>
+00835   <span class="keywordflow">for</span> (j=0; j&lt;vecSize-1; j++) {
+00836     file &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_name &lt;&lt; sep;
+00837   }
+00838   file &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_name &lt;&lt; std::endl;
+00839   <span class="keywordflow">for</span> (j=0; j&lt;vecSize-1; j++) {
+00840     file &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_unit &lt;&lt; sep;
+00841   }
+00842   file &lt;&lt; <a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_unit &lt;&lt; std::endl;
+00843   file &lt;&lt; <span class="stringliteral">"---"</span> &lt;&lt; std::endl;
+00844   tot+=3;
+00845   <span class="keywordflow">try</span> {
+00846     <span class="keywordtype">int</span> i, len, bufSize=0;
+00847     <span class="keywordtype">char</span> first, *buffer=NULL;
+00848     std::vector&lt;std::string&gt; formats(vecSize, <span class="stringliteral">"%s"</span>);
+00849     std::vector&lt;int&gt;         lengths(vecSize, 0);
+00850     std::ostringstream sortie;
+00851     <span class="keywordtype">double</span> r;
+00852     <span class="keywordflow">for</span> (i=0; i&lt;vecSize; i++) { 
+00853       text=<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[i].m_format;
+00854       j=text.length();
+00855       <span class="keywordflow">if</span> (j == 0) <span class="keywordflow">continue</span>;
+00856       first=text[0];
+00857       text.erase(0, 1);
+00858       j=std::atoi(text.c_str());
+00859       <span class="keywordflow">if</span> (j &lt;= 0) <span class="keywordflow">continue</span>;
+00860       lengths[i]=j;
+00861       <span class="keywordflow">if</span> (j &gt; bufSize) {
+00862         bufSize=j;
+00863         buffer=(<span class="keywordtype">char</span> *)realloc(buffer, bufSize*<span class="keyword">sizeof</span>(<span class="keywordtype">char</span>));
+00864         <span class="keywordflow">if</span> (buffer == NULL)
+00865           <span class="keywordflow">throw</span> std::runtime_error(<span class="stringliteral">"Cannot allocate string buffer"</span>);
+00866       }
+00867       <span class="keywordflow">switch</span> (first) {
+00868       <span class="keywordflow">case</span> <span class="charliteral">'A'</span>:
+00869         sortie &lt;&lt; <span class="stringliteral">"%"</span> &lt;&lt; j &lt;&lt; <span class="stringliteral">"s"</span>;
+00870         formats[i]=sortie.str();
+00871         <span class="keywordflow">break</span>;
+00872       <span class="keywordflow">case</span> <span class="charliteral">'I'</span>:
+00873         sortie &lt;&lt; <span class="stringliteral">"%"</span> &lt;&lt; j &lt;&lt; <span class="stringliteral">".0f"</span>;
+00874         formats[i]=sortie.str();
+00875         <span class="keywordflow">break</span>;
+00876       <span class="keywordflow">case</span> <span class="charliteral">'F'</span>:  <span class="comment">// number of decimals is needed from CSV/TSV</span>
+00877         <span class="keywordflow">if</span> (i == <a class="code" href="classcatalog_access_1_1_catalog.html#o27">m_indexRA</a>)
+00878           sortie &lt;&lt; <span class="stringliteral">"%0"</span> &lt;&lt; text &lt;&lt; <span class="stringliteral">"f"</span>;
+00879         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (i == <a class="code" href="classcatalog_access_1_1_catalog.html#o28">m_indexDEC</a>)
+00880           sortie &lt;&lt; <span class="stringliteral">"%+0"</span> &lt;&lt; text &lt;&lt; <span class="stringliteral">"f"</span>;
+00881         <span class="keywordflow">else</span> sortie &lt;&lt; <span class="stringliteral">"%"</span> &lt;&lt; text &lt;&lt; <span class="stringliteral">"f"</span>;
+00882         formats[i]=sortie.str();
+00883         <span class="keywordflow">break</span>;
+00884       <span class="keywordflow">default</span> :  <span class="comment">// number of decimals is needed from CSV/TSV</span>
+00885         sortie &lt;&lt; <span class="stringliteral">"%"</span> &lt;&lt; text &lt;&lt; <span class="stringliteral">"e"</span>;
+00886         formats[i]=sortie.str();
+00887         <span class="keywordflow">break</span>;
+00888       }
+00889       sortie.str(<span class="stringliteral">""</span>); <span class="comment">// Will empty the string</span>
+00890     }
+00891     <span class="comment">// all the quantities have their sprintf format</span>
+00892     <span class="comment">// IF their lengths[] is positive</span>
+00893     <span class="keywordflow">if</span> (saveAll) {
+00894 
+00895       <span class="keywordflow">for</span> (<span class="keywordtype">long</span> k=0; k&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; k++) <span class="keywordflow">for</span> (j=0; j&lt;vecSize; ) {
+00896         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_type == Quantity::NUM) {
+00897           r=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_index].at(k);
+00898           <span class="keywordflow">if</span> (isnan(r)) {
+00899             len=lengths[j];
+00900             <span class="keywordflow">if</span> (len == 0) len=1;
+00901             file &lt;&lt; std::setw(len+1) &lt;&lt; std::setfill(<span class="charliteral">' '</span>);
+00902           }
+00903           <span class="keywordflow">else</span> <span class="keywordflow">if</span> (lengths[j] &gt; 0) {
+00904             sprintf(buffer, formats[j].c_str(), r);
+00905             file.write(buffer, lengths[j]);
+00906           }
+00907           <span class="keywordflow">else</span> file &lt;&lt; r;
+00908         }
+00909         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_type == Quantity::STRING) {
+00910           text=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_index].at(k);
+00911           <span class="keywordflow">if</span> (lengths[j] &gt; 0) {
+00912             sprintf(buffer, formats[j].c_str(), text.c_str());
+00913             file.write(buffer, lengths[j]);
+00914           }
+00915           <span class="keywordflow">else</span> file &lt;&lt; text;
+00916         }
+00917         <span class="keywordflow">if</span> (++j == vecSize) file &lt;&lt; std::endl; <span class="keywordflow">else</span> file &lt;&lt; sep;
+00918       } <span class="comment">// loop on rows and quantities</span>
+00919 
+00920     }
+00921     <span class="keywordflow">else</span> <span class="keywordflow">for</span> (<span class="keywordtype">long</span> k=0; k&lt;<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; k++) <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o16">m_rowIsSelected</a>[0].at(k) &amp; 1) {
+00922 
+00923       <span class="keywordflow">for</span> (j=0; j&lt;vecSize; ) {
+00924         <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_type == Quantity::NUM) {
+00925           r=<a class="code" href="classcatalog_access_1_1_catalog.html#o13">m_numericals</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_index].at(k);
+00926           <span class="keywordflow">if</span> (isnan(r)) {
+00927             len=lengths[j];
+00928             <span class="keywordflow">if</span> (len == 0) len=1;
+00929             file &lt;&lt; std::setw(len+1) &lt;&lt; std::setfill(<span class="charliteral">' '</span>);
+00930           }
+00931           <span class="keywordflow">else</span> <span class="keywordflow">if</span> (lengths[j] &gt; 0) {
+00932             sprintf(buffer, formats[j].c_str(), r);
+00933             file.write(buffer, lengths[j]);
+00934           }
+00935           <span class="keywordflow">else</span> file &lt;&lt; r;
+00936         }
+00937         <span class="keywordflow">else</span> <span class="keywordflow">if</span> (<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_type == Quantity::STRING) {
+00938           text=<a class="code" href="classcatalog_access_1_1_catalog.html#o12">m_strings</a>[<a class="code" href="classcatalog_access_1_1_catalog.html#o10">m_quantities</a>[j].m_index].at(k);
+00939           <span class="keywordflow">if</span> (lengths[j] &gt; 0) {
+00940             sprintf(buffer, formats[j].c_str(), text.c_str());
+00941             file.write(buffer, lengths[j]);
+00942           }
+00943           <span class="keywordflow">else</span> file &lt;&lt; text;
+00944         }
+00945         <span class="keywordflow">if</span> (++j == vecSize) file &lt;&lt; std::endl; <span class="keywordflow">else</span> file &lt;&lt; sep;
+00946       }
+00947       totData++;
+00948       <span class="keywordflow">if</span> (totData == <a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>) <span class="keywordflow">break</span>;
+00949 
+00950     } <span class="comment">// loop on rows and quantities, selected branch</span>
+00951 
+00952     <span class="keywordflow">if</span> (saveAll) tot+=<a class="code" href="classcatalog_access_1_1_catalog.html#o15">m_numRows</a>; <span class="keywordflow">else</span> tot+=<a class="code" href="classcatalog_access_1_1_catalog.html#o25">m_numSelRows</a>;
+00953     <span class="keywordflow">if</span> (buffer != NULL) free(buffer);
+00954   }
+00955   <span class="keywordflow">catch</span> (<span class="keyword">const</span> std::exception &amp;prob) {
+00956     text=std::string(<span class="stringliteral">"EXCEPTION writing rows in file: "</span>)+prob.what();
+00957     <a class="code" href="namespacecatalog_access.html#a34">printErr</a>(origin, text);
+00958     <span class="keywordflow">throw</span>;
+00959   }
+00960   file &lt;&lt; std::endl;
+00961   tot++;
+00962   file.close();
+00963   std::ostringstream sortie; 
+00964   sortie &lt;&lt; <span class="stringliteral">"output text file is closed ( "</span> &lt;&lt; tot &lt;&lt; <span class="stringliteral">" lines written)"</span>;
+00965   <a class="code" href="namespacecatalog_access.html#a36">printLog</a>(0, sortie.str());
+00966   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;  
+00967 }
+00968 <span class="comment">/**********************************************************************/</span>
+00969 <span class="comment">// save whole catalog from memory to a text file</span>
+00970 <span class="keywordtype">int</span> Catalog::saveText(<span class="keyword">const</span> std::string &amp;fileName, <span class="keywordtype">bool</span> clobber) {
+00971 
+00972   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"saveText"</span>;
+00973   <span class="keywordtype">int</span> err;
+00974   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">createText</a>(fileName, clobber, origin);
+00975   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a37a14">IS_VOID</a>) <span class="keywordflow">return</span> err;
+00976 
+00977   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00978 }
+00979 <span class="comment">/**********************************************************************/</span>
+00980 <span class="comment">// save selected rows of catalog from memory to a text file</span>
+00981 <span class="keywordtype">int</span> Catalog::saveSelectedText(<span class="keyword">const</span> std::string &amp;fileName, <span class="keywordtype">bool</span> clobber) {
+00982 
+00983   <span class="keyword">const</span> std::string origin=<span class="stringliteral">"saveSelectedText"</span>;
+00984   <span class="keywordtype">int</span> err;
+00985   err=<a class="code" href="classcatalog_access_1_1_catalog.html#c22">createText</a>(fileName, clobber, origin);
+00986   <span class="keywordflow">if</span> (err &lt; <a class="code" href="namespacecatalog_access.html#a37a14">IS_VOID</a>) <span class="keywordflow">return</span> err;
+00987 
+00988   <span class="keywordflow">return</span> <a class="code" href="namespacecatalog_access.html#a37a13">IS_OK</a>;
+00989 }
+00990       <span class="comment">/* precision is 1/28 arcsec, */</span>
+00991 <span class="comment">/*</span>
+00992 <span class="comment">      if (fabs(m_selEllipseCentDEC_deg) &lt;= Min_Axis) {</span>
+00993 <span class="comment">        /* the ellipse SAO region is on 2D point, must calculate on sphere */</span>
+00994         <span class="comment">/* can only use it if DEC = 0 */</span>
+00995 <span class="comment">/*        filter="(circle("; //filter="(ellipse(";</span>
+00996 <span class="comment">        sprintf(value, "%9.5f", m_selEllipseCentRA_deg);</span>
+00997 <span class="comment">        filter+=value;;</span>
+00998 <span class="comment">        filter+=",0.0,";</span>
+00999 <span class="comment">        sprintf(value, "%8.5f", m_selEllipseMajAxis_deg+Min_Axis);</span>
+01000 <span class="comment">        filter+=value; filter+=',';</span>
+01001 <span class="comment">        sprintf(value, "%8.5f", m_selEllipseMinAxis_deg);</span>
+01002 <span class="comment">        filter+=value; filter+=',';</span>
+01003 <span class="comment">        sprintf(value, "%8.4f", m_selEllipseRot_deg);</span>
+01004 <span class="comment">        filter+=value; filter+=',';</span>
+01005 <span class="comment">        filter+=m_quantities[m_indexRA].m_name+',';</span>
+01006 <span class="comment">        filter+=m_quantities[m_indexDEC].m_name+')';</span>
+01007 <span class="comment">      }</span>
+01008 <span class="comment">*/</span>
+01009 } <span class="comment">// namespace catalogAccess</span>
+</pre></div><hr><address style="align: right;"><small>Generated on Wed Jul 13 10:50:51 2005 for catalogAccess by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 
 width=110 height=53></a>1.2.18 </small></address>

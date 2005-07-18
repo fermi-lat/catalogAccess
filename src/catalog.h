@@ -34,8 +34,8 @@ namespace catalogAccess {
  * @class   Catalog
  *
  * @brief  Provide methods to define a catalog and access its data.
- * Only inline methods (default constructor, the destructor and 7
- * private checking methods) are implemented here.
+ * Only inline methods (default constructor, the destructor and 6 private
+ * checking methods) are implemented here.
  *
  * @author A. Sauvageon
  *
@@ -98,7 +98,7 @@ public:
       // -1 if successful import already done, -3 if catName is unknown,
       // other negative number for loading error
 
-  int importSelected();
+  int importSelected(std::string &filter);
       // if a catalog description was already loaded, this method does
       // the same as import(). However, it applies selection criteria
       // such that quantities which are not passing the criteria are not 
@@ -448,6 +448,9 @@ private:
       // erase elements in m_quantities according to m_loadQuantity,
       // deleteContent() MUST be done before
 
+  bool existCriteria(std::vector<bool> *quantSel);
+      // return true if at least one criteria or selection region exist
+
   bool checkRegion(const long row, const int nRA, const int nDEC);
       // check if given row is inside the elliptical region,
       // nRA and nDEC are the position inside m_numericals.
@@ -495,7 +498,7 @@ private:
               const std::string &fileName, const long maxRow);
       // common code between importWeb and importDescriptionWeb
   int loadSelectFits(const std::string &fileName, const std::string ext,
-                     long *maxRows);
+                     long *maxRows, std::string &filter);
       // code for fits file importSelected()
   int loadSelected(unsigned long *tot, std::fstream*, long *maxRows);
       // code for ASCII file importSelected()
@@ -523,9 +526,6 @@ private:
       // return negative number if problem, quantity index otherwise
   int checkSel_row(const std::string origin, const long srow);
       // return strictly positive number (m_numSelRows) if selected row exist
-
-  bool existCriteria(std::vector<bool> *quantSel);
-      // return true if at least one criteria or selection region exist
   unsigned long bitPosition(const int index, int *k);
       // return long int to test m_quantities[index] bit in m_rowIsSelected[k]
 
@@ -545,7 +545,6 @@ private:
 
 // Default constructor
 inline Catalog::Catalog() {
-
 
   m_code="";
   m_URL ="";
@@ -683,48 +682,6 @@ inline int Catalog::checkSel_row(const std::string origin, const long srow) {
     return BAD_ROW;
   }
   return m_numSelRows;
-}
-
-/**********************************************************************/
-// return true if at least one criteria or selection region exist
-inline bool Catalog::existCriteria(std::vector<bool> *quantSel) {
-
-  bool all=false;
-  std::vector<Quantity>::const_iterator itQ;
-  quantSel->clear();
-  try {
-    if (!m_selRegion) quantSel->push_back(false);
-    else { all=true;  quantSel->push_back(true); }
-    for (itQ=m_quantities.begin(); itQ != m_quantities.end(); itQ++) {
-
-      if (itQ->m_type == Quantity::STRING) {
-        if (itQ->m_listValS.size() > 0) {
-          all=true;
-          quantSel->push_back(true);
-        }
-        else quantSel->push_back(false);
-      }
-
-      else if (itQ->m_type == Quantity::NUM) {
-        if ( (itQ->m_lowerCut < NO_SEL_CUT)||(itQ->m_upperCut < NO_SEL_CUT)
-            || (itQ->m_listValN.size() > 0) ) {
-          all=true;
-          quantSel->push_back(true);
-        }
-        else quantSel->push_back(false);
-      }
-
-      else quantSel->push_back(false);
-      // VECTOR quantity are selected by the quantities in m_vectorQs
-
-    }// loop on quantities
-  }
-  catch (const std::exception &err) {
-    std::string errText=std::string("EXCEPTION on boolean vector: ")+err.what();
-    printErr("private existCriteria", errText);
-    throw;
-  }
-  return all;
 }
 
 /**********************************************************************/

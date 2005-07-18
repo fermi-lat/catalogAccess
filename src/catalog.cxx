@@ -62,6 +62,48 @@ const char *Catalog::s_CatalogGeneric[MAX_CAT][MAX_GEN]={
 
 
 /**********************************************************************/
+// return true if at least one criteria or selection region exist
+bool Catalog::existCriteria(std::vector<bool> *quantSel) {
+
+  bool all=false;
+  std::vector<Quantity>::const_iterator itQ;
+  quantSel->clear();
+  try {
+    if (!m_selRegion) quantSel->push_back(false);
+    else { all=true;  quantSel->push_back(true); }
+    for (itQ=m_quantities.begin(); itQ != m_quantities.end(); itQ++) {
+
+      if (itQ->m_type == Quantity::STRING) {
+        if (itQ->m_listValS.size() > 0) {
+          all=true;
+          quantSel->push_back(true);
+        }
+        else quantSel->push_back(false);
+      }
+
+      else if (itQ->m_type == Quantity::NUM) {
+        if ( (itQ->m_lowerCut < NO_SEL_CUT)||(itQ->m_upperCut < NO_SEL_CUT)
+            || (itQ->m_listValN.size() > 0) ) {
+          all=true;
+          quantSel->push_back(true);
+        }
+        else quantSel->push_back(false);
+      }
+
+      else quantSel->push_back(false);
+      // VECTOR quantity are selected by the quantities in m_vectorQs
+
+    }// loop on quantities
+  }
+  catch (const std::exception &err) {
+    std::string errText=std::string("EXCEPTION on boolean vector: ")+err.what();
+    printErr("private existCriteria", errText);
+    throw;
+  }
+  return all;
+}
+
+/**********************************************************************/
 // erase m_strings, m_numericals but keep catalog definition
 void Catalog::deleteContent() {
 
@@ -130,11 +172,12 @@ void Catalog::deleteQuantities() {
   m_rowIsSelected.clear();
   m_numericals.clear();
   m_strings.clear();
+//std::cout << "Initial number of COL = " << maxSize << std::endl;
   std::vector<Quantity>::iterator quantIter;
   quantIter=m_quantities.begin();
   for (unsigned int i=0; i<maxSize; i++) {
     if (m_loadQuantity[i]) {/* change the index in 2D tables */
-      if (quantIter->m_format[0] == 'A') quantIter->m_index=nbA++;
+      if (quantIter->m_type == Quantity::STRING) quantIter->m_index=nbA++;
       else quantIter->m_index=nbD++;
       quantIter++;
     }

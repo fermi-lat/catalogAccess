@@ -165,9 +165,8 @@ LOG_1 (catalogAccess): 10 quantities (over 11) selected for import
 LOG_2 (catalogAccess): Erasing unwanted quantities for importSelected()
 WARNING catalogAccess (IN importSelected): data line #2 does not contain all quantities
 WARNING catalogAccess (IN importSelected): data line #5 contains too many quantities
-WARNING catalogAccess (IN importSelected): function only implemented for column selection
-* Value returned = 5
-* Number of rows = 5
+* Value returned = 3
+* Number of rows = 3
 
 * Calling again: importDescription on file "3EG_test.out"
 WARNING catalogAccess (IN importDescription): call 'deleteContent' before importing again
@@ -504,8 +503,6 @@ LOG_1 (catalogAccess): fits extension BINTABLE name = GLAST_CAT
 WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header keys
 WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header comments
 WARNING catalogAccess (IN import): missing keyword TBUCD1 for column#1
-WARNING catalogAccess (IN import): missing keyword TBUCD2 for column#2
-WARNING catalogAccess (IN import): missing keyword TBUCD3 for column#3
 WARNING catalogAccess (IN import): missing keyword TBUCD4 for column#4
 WARNING catalogAccess (IN import): missing keyword TBUCD5 for column#5
 WARNING catalogAccess (IN import): missing keyword TBUCD6 for column#6
@@ -530,12 +527,12 @@ ID: ucd="", type=2, unit="", format="20A",
      index=0, boolGeneric=0, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
-POS_EQ_RA: ucd="", type=1, unit="deg", format="1E",
-     index=0, boolGeneric=0, boolNaN=1, TNULL="",
+POS_EQ_RAJ2000: ucd="POS_EQ_RA_MAIN", type=1, unit="deg", format="1E",
+     index=0, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
-POS_EQ_DEC: ucd="", type=1, unit="deg", format="1E",
-     index=1, boolGeneric=0, boolNaN=1, TNULL="",
+POS_EQ_DEJ2000: ucd="POS_EQ_DEC_MAIN", type=1, unit="deg", format="1E",
+     index=1, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
 POS_ERR_MAJ: ucd="", type=1, unit="deg", format="1E",
@@ -587,20 +584,27 @@ CPT_PosErr: ucd="", type=1, unit="arcsec", format="1E",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
 TEST_U9: ucd="", type=1, unit="", format="1I",
-     index=12, boolGeneric=0, boolNaN=1, TNULL="0",
+     index=12, boolGeneric=0, boolNaN=1, TNULL="-32768!!32768",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Test of comment field"
-Quantity POS_EQ_RA minimum =   3.030e+02
-Quantity POS_EQ_RA maximum =   3.098e+02
+Quantity POS_EQ_RAJ2000 minimum =   3.030e+02
+Quantity POS_EQ_RAJ2000 maximum =   3.098e+02
+Quantity TEST_U9 minimum =   3.277e+04
 WARNING catalogAccess (IN maxVal): given Quantity name (SRC_3EG) is not of NUM type
 * SRC_3EG vector (size=6)
 
 * Calling: importSelected on same file
+LOG_1 (catalogAccess): selection ellipse center RA=305 , DEC=0 with radius 45 * 45 (degrees) orientated at 0 (with respect to North pole)
+* Value returned by setSelEllipse = 1
 LOG_1 (catalogAccess): 16 quantities (over 16) selected for import
-WARNING catalogAccess (IN importSelected): function only implemented for column selection
-* Value returned = 17
-Quantity POS_EQ_RA minimum =   3.030e+02
-Quantity POS_EQ_RA maximum =   3.098e+02
+LOG_1 (catalogAccess): importSelected, selecting region from 5 loaded rows
+WARNING catalogAccess (IN eraseNonSelected): all rows selected, nothing done
+* Value returned = 5
+*******FILTER EXPRESSION
+(POS_EQ_DEJ2000 >= -45.00000 && POS_EQ_DEJ2000 <=  45.00000) && ((SRC_theta95 <= 3.100000000E-01) && (!(near(SRC_theta95, 3.000000000E-01, 3.000000000E-04) || near(SRC_theta95, 7.200000000E-01, 7.200000000E-04)))) && (isnull(TEST_U9) || (TEST_U9 >= 3.200000000E+04)).
+* Number of selected rows = 5
+Quantity POS_EQ_RAJ2000 minimum =   3.081e+02
+Quantity POS_EQ_RAJ2000 maximum =   3.083e+02
 Quantity TEST_U9 minimum =         NaN
 
 * Calling: saveFits to create test1out.fits
