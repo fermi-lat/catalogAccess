@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: landriu  Mon Jul 18 06:05:06 PDT 2005
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx catalog_ioText.cxx 
+	catalog_sel.cxx quantity.cxx quantity.h 
+Log Message:
+importSelected row selection
+    *
+------------------------------------------------------------
 User: landriu  Mon Jul 18 06:05:05 PDT 2005
 catalogAccess/doc/doxy-html
 
