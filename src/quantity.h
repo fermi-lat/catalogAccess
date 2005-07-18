@@ -3,7 +3,7 @@
  * @brief  Declaration for the Quantity class and the 3 printing functions.
  * These functions should be replaced by dedicated GLAST functions.
  * One symbolic constant is defined, could be replaced by a const variable
- * (5 already exist for basic limits or conversion).
+ * (6 already exist for basic limits or conversion).
  * @author A. Sauvageon
  *
  * $Header $
@@ -23,7 +23,7 @@
 
 //#define DEBUG_CAT
 #define NO_SEL_CUT  1.79E308    // just below maximum double on 8 bytes
-// could use Infinite function isinf() but is it compiling one every platform ?
+// could use Infinite function isinf() but is it compiling on every platform ?
 namespace catalogAccess {
 
 /**********************************************************************/

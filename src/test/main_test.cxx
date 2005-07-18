@@ -157,7 +157,7 @@ int main(int iargc, char * argv[]) {
   std::cout << "* Number of rows in 'myCat' = " << numRows << std::endl;
 
   std::cout << "\n* Calling: importSelected" << std::endl;
-  err=myCat->importSelected();
+  err=myCat->importSelected(strVal);
   std::cout << "* Value returned = " << err << std::endl;
 
   std::cout << "\n* Calling: getQuantityNames" << std::endl;
@@ -184,6 +184,8 @@ int main(int iargc, char * argv[]) {
 
 
 /****************************************************************************/
+  double rVal;
+  std::vector<double> listVal;
   const std::string myPath=st_facilities::Env::getDataDir("catalogAccess");
   if (myPath=="")
     throw std::runtime_error("Environment variable CATALOGACCESSROOT not set");
@@ -216,7 +218,10 @@ int main(int iargc, char * argv[]) {
 
   std::cout << "\n* Calling: importSelected" << std::endl;
   myCat->selectQuantity("recno", false);
-  err=myCat->importSelected();
+  catNames.assign(1, "3eg J0010+7309");
+  myCat->excludeS("3EG", catNames, false);
+  myCat->setUpperCut("RAJ2000", 25);
+  err=myCat->importSelected(strVal);
   std::cout << "* Value returned = " << err << std::endl;
   myCat->getNumRows(&numRows);
   std::cout << "* Number of rows = " << numRows << std::endl;
@@ -240,10 +245,9 @@ int main(int iargc, char * argv[]) {
             << vecSize << " & " << numRows << std::endl;
 
   std::cout << "\n* Calling: importSelected" << std::endl;
-  err=myCat->importSelected();
+  err=myCat->importSelected(strVal);
   std::cout << "* Value returned = " << err << std::endl;
 
-  double rVal;
   std::cout << "\n* Calling: getSValue, three times on row 9" << std::endl;
   err=myCat->getSValue("quant", 9,  &strVal);
   vecSize=myCat->getSValue("3EG",9, &strVal);
@@ -437,29 +441,52 @@ try {
 
   std::cout << "\n* Calling: import on file \"test1.fits\""
             << std::endl;
+//  strVal=myPath+"/test1_J.fits";
   strVal=myPath+"/test1.fits";
   err=aCat.import(strVal);
   std::cout << "* Value returned = " << err << std::endl;
   std::cout << "* Calling: getQuantityDescription, results: "<< std::endl;
   vecSize=aCat.getQuantityDescription(&allQ);
   for (i=0; i<vecSize; i++) show_quant(allQ[i]);
-  err=aCat.minVal("POS_EQ_RA", &rVal);
-  if (err > 0) show_double("POS_EQ_RA minimum", rVal);
-  err=aCat.maxVal("POS_EQ_RA", &rVal);
-  if (err > 0) show_double("POS_EQ_RA maximum", rVal);
+  err=aCat.minVal("POS_EQ_RAJ2000", &rVal);
+  if (err > 0) show_double("POS_EQ_RAJ2000 minimum", rVal);
+  err=aCat.maxVal("POS_EQ_RAJ2000", &rVal);
+  if (err > 0) show_double("POS_EQ_RAJ2000 maximum", rVal);
+  err=aCat.minVal("TEST_U9", &rVal);
+  if (err > 0) show_double("TEST_U9 minimum", rVal);
   err=aCat.maxVal("SRC_3EG", &rVal);
   vecSize=aCat.getSValues("SRC_3EG", &catNames);
   std::cout << "* SRC_3EG vector (size=" << vecSize << ")" << std::endl;
 
   std::cout << "\n* Calling: importSelected on same file" << std::endl;
   aCat.deleteContent();
-//  aCat.selectQuantity("POS_EQ_RA", false);
-  err=aCat.importSelected();
+//  aCat.selectQuantity("POS_EQ_RAJ2000", false);
+  err=aCat.setSelEllipse(305, 0., 45, 45);
+  std::cout << "* Value returned by setSelEllipse = " << err << std::endl;
+/*  aCat.setCriteriaORed(true);
+  catNames.resize(2); catNames[0]="j2027+3429"; // to test case sensitive
+  aCat.useOnlyS("SRC_3EG", catNames, true);
+  aCat.excludeS("SRC_3EG", catNames, true);/**/
+//  aCat.setLowerCut("SRC_theta95", 0.3);
+  aCat.setUpperCut("SRC_theta95", 0.31);
+/*  aCat.setMatchPercent("SRC_theta95", 100);
+  listVal.assign(1, 0.150000006);*/
+  aCat.setMatchPercent("SRC_theta95", 0.1);
+  listVal.assign(2, 0.3); listVal[1]=0.72;
+  aCat.excludeN("SRC_theta95", listVal);
+  aCat.setLowerCut("TEST_U9", 32000);
+  aCat.setRejectNaN("TEST_U9", false);
+//  aCat.setRejectNaN("SRC_theta95", false);
+
+  err=aCat.importSelected(strVal);
   std::cout << "* Value returned = " << err << std::endl;
-  err=aCat.minVal("POS_EQ_RA", &rVal);
-  if (err > 0) show_double("POS_EQ_RA minimum", rVal);
-  err=aCat.maxVal("POS_EQ_RA", &rVal);
-  if (err > 0) show_double("POS_EQ_RA maximum", rVal);
+  std::cout << "*******FILTER EXPRESSION\n" << strVal << "." << std::endl;
+  aCat.getNumSelRows(&numRows);
+  std::cout << "* Number of selected rows = " << numRows << std::endl;
+  err=aCat.minVal("POS_EQ_RAJ2000", &rVal);
+  if (err > 0) show_double("POS_EQ_RAJ2000 minimum", rVal);
+  err=aCat.maxVal("POS_EQ_RAJ2000", &rVal);
+  if (err > 0) show_double("POS_EQ_RAJ2000 maximum", rVal);
   err=aCat.minVal("TEST_U9", &rVal);
   if (err > 0) show_double("TEST_U9 minimum", rVal);
 
@@ -525,7 +552,6 @@ try {
   aCat.getNumSelRows(&numRows);
   std::cout << "* Number of SELECTED rows = " << numRows << std::endl;
 
-  std::vector<double> listVal;
   std::cout << "\n* Calling: set cut (on L_Extent)" << std::endl;
   aCat.setLowerCut("L_Extent", 1.1);
   aCat.getNumSelRows(&numRows);

@@ -331,9 +331,10 @@ int Catalog::setCriteriaORed(const bool bitOR) {
   if (m_numRows == 0) return IS_OK;
   m_numSelRows=0;
   std::vector<bool> isSelected;
-  existCriteria(&isSelected);
-  for (long i=0; i<m_numRows; i++) {
-    if (rowSelect(i, isSelected) == true) m_numSelRows++;
+  if ( existCriteria(&isSelected) ) {
+    for (long i=0; i<m_numRows; i++) {
+      if (rowSelect(i, isSelected) == true) m_numSelRows++;
+    }
   }
   return IS_OK;
 }
@@ -1043,13 +1044,14 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
 
   std::ostringstream sortie;
   bool miss;
+  m_quantities[index].m_cutORed=!exact;
   if (code & 1) {
-    m_quantities[index].m_excludeList=false; // set but unused for string
+    m_quantities[index].m_excludeList=false;
     miss=false;
     sortie << "Include rows";
   }
   else {
-    m_quantities[index].m_excludeList=true; // set but unused for string
+    m_quantities[index].m_excludeList=true;
     miss=true;
     sortie << "Exclude rows";
   }
@@ -1058,21 +1060,16 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
   m_quantities[index].m_listValS.clear();
   int j;
   int (*pfunc)(int)=tolower; // function used by transform
+  std::vector<std::string> myList;
   std::string mot;
-  if (exact) {
-    for (j=0; j<listSize; j++)
-      m_quantities[index].m_listValS.push_back(list.at(j));
-  }
-  else {
-    for (j=0; j<listSize; j++) {
-      mot=list.at(j);
-      transform(mot.begin(), mot.end(), mot.begin(), pfunc);
-      m_quantities[index].m_listValS.push_back(mot);
-    }
+  for (j=0; j<listSize; j++) {
+    mot=list.at(j);
+    m_quantities[index].m_listValS.push_back(mot);
+    if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+    myList.push_back(mot);
   }
   #ifdef DEBUG_CAT
-  for (j=0; j<listSize; j++)
-    std::cout << m_quantities[index].m_listValS[j] << "|";
+  for (j=0; j<listSize; j++) std::cout << myList[j] << "|";
   std::cout <<"caseless="<< exact << std::endl;
   #endif
 
@@ -1080,49 +1077,49 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
   if (m_numRows == 0) return IS_OK;
 
   std::vector<bool> isSelected;
-  bool oneCriteria=existCriteria(&isSelected);
-  bool check=true;
+  bool check=existCriteria(&isSelected);
+  int  k;
+  unsigned long test=bitPosition(index, &k);
   if (listSize == 0) {
     printLog(1, "Disabling list selection (on "+name+")");
-    if (!oneCriteria) {
+    if (!check) {
       if (m_numSelRows > 0) {
         listSize=m_rowIsSelected.size(); // to avoid compiler Warning
-        for (j=0; j<listSize; j++)
-          m_rowIsSelected[j].assign(m_numRows, 0);
+        for (j=0; j<listSize; j++) m_rowIsSelected[j].assign(m_numRows, 0);
       }
       m_numSelRows=0;
-      check=false;
       printLog(0, "All rows unselected");
     }
-  }
-  else {
-    sortie << " with \"" << name <<"\" string in list ("
-           << listSize << " elements, ";
-    if (exact) sortie << "exact match)"; else sortie << "caseless match)"; 
-    printLog(1, sortie.str());
-  }
-  
-  if (check) {
-    int k, pos=m_quantities[index].m_index;
-    unsigned long test=bitPosition(index, &k);
-    m_numSelRows=0;
-    for (long i=0; i<m_numRows; i++) {
-
-      mot=m_strings[pos].at(i);
-      if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
-      check=miss;
-      for (j=0; j<listSize; j++) {
-         if (mot == m_quantities[index].m_listValS[j]) {check=!miss; break;}
-      }
-      // setting required bit
-      if (check)
-        m_rowIsSelected[k].at(i)|= test;
-      else
+    else {
+      m_numSelRows=0;
+      for (long i=0; i<m_numRows; i++) {
         m_rowIsSelected[k].at(i)&= (Max_Test-test);
-      if (rowSelect(i, isSelected) == true) m_numSelRows++;
- 
-    }// loop on rows
+        if (rowSelect(i, isSelected) == true) m_numSelRows++;
+      }
+    }
+    return IS_OK;
   }
+
+  sortie << " with \"" << name <<"\" string in list ("
+         << listSize << " elements, ";
+  if (exact) sortie << "exact match)"; else sortie << "caseless match)"; 
+  printLog(1, sortie.str());
+  int  pos=m_quantities[index].m_index;
+  m_numSelRows=0;
+  for (long i=0; i<m_numRows; i++) {
+    mot=m_strings[pos].at(i);
+    if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+    check=miss;
+    for (j=0; j<listSize; j++) {
+      if (mot == myList[j]) {check=!miss; break;}
+    }
+    // setting required bit
+    if (check)
+      m_rowIsSelected[k].at(i)|= test;
+    else
+      m_rowIsSelected[k].at(i)&= (Max_Test-test);
+    if (rowSelect(i, isSelected) == true) m_numSelRows++;
+  }// loop on rows
 
   return IS_OK;
 }

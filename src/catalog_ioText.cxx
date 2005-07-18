@@ -1,7 +1,6 @@
 /**
  * @file   catalog_ioText.cxx
- * @brief  Read/write (or import/export) routines from CDS text file.
- * Methods not coded: READ only selected data from file.
+ * @brief  Read/write (or import/export) routines for CDS text file.
  *
  * @author A. Sauvageon
  *
@@ -52,7 +51,7 @@ void Catalog::translate_cell(std::string mot, const int index) {
 
 /**********************************************************************/
 /* PRIVATE METHOD is only called by: load in "catalog_io.cxx"
-/* read the catalog header from CDS text file
+   read the catalog header from CDS text file
 */
 int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR,
                           std::fstream *myFile) {
@@ -252,9 +251,9 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR,
 
 /**********************************************************************/
 /* PRIVATE METHOD is called by: load in "catalog_io.cxx"
-/*                              getMaxNumRows in "catalog.cxx"
-/* read catalog data from text file (read only column/quantity description
-/* if getDescr is true, otherwise read row data)
+                                getMaxNumRows in "catalog.cxx"
+   read catalog data from text file (read only column/quantity description
+   if getDescr is true, otherwise read row data)
 */
 int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
                      const bool getDescr, std::fstream *myFile, long *maxRows){
@@ -555,7 +554,7 @@ int Catalog::loadSelected(unsigned long *tot, std::fstream *myFile,
   last=m_quantities.size();
   for (i=0; i<last; i++)
     if (m_quantities[i].m_type == Quantity::STRING) err++;
-//printf("%ld OriRows\n", m_numOriRows);
+//std::cout << m_numOriRows << " OriRows" << std::endl;
   m_numRows=0;
   if ( !*maxRows ) *maxRows=m_numOriRows;
   if ( !m_numOriRows ) return IS_OK;
@@ -770,4 +769,241 @@ int Catalog::importWeb(const std::string catName,
   return m_numRows;
 }
 
+
+/**********************************************************************/
+// create catalog header from memory to a text file
+int Catalog::createText(const std::string &fileName, bool clobber,
+                        const std::string origin) {
+  std::string  text;
+  std::fstream file;
+  int err;
+
+  err=checkImport(origin, true);
+  if (err < IS_VOID) return err;
+
+  err=fileName.length();
+  if (err == 0) {
+    text=": FILENAME is EMPTY";
+    printErr(origin, text);
+    err=BAD_FILENAME;
+    return err;
+  }
+
+  // overwrite existing file ?
+  if (!clobber) {
+    file.open(fileName.c_str(), std::ios::in);
+    if (file) {
+      file.close();
+      text=": FILENAME \""+fileName+"\" exist (clobber=no)";
+      printErr(origin, text);
+      return BAD_FILENAME;
+    }
+    file.clear();  // clears all flags associated with the current stream
+  }
+  // open in write mode, if the file already existed it is erased
+  file.open(fileName.c_str(), std::ios::out | std::ios::trunc);
+  if (!file) {
+    text=": FILENAME \""+fileName+"\" cannot be written";
+    printErr(origin, text);
+    return BAD_FILENAME;
+  }
+
+  char tab=0x09, sep=';';
+  int j, vecSize;
+  long tot=0l, totData=0l;
+  bool saveAll=(origin == "saveText");
+  if (m_numRows == m_numSelRows) saveAll=true;
+
+  file << "#RESOURCE=catalogAccess(" << m_code << ")" << std::endl;
+  file << "#Name: " << m_catName << std::endl;
+  file << "#Title:" << tab <<  m_catRef << std::endl;
+  file << "#Name: " << m_tableName << std::endl;
+  file << "#Title:" << tab <<  m_tableRef << std::endl;
+  tot+=5;
+  vecSize=m_quantities.size();
+  for (j=0; j<vecSize; j++) {
+    file << "#Column" << tab << m_quantities[j].m_name << tab << "("
+         << m_quantities[j].m_format << ")" << tab;
+    if (m_quantities[j].m_name.length() < 8) file << "        ";
+    file << m_quantities[j].m_comment << tab << "[ucd="
+         << m_quantities[j].m_ucd << "]"
+         << std::endl;
+  }
+  file << std::endl;
+  tot+=vecSize+1;
+  // line do NOT end with separator
+  for (j=0; j<vecSize-1; j++) {
+    file << m_quantities[j].m_name << sep;
+  }
+  file << m_quantities[j].m_name << std::endl;
+  for (j=0; j<vecSize-1; j++) {
+    file << m_quantities[j].m_unit << sep;
+  }
+  file << m_quantities[j].m_unit << std::endl;
+  file << "---" << std::endl;
+  tot+=3;
+  try {
+    int i, len, bufSize=0;
+    char first, *buffer=NULL;
+    std::vector<std::string> formats(vecSize, "%s");
+    std::vector<int>         lengths(vecSize, 0);
+    std::ostringstream sortie;
+    double r;
+    for (i=0; i<vecSize; i++) { 
+      text=m_quantities[i].m_format;
+      j=text.length();
+      if (j == 0) continue;
+      first=text[0];
+      text.erase(0, 1);
+      j=std::atoi(text.c_str());
+      if (j <= 0) continue;
+      lengths[i]=j;
+      if (j > bufSize) {
+        bufSize=j;
+        buffer=(char *)realloc(buffer, bufSize*sizeof(char));
+        if (buffer == NULL)
+          throw std::runtime_error("Cannot allocate string buffer");
+      }
+      switch (first) {
+      case 'A':
+        sortie << "%" << j << "s";
+        formats[i]=sortie.str();
+        break;
+      case 'I':
+        sortie << "%" << j << ".0f";
+        formats[i]=sortie.str();
+        break;
+      case 'F':  // number of decimals is needed from CSV/TSV
+        if (i == m_indexRA)
+          sortie << "%0" << text << "f";
+        else if (i == m_indexDEC)
+          sortie << "%+0" << text << "f";
+        else sortie << "%" << text << "f";
+        formats[i]=sortie.str();
+        break;
+      default :  // number of decimals is needed from CSV/TSV
+        sortie << "%" << text << "e";
+        formats[i]=sortie.str();
+        break;
+      }
+      sortie.str(""); // Will empty the string
+    }
+    // all the quantities have their sprintf format
+    // IF their lengths[] is positive
+    if (saveAll) {
+
+      for (long k=0; k<m_numRows; k++) for (j=0; j<vecSize; ) {
+        if (m_quantities[j].m_type == Quantity::NUM) {
+          r=m_numericals[m_quantities[j].m_index].at(k);
+          if (isnan(r)) {
+            len=lengths[j];
+            if (len == 0) len=1;
+            file << std::setw(len+1) << std::setfill(' ');
+          }
+          else if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), r);
+            file.write(buffer, lengths[j]);
+          }
+          else file << r;
+        }
+        else if (m_quantities[j].m_type == Quantity::STRING) {
+          text=m_strings[m_quantities[j].m_index].at(k);
+          if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), text.c_str());
+            file.write(buffer, lengths[j]);
+          }
+          else file << text;
+        }
+        if (++j == vecSize) file << std::endl; else file << sep;
+      } // loop on rows and quantities
+
+    }
+    else for (long k=0; k<m_numRows; k++) if (m_rowIsSelected[0].at(k) & 1) {
+
+      for (j=0; j<vecSize; ) {
+        if (m_quantities[j].m_type == Quantity::NUM) {
+          r=m_numericals[m_quantities[j].m_index].at(k);
+          if (isnan(r)) {
+            len=lengths[j];
+            if (len == 0) len=1;
+            file << std::setw(len+1) << std::setfill(' ');
+          }
+          else if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), r);
+            file.write(buffer, lengths[j]);
+          }
+          else file << r;
+        }
+        else if (m_quantities[j].m_type == Quantity::STRING) {
+          text=m_strings[m_quantities[j].m_index].at(k);
+          if (lengths[j] > 0) {
+            sprintf(buffer, formats[j].c_str(), text.c_str());
+            file.write(buffer, lengths[j]);
+          }
+          else file << text;
+        }
+        if (++j == vecSize) file << std::endl; else file << sep;
+      }
+      totData++;
+      if (totData == m_numSelRows) break;
+
+    } // loop on rows and quantities, selected branch
+
+    if (saveAll) tot+=m_numRows; else tot+=m_numSelRows;
+    if (buffer != NULL) free(buffer);
+  }
+  catch (const std::exception &prob) {
+    text=std::string("EXCEPTION writing rows in file: ")+prob.what();
+    printErr(origin, text);
+    throw;
+  }
+  file << std::endl;
+  tot++;
+  file.close();
+  std::ostringstream sortie; 
+  sortie << "output text file is closed ( " << tot << " lines written)";
+  printLog(0, sortie.str());
+  return IS_OK;  
+}
+/**********************************************************************/
+// save whole catalog from memory to a text file
+int Catalog::saveText(const std::string &fileName, bool clobber) {
+
+  const std::string origin="saveText";
+  int err;
+  err=createText(fileName, clobber, origin);
+  if (err < IS_VOID) return err;
+
+  return IS_OK;
+}
+/**********************************************************************/
+// save selected rows of catalog from memory to a text file
+int Catalog::saveSelectedText(const std::string &fileName, bool clobber) {
+
+  const std::string origin="saveSelectedText";
+  int err;
+  err=createText(fileName, clobber, origin);
+  if (err < IS_VOID) return err;
+
+  return IS_OK;
+}
+      /* precision is 1/28 arcsec, */
+/*
+      if (fabs(m_selEllipseCentDEC_deg) <= Min_Axis) {
+        /* the ellipse SAO region is on 2D point, must calculate on sphere */
+        /* can only use it if DEC = 0 */
+/*        filter="(circle("; //filter="(ellipse(";
+        sprintf(value, "%9.5f", m_selEllipseCentRA_deg);
+        filter+=value;;
+        filter+=",0.0,";
+        sprintf(value, "%8.5f", m_selEllipseMajAxis_deg+Min_Axis);
+        filter+=value; filter+=',';
+        sprintf(value, "%8.5f", m_selEllipseMinAxis_deg);
+        filter+=value; filter+=',';
+        sprintf(value, "%8.4f", m_selEllipseRot_deg);
+        filter+=value; filter+=',';
+        filter+=m_quantities[m_indexRA].m_name+',';
+        filter+=m_quantities[m_indexDEC].m_name+')';
+      }
+*/
 } // namespace catalogAccess

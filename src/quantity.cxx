@@ -83,7 +83,7 @@ Quantity::Quantity(const Quantity & q) {
     printErr("Quantity copy constructor", errText);
     throw;
   }
-/* line is commented on purpose to TEMINATE the program on EXCEPTION */
+/* line is commented on purpose to TERMINATE the program on EXCEPTION */
 //} catch (...) { printErr("copy constructor", ""); }
 }
 
