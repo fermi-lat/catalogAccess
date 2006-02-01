@@ -493,15 +493,14 @@ comment=""
 * 'aCat' info (size 6):
 code="ROSAT 1RXS"
 URL ="CDS"
-catalog="IX/10A" []
-table  ="IX/10A/1rxs" []
+catalog="IX/10A" [ROSAT All-Sky Bright Source Catalogue (1RXS) (Voges+ 1999)]
+table  ="IX/10A/1rxs" [The 1RXS catalogue]
 
 * Calling: import on file "test1.fits"
 LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): fits extension BINTABLE name = GLAST_CAT
 WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header keys
-WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header comments
 WARNING catalogAccess (IN import): missing keyword TBUCD1 for column#1
 WARNING catalogAccess (IN import): missing keyword TBUCD4 for column#4
 WARNING catalogAccess (IN import): missing keyword TBUCD5 for column#5
@@ -615,7 +614,6 @@ ERROR catalogAccess (IN saveFits) : cannot append and edit fits EXTENSION
 LOG_2 (catalogAccess): deleting previous Catalog description
 LOG_1 (catalogAccess): fits extension BINTABLE name = test
 WARNING catalogAccess (IN importDescription): fits EXTENSION, cannot get CDS header keys
-WARNING catalogAccess (IN importDescription): fits EXTENSION, cannot get CDS header comments
 ERROR catalogAccess (IN importDescription) : fits EXTENSION, need at least 1 column
 WARNING catalogAccess (IN importDescription): Unknown table name, all generic quantities may be not found
 * Value returned = -5

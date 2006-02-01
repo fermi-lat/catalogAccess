@@ -16,7 +16,8 @@ void show_quant(const catalogAccess::Quantity &);
 void show_string(const std::string name, const std::string val);
 void show_double(const std::string name, const double val);
 
-static const std::_Ios_Fmtflags outDouble=std::ios::right|std::ios::scientific;
+static const std::ios_base::fmtflags
+             outDouble=std::ios::right|std::ios::scientific;
 
 int main(int iargc, char * argv[]) {
 

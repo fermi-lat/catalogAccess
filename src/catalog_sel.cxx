@@ -71,8 +71,13 @@ bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
   */
   double myRA=m_numericals[nRA].at(row);
   double myDEC=m_numericals[nDEC].at(row);
-  if (isnan(myRA))  return !(m_quantities[m_indexRA].m_rejectNaN);
-  if (isnan(myDEC)) return !(m_quantities[m_indexDEC].m_rejectNaN);
+#ifdef WIN32
+   if (_isnan(myRA))  return !(m_quantities[m_indexRA].m_rejectNaN);
+   if (_isnan(myDEC)) return !(m_quantities[m_indexDEC].m_rejectNaN);
+#else
+  if (std::isnan(myRA))  return !(m_quantities[m_indexRA].m_rejectNaN);
+  if (std::isnan(myDEC)) return !(m_quantities[m_indexDEC].m_rejectNaN);
+#endif
   double obj_cosP=cos(myRA * Angle_Conv);
   double obj_sinP=sin(myRA * Angle_Conv);
   double obj_sinT=cos(myDEC * Angle_Conv);
@@ -94,8 +99,11 @@ bool Catalog::checkNUM(const double r, const int index, const bool miss,
 
   // since we test the NaN only once at the beginning
   // this methods MUST NOT be called if no criteria is applied
-  if (isnan(r)) return !reject;
-
+#ifdef WIN32
+  if (_isnan(r)) return !reject;
+#else
+  if (std::isnan(r)) return !reject;
+#endif
   double myLimit;
   myLimit=m_quantities[index].m_lowerCut;
   if (myLimit < NO_SEL_CUT) {
@@ -133,7 +141,11 @@ bool Catalog::checkNUMor(const double r, const int index,
 
   // since we test the NaN only once at the beginning
   // this methods MUST NOT be called if no criteria is applied
-  if (isnan(r)) return !reject;
+#ifdef WIN32
+  if (_isnan(r)) return !reject;
+#else
+  if (std::isnan(r)) return !reject;
+#endif
 
   bool check=true;
   double myLimit;
@@ -1065,7 +1077,7 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
   for (j=0; j<listSize; j++) {
     mot=list.at(j);
     m_quantities[index].m_listValS.push_back(mot);
-    if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+    if (!exact) std::transform(mot.begin(), mot.end(), mot.begin(), pfunc);
     myList.push_back(mot);
   }
   #ifdef DEBUG_CAT
@@ -1108,7 +1120,7 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
   m_numSelRows=0;
   for (long i=0; i<m_numRows; i++) {
     mot=m_strings[pos].at(i);
-    if (!exact) transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+    if (!exact) std::transform(mot.begin(), mot.end(), mot.begin(), pfunc);
     check=miss;
     for (j=0; j<listSize; j++) {
       if (mot == myList[j]) {check=!miss; break;}
