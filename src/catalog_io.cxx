@@ -38,9 +38,9 @@ static const char *UCD_Added[MAX_GEN]={
 
 const std::string Catalog::s_genericL = UCD_List[4];
 const std::string Catalog::s_genericB = UCD_List[5];
-const std::string KeyCatal[2]={"CDS-CAT",
-                               "Catalogue designation in CDS nomenclature"};
-const std::string KeyTable[2]={"CDS-NAME", "Table used in a VizieR Query"};
+const std::string KeyCDS[2]={"CDS-CAT","CDS-NAME"};
+const std::string KeyCom[2]={"Catalogue designation in CDS nomenclature",
+                             "Table used in a VizieR Query"};
 const std::string Key_UCD="TBUCD";
 const char SepNull = '!';
 
@@ -60,7 +60,7 @@ void Catalog::setPosErrFactor(const int index) {
   }
   else {
     // use explicit cast to be sure compiler choose the right tolower()
-    transform(text.begin(), text.end(), text.begin(), (int(*)(int)) tolower);
+    std::transform(text.begin(), text.end(), text.begin(), (int(*)(int)) tolower);
     if (text == "deg") m_posErrFactor=1.0;
     else if (text == "arcsec") m_posErrFactor=3600.0;
     else if (text == "arcmin") m_posErrFactor=60.0;
@@ -293,13 +293,14 @@ void Catalog::add_rows(const long maxRows) {
 int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
                           const std::string origin, long *maxRows) {
   std::string text, mot;
-  int  i, j, max,
-       nbQuantAscii=0;
-  char name[9]; /* 8 char maximum for header key */
-  bool binary=true;
+  int   i, j, max,
+        nbQuantAscii=0;
+  char  name[9]; /* 8 char maximum for header key */
+  bool  binary=true;
+  short test;
   unsigned int pos;
   int (*pfunc)(int)=toupper; // function used by transform
-  const Header &header=myDOL->getHeader();
+  Header &header=myDOL->getHeader();
 
   try {
     text=myDOL->getName();
@@ -328,13 +329,41 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
     m_URL="CDS"; /* to know that format string need to be changed for fits */
   }
   try {
-    header.getKeyword(KeyTable[0], text);
-    m_tableName=text;
-    header.getKeyword(KeyCatal[0], mot);
-    m_catName=mot;
-
+    test=-1;
+//    Header::Iterator itor_found;
+    for (Header::Iterator itor=header.begin(); itor != header.end(); ++itor) {
+      mot=itor->getName();
+      // long comment from wanted key
+      if ( mot.empty() ) { switch (test) {
+        case 0: text=itor->getComment();
+/*                m_catRef=itor_found->getComment()+text;*/
+                m_catRef=text;
+                break;
+        case 1: text=itor->getComment();
+/*                m_tableRef=itor_found->getComment()+text;*/
+                m_tableRef=text;
+                break;
+        default: break;
+      } }
+      else {
+        if (mot == KeyCDS[0]) {
+          test=0; //itor_found=itor;
+          m_catName=itor->getValue();
+        }
+        else if (mot == KeyCDS[1]) {
+          test=1; //itor_found=itor;
+          m_tableName=itor->getValue();
+        }
+        else if (test >= 0) test=2;
+      }// end of non-empty key
+    }
   }
   catch (const TipException &x) {
+    text=": fits EXTENSION, cannot read header";
+    printErr(origin, text);
+    return BAD_FITS;
+  }
+  if (test < 1) {
     if (binary) {
       printWarn(origin, "fits EXTENSION, cannot get CDS header keys");
     }
@@ -342,14 +371,6 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       printErr(origin, ": fits EXTENSION, cannot get CDS header keys");
       return BAD_FITS;
     }
-  }
-  try {
-    text=header.getKeyComment(KeyTable[0]);
-    mot =header.getKeyComment(KeyCatal[0]);
-    // have to use long comment
-  }
-  catch (const TipException &x) {
-    printWarn(origin, "fits EXTENSION, cannot get CDS header comments");
   }
 //  const Table::FieldCont &allCol=myDOL->getValidFields();
   try {
@@ -376,8 +397,9 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       readQ.m_unit=myCol->getUnits();
       sprintf(name, "TFORM%d", i+1);
       mot=name; /* convert C string to C++ string */
+//      mot=myCol->getColumnKeyword("TFORM");
       header.getKeyword(mot, text);
-      transform(text.begin(), text.end(), text.begin(), pfunc);
+      std::transform(text.begin(), text.end(), text.begin(), pfunc);
       j=text.length();
       readQ.m_format=text;
       text="";
@@ -435,7 +457,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         if (pos != std::string::npos) text.erase(pos);
         /* ONLY  readQ.m_comment  IS NOT SET */
       }
-      transform(text.begin(), text.end(), text.begin(), pfunc);
+      std::transform(text.begin(), text.end(), text.begin(), pfunc);
       readQ.m_ucd=text;
       if (readQ.m_type == Quantity::STRING) {
         readQ.m_index=nbQuantAscii;
@@ -1152,13 +1174,13 @@ int Catalog::importSelected(std::string &filter) {
               for (j=0; j<nbV; j++) {
                 mot=readQ.m_listValS.at(j);
                 if (readQ.m_cutORed)
-                  transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+                  std::transform(mot.begin(), mot.end(), mot.begin(), pfunc);
                 list.at(j)=mot;
               }
               for (maxRows=0; maxRows<m_numRows; maxRows++) {
                 mot=m_strings[readQ.m_index].at(maxRows);
                 if (readQ.m_cutORed)
-                  transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+                  std::transform(mot.begin(), mot.end(), mot.begin(), pfunc);
                 check=readQ.m_excludeList;
                 for (j=0; j<nbV; j++) {
                   if (mot == list[j]) {check=!readQ.m_excludeList; break;}
@@ -1318,12 +1340,13 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   }
   Header &header=(*ptrTable)->getHeader();
   try {
-    header.setKeyword(KeyCatal[0], m_catName);
-    header.setKeyComment(KeyCatal[0], KeyCatal[1]);
-    header.setKeyword(KeyTable[0], m_tableName);
-    header.setKeyComment(KeyTable[0], KeyTable[1]);
+    header.setKeyword(KeyCDS[0], m_catName);
+    header.setKeyComment(KeyCDS[0], KeyCom[0]);
+    header.setKeyword(KeyCDS[1], m_tableName);
+    header.setKeyComment(KeyCDS[1], KeyCom[1]);
+//    if ( !m_tableRef.empty() ) header.setKeyComment("        ", m_tableRef);
     /* test 
-    header.setKeyUnit(KeyTable[0], "deg");*/
+    header.setKeyUnit(KeyCDS[1], "deg");*/
   }
   catch (const TipException &x) {
     text="fits EXTENSION, cannot add CDS header keys";
@@ -1444,7 +1467,11 @@ int Catalog::saveFits(const std::string &fileName, const std::string &extName,
           rowVal= m_numericals[i].at(tot);
           if ( readQ.m_null.empty() ) (*itor)[readQ.m_name].set(rowVal);
           else {
-            if ( isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
+#ifdef WIN32
+            if ( _isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
+#else
+            if ( std::isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
+#endif
             else (*itor)[readQ.m_name].set(rowVal);
           }
         }
@@ -1503,7 +1530,11 @@ int Catalog::saveSelectedFits(const std::string &fileName,
           rowVal= m_numericals[i].at(tot);
           if ( readQ.m_null.empty() ) (*itor)[readQ.m_name].set(rowVal);
           else {
-            if ( isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
+#ifdef WIN32
+            if ( _isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
+#else
+            if ( std::isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
+#endif
             else (*itor)[readQ.m_name].set(rowVal);
             // to be improved for integers
           }

@@ -3,6 +3,7 @@
     @author A. Sauvageon
 
 @verbatim
+01-Feb-2006  v0r2p4  AS  Change for new compiler (isnan)
 13-Jul-2005  v0r2p3  AS  Corrected bug in importSelected from binary fits.
                          importSelected() row selection done for any input file.
 28-Jun-2005  v0r2p2  AS  Corrected bug in importSelected. If input fits has

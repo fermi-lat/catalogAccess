@@ -947,7 +947,11 @@ int Catalog::minVal(const std::string name, double *realVal) {
 /*  std::cout << "NaN == NaN ? " << (*realVal == m_numericals[num].at(0))
             << std::endl;*/
   }
-  while ((isnan(*realVal)) && (++i < m_numRows));
+#ifdef WIN32
+  while ((_isnan(*realVal)) && (++i < m_numRows));
+#else
+  while ((std::isnan(*realVal)) && (++i < m_numRows));
+#endif
   for (; i<m_numRows; i++) {
     r=m_numericals[num].at(i);
     if (r < *realVal) *realVal=r;
@@ -974,7 +978,11 @@ int Catalog::maxVal(const std::string name, double *realVal) {
   long i=0;
   double r;
   do { *realVal=m_numericals[num].at(i); }
-  while ((isnan(*realVal)) && (++i < m_numRows));
+#ifdef WIN32
+  while ((_isnan(*realVal)) && (++i < m_numRows));
+#else
+  while ((std::isnan(*realVal)) && (++i < m_numRows));
+#endif
   for (; i<m_numRows; i++) {
     r=m_numericals[num].at(i);
     if (r > *realVal) *realVal=r;
@@ -1189,7 +1197,11 @@ int Catalog::minSelVal(const std::string name, double *realVal) {
   double r;
   for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     *realVal=m_numericals[num].at(i);
-    if (!isnan(*realVal)) break;
+#ifdef WIN32
+    if (!_isnan(*realVal)) break;
+#else
+    if (!std::isnan(*realVal)) break;
+#endif
     if (++tot == m_numSelRows) break; // to speed up
   }
   if (tot == m_numSelRows) return IS_OK;
@@ -1224,7 +1236,11 @@ int Catalog::maxSelVal(const std::string name, double *realVal) {
   double r;
   for (i=0; i<m_numRows; i++) if (m_rowIsSelected[0].at(i) & 1) {
     *realVal=m_numericals[num].at(i);
-    if (!isnan(*realVal)) break;
+#ifdef WIN32
+    if (!_isnan(*realVal)) break;
+#else
+    if (!std::isnan(*realVal)) break;
+#endif
     if (++tot == m_numSelRows) break; // to speed up
   }
   if (tot == m_numSelRows) return IS_OK;

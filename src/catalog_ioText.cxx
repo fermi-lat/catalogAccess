@@ -326,7 +326,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
         if (pos == std::string::npos) break;  // lack last ]
 
         mot=text.substr(0, pos);
-        transform(mot.begin(), mot.end(), mot.begin(), pfunc);
+        std::transform(mot.begin(), mot.end(), mot.begin(), pfunc);
         readQ.m_ucd=mot;
         if (readQ.m_format[0] == 'A') {
           readQ.m_index=nbQuantAscii;
@@ -895,7 +895,11 @@ int Catalog::createText(const std::string &fileName, bool clobber,
       for (long k=0; k<m_numRows; k++) for (j=0; j<vecSize; ) {
         if (m_quantities[j].m_type == Quantity::NUM) {
           r=m_numericals[m_quantities[j].m_index].at(k);
-          if (isnan(r)) {
+#ifdef WIN32
+          if (_isnan(r)) {
+#else
+          if (std::isnan(r)) {
+#endif
             len=lengths[j];
             if (len == 0) len=1;
             file << std::setw(len+1) << std::setfill(' ');
@@ -923,7 +927,11 @@ int Catalog::createText(const std::string &fileName, bool clobber,
       for (j=0; j<vecSize; ) {
         if (m_quantities[j].m_type == Quantity::NUM) {
           r=m_numericals[m_quantities[j].m_index].at(k);
-          if (isnan(r)) {
+#ifdef WIN32
+          if (_isnan((r)) {
+#else
+          if (std::isnan(r)) {
+#endif
             len=lengths[j];
             if (len == 0) len=1;
             file << std::setw(len+1) << std::setfill(' ');

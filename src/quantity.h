@@ -15,7 +15,7 @@
 // can compile without first three
 //#include <exception>
 //#include <string>
-//#include <math.h>      //for cos() sin () constant M_PI
+#include <cmath>      //for cos() sin() and constant M_PI
 #include <limits>     //for std::numeric_limits
 #include <iostream>   //for cout, cerr
 #include <sstream>    //for ostringstream 
