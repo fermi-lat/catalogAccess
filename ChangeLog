@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: landriu  Wed Feb  1 05:42:55 PST 2006
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog_io.cxx catalog_ioText.cxx catalog_sel.cxx 
+	quantity.h 
+Log Message:
+Change for new compiler
+    *
+------------------------------------------------------------
 User: landriu  Wed Feb  1 05:42:54 PST 2006
 catalogAccess/doc/doxy-html
 
