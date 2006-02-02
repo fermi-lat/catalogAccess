@@ -1,4 +1,38 @@
 ------------------------------------------------------------
+User: landriu  Thu Feb  2 06:49:25 PST 2006
+catalogAccess/doc/doxy-html
+
+Removed Files:
+	annotated.html catalog_8cxx-source.html catalog_8cxx.html 
+	catalog_8cxx__incl.dot catalog_8h-source.html catalog_8h.html 
+	catalog_8h__dep__incl.dot catalog_8h__incl.dot 
+	catalog__io_8cxx-source.html catalog__io_8cxx.html 
+	catalog__io_8cxx__incl.dot catalog__io_text_8cxx-source.html 
+	catalog__io_text_8cxx.html catalog__io_text_8cxx__incl.dot 
+	catalog__sel_8cxx-source.html catalog__sel_8cxx.html 
+	catalog__sel_8cxx__incl.dot 
+	classcatalog_access_1_1_catalog-members.html 
+	classcatalog_access_1_1_catalog.html 
+	classcatalog_access_1_1_quantity-members.html 
+	classcatalog_access_1_1_quantity.html doxygen.css doxygen.png 
+	files.html ftv2blank.png ftv2doc.png ftv2folderclosed.png 
+	ftv2folderopen.png ftv2lastnode.png ftv2link.png 
+	ftv2mlastnode.png ftv2mnode.png ftv2node.png ftv2plastnode.png 
+	ftv2pnode.png ftv2vertline.png functions.html globals.html 
+	graph_legend.dot graph_legend.html index.html main.html 
+	main__test_8cxx-source.html main__test_8cxx.html 
+	main__test_8cxx__incl.dot mainpage_8h-source.html 
+	mainpage_8h.html namespacecatalog_access.html 
+	namespacemembers.html namespaces.html namespacetip.html 
+	quantity_8cxx-source.html quantity_8cxx.html 
+	quantity_8cxx__incl.dot quantity_8h-source.html 
+	quantity_8h.html quantity_8h__dep__incl.dot 
+	quantity_8h__incl.dot release_8notes-source.html 
+	release_8notes.html tree.html tree.js treeview.js 
+Log Message:
+Remove the generated doc files
+    *
+------------------------------------------------------------
 TAG
 Tag name: v0r2p5, operation: add
 Package: catalogAccess
