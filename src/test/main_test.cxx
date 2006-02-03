@@ -62,8 +62,13 @@ int main(int iargc, char * argv[]) {
             << sizeof(bool) <<", "<< sizeof(int) <<", "<< sizeof(long)
             <<", "<< sizeof(float) <<", "<< sizeof(double)
             <<", "<< sizeof(void *) << std::endl;
-  std::cout << "screen output of Nan, +infinite, -infinite: " 
+  std::cout << "screen output of NaN"
+#ifdef WIN32
+            << ": " << catalogAccess::MissNAN
+#else
+            << ", +infinite, -infinite: " 
             << catalogAccess::MissNAN << ",  " << 1/0. << ",  " << -1/0.
+#endif
             << "\n" << std::endl;
 
   std::cout << "Number to unselect = " << std::setiosflags(outDouble)
@@ -461,7 +466,7 @@ try {
 
   std::cout << "\n* Calling: importSelected on same file" << std::endl;
   aCat.deleteContent();
-//  aCat.selectQuantity("POS_EQ_RAJ2000", false);
+//  aCat.selectQuantity("POS_EQ_RAJ2000", false); "VEC"
   err=aCat.setSelEllipse(305, 0., 45, 45);
   std::cout << "* Value returned by setSelEllipse = " << err << std::endl;
 /*  aCat.setCriteriaORed(true);
@@ -492,6 +497,7 @@ try {
   if (err > 0) show_double("TEST_U9 minimum", rVal);
 
   std::cout << "\n* Calling: saveFits to create test1out.fits" << std::endl;
+//  err=aCat.saveText("test1out.txt" ,true);
 //  err=aCat.saveFits("test1out.fits", "MYTEST", true);
   err=aCat.saveFits("test1out.fits", "", true);
   aCat.deleteContent();

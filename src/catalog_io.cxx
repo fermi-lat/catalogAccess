@@ -60,7 +60,8 @@ void Catalog::setPosErrFactor(const int index) {
   }
   else {
     // use explicit cast to be sure compiler choose the right tolower()
-    std::transform(text.begin(), text.end(), text.begin(), (int(*)(int)) tolower);
+    std::transform(text.begin(), text.end(), text.begin(),
+                   (int(*)(int)) tolower);
     if (text == "deg") m_posErrFactor=1.0;
     else if (text == "arcsec") m_posErrFactor=3600.0;
     else if (text == "arcmin") m_posErrFactor=60.0;
@@ -223,28 +224,28 @@ long Catalog::getRAMsize(const long numRows, const bool writeLog) {
 
 /**********************************************************************/
 // creates a new column in m_strings, m_numericals (private method)
-void Catalog::create_tables(const int nbQuantAscii, const long maxRows) {
+void Catalog::create_tables(const int nbQuantNum, const long maxRows) {
 
   int vecSize;
   std::string errText;
-  if (nbQuantAscii > 0) {
+  if (nbQuantNum > 0) {
     try {
-      m_strings.resize(nbQuantAscii);
+      m_numericals.resize(nbQuantNum);
     }
     catch (const std::exception &err) {
-      errText=std::string("EXCEPTION on m_strings: ")+err.what();
+      errText=std::string("EXCEPTION on m_numericals: ")+err.what();
       printErr("private create_tables", errText);
       throw;
     }
   }
-  vecSize=m_quantities.size()-nbQuantAscii;
-// printf("sizes = %d , %d\n", nbQuantAscii, vecSize);
+  vecSize=m_quantities.size()-nbQuantNum;
+// printf("sizes = %d , %d\n", nbQuantNum, vecSize);
   if (vecSize > 0) {
     try {
-      m_numericals.resize(vecSize);
+      m_strings.resize(vecSize);
     }
     catch (const std::exception &err) {
-      errText=std::string("EXCEPTION on m_numericals: ")+err.what();
+      errText=std::string("EXCEPTION on m_strings: ")+err.what();
       printErr("private create_tables", errText);
       throw;
     }
@@ -294,13 +295,13 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
                           const std::string origin, long *maxRows) {
   std::string text, mot;
   int   i, j, max,
-        nbQuantAscii=0;
-  char  name[9]; /* 8 char maximum for header key */
+        nbQuantNum=0;
+/*  char  name[9];  8 char maximum for header key */
   bool  binary=true;
   short test;
   unsigned int pos;
   int (*pfunc)(int)=toupper; // function used by transform
-  Header &header=myDOL->getHeader();
+  const Header &header=myDOL->getHeader();
 
   try {
     text=myDOL->getName();
@@ -331,7 +332,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   try {
     test=-1;
 //    Header::Iterator itor_found;
-    for (Header::Iterator itor=header.begin(); itor != header.end(); ++itor) {
+    for (Header::ConstIterator itor=header.begin();itor!=header.end();++itor) {
       mot=itor->getName();
       // long comment from wanted key
       if ( mot.empty() ) { switch (test) {
@@ -395,53 +396,64 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       Quantity readQ;
       readQ.m_name=myCol->getId();
       readQ.m_unit=myCol->getUnits();
-      sprintf(name, "TFORM%d", i+1);
-      mot=name; /* convert C string to C++ string */
-//      mot=myCol->getColumnKeyword("TFORM");
-      header.getKeyword(mot, text);
+//      sprintf(name, "TFORM%d", i+1);
+//      mot=name; /* convert C string to C++ string */
+      myCol->getColumnKeyword("TFORM").get(text);
+//      header.getKeyword(mot, text);
       std::transform(text.begin(), text.end(), text.begin(), pfunc);
       j=text.length();
       readQ.m_format=text;
       text="";
       if (binary) {
-        if ( !myCol->isScalar() ) {
-          text="unauthorized FITS TABLE vector";
-          sortie << ": VECTOR not supported, column#" << i+1;
-          throw std::runtime_error(text);
-        }
         if (j == 0) {
           text="unauthorized FITS empty format ";
           sortie << ": FITS format is empty, column#" << i+1;
           throw std::runtime_error(text);
         }
-        if (readQ.m_format[j-1] == 'A') readQ.m_type=Quantity::STRING;
+        if ( !myCol->isScalar() ) {
+        /*  text="unauthorized FITS TABLE vector";
+          sortie << ": VECTOR not supported, column#" << i+1;
+          throw std::runtime_error(text); */
+          text="skipping FITS TABLE vector";
+          sortie << "VECTOR not supported, unusable column#" << i+1;
+          printWarn(origin, sortie.str() );
+          sortie.str("");
+          readQ.m_type=Quantity::VECTOR;
+        }
+        else if (readQ.m_format[j-1] == 'A') readQ.m_type=Quantity::STRING;
         else readQ.m_type=Quantity::NUM;
-        sprintf(name, "TNULL%d", i+1); mot=name;
-        try { header.getKeyword(mot, readQ.m_null); }
+/*        sprintf(name, "TNULL%d", i+1); mot=name;
+        try { header.getKeyword(mot, readQ.m_null); } */
+        try { myCol->getColumnKeyword("TNULL").get(readQ.m_null); }
         catch (const TipException &x) {}
         colNull.at(i)=atof(readQ.m_null.c_str());
         if ( !readQ.m_null.empty() ) {
-          sprintf(name, "TSCAL%d", i+1); mot=name;
-          try { header.getKeyword(mot, text); }
+/*          sprintf(name, "TSCAL%d", i+1); mot=name;
+          try { header.getKeyword(mot, text); } */
+          try { myCol->getColumnKeyword("TSCAL").get(text); }
           catch (const TipException &x) {}
           readQ.m_null+=SepNull+text;
           if ( !text.empty() ) colNull.at(i)*=atof(text.c_str());
           text="";
-          sprintf(name, "TZERO%d", i+1); mot=name;
-          try { header.getKeyword(mot, text); }
+/*          sprintf(name, "TZERO%d", i+1); mot=name;
+          try { header.getKeyword(mot, text); } */
+          try { myCol->getColumnKeyword("TZERO").get(text); }
           catch (const TipException &x) {}
           readQ.m_null+=SepNull+text;
           if ( !text.empty() ) colNull.at(i)+=atof(text.c_str());
           text="";
         }
-// printf("'%s'\n",  readQ.m_null.c_str() );
-        sprintf(name, "%s%d", Key_UCD.c_str(), i+1); mot=name;
+/*        sprintf(name, "%s%d", Key_UCD.c_str(), i+1); mot=name;
         try {
           readQ.m_comment=header.getKeyComment(mot);
           header.getKeyword(mot, text);
-        }
+        } */
+        try {
+          myCol->getColumnKeyword(Key_UCD).get(text);
+          readQ.m_comment=myCol->getColumnKeyword(Key_UCD).getComment();
+        } 
         catch (const TipException &x) {
-          sortie << "missing keyword " << mot << " for column#" << i+1;
+          sortie << "missing keyword " << Key_UCD << " for column#" << i+1;
           printWarn(origin, sortie.str() );
           sortie.str(""); // Will empty the string.
         }
@@ -449,8 +461,9 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       else {
         if (readQ.m_format[0] == 'A') readQ.m_type=Quantity::STRING;
         else readQ.m_type=Quantity::NUM;
-        sprintf(name, "TBCOL%d", i+1); mot=name;
-        text=header.getKeyComment(mot);
+/*        sprintf(name, "TBCOL%d", i+1); mot=name;
+        text=header.getKeyComment(mot); */
+        text=myCol->getColumnKeyword("TBCOL").getComment();
         j=4;
         if (text.substr(0,j) == "UCD=") text.erase(0,j);
         pos=text.find('.');
@@ -459,14 +472,12 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       }
       std::transform(text.begin(), text.end(), text.begin(), pfunc);
       readQ.m_ucd=text;
-      if (readQ.m_type == Quantity::STRING) {
-        readQ.m_index=nbQuantAscii;
-        nbQuantAscii++;
+      if (readQ.m_type == Quantity::NUM) {
+        readQ.m_index=nbQuantNum;
+        nbQuantNum++;
       }
-      else if  (readQ.m_type == Quantity::NUM) {
-        readQ.m_index=m_quantities.size()-nbQuantAscii;
-        readQ.m_type=Quantity::NUM;
-      }
+      else readQ.m_index=m_quantities.size()-nbQuantNum;
+      // for the moment, VECTOR considered as STRING
       try { m_quantities.push_back(readQ); }
       catch (const std::exception &prob) {
         text=std::string("EXCEPTION filling m_quantities: ")+prob.what();
@@ -496,7 +507,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   if ( !*maxRows ) *maxRows=m_numOriRows;
   if ((getDescr) || (m_numOriRows == 0)) return IS_OK;
 
-  create_tables(nbQuantAscii, *maxRows);
+  create_tables(nbQuantNum, *maxRows);
   try {
     double rowVal;
     std::vector<Quantity>::iterator itQ;
@@ -515,7 +526,8 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
             else m_numericals[j].at(m_numRows)=rowVal;
           }
         }
-        else (*itor)[itQ->m_name].get(m_strings[j].at(m_numRows) );
+        else if (itQ->m_type == Quantity::STRING)
+          (*itor)[itQ->m_name].get(m_strings[j].at(m_numRows) );
       }
       if (++m_numRows == *maxRows) break;
     }/* loop on rows*/
@@ -632,10 +644,8 @@ int Catalog::load(const std::string &fileName, const std::string ext,
     myFile.open(fileName.c_str(), std::ios::in);
     err=analyze_head(&tot, &what, &testCR, &myFile);
     if (!tot) {
-      sortie << ": FILENAME \"" << fileName << "\" is fits without extension[] "
-             << "specified";
-      printErr(origin, sortie.str());
-      sortie.str(""); // Will empty the string.
+      text=": FILENAME \""+fileName+"\" is fits without extension[] specified";
+      printErr(origin, text);
       text="input file";
       if (err == IS_OK) err=BAD_FILENAME;
       // in case, for strange reason, file.good() fails at first time
@@ -722,8 +732,8 @@ int Catalog::importDescription(const std::string &fileName,
   // must be called before load() which set m_numRows to 0
   if (err < IS_VOID) return err;
 
-  long maxRows=0l;
-  err=load(fileName, ext, true, &maxRows);
+  long maxR=0l;
+  err=load(fileName, ext, true, &maxR);
   if (err < IS_OK) return err;
 
   return m_quantities.size();
@@ -830,7 +840,7 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
         }
         if ((!m_criteriaORed) && (!readQ.m_cutORed)) probCase=true;
       }
-      else {
+      else if (readQ.m_type == Quantity::NUM) {
         if (readQ.m_rejectNaN == false) {
           filter+="isnull("+readQ.m_name+") || ";  
           /* can put OR because criteria exist */
@@ -916,10 +926,10 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
     return BAD_FILETYPE;
   }
 //std::cout << "Initial number of COL = " << max << std::endl;
-  const Header &header=myDOL->getHeader();
-  std::string text, unit, mot, rescale, form;
+  std::string text, unit, rescale, form;
   int  err=0;
-  char name[9]; /* 8 char maximum for header key */
+/*  const Header &header=myDOL->getHeader();
+    char name[9];  8 char maximum for header key */
   std::vector<double> colNull(max, 0.0);
   std::vector<Quantity>::iterator itQ=m_quantities.begin();
   try {
@@ -930,27 +940,26 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
       myCol=myDOL->getColumn(i);
       text=myCol->getId();
       unit=myCol->getUnits();
-      sprintf(name, "TNULL%d", i+1); mot=name;
-      try { header.getKeyword(mot, rescale); }
+/*      sprintf(name, "TNULL%d", i+1); mot=name;
+      try { header.getKeyword(mot, rescale); } */
+      try { myCol->getColumnKeyword("TNULL").get(rescale); }   
       catch (const TipException &x) {}
       colNull.at(i)=atof(rescale.c_str());
       if ( !rescale.empty() ) {
           form="";
-          sprintf(name, "TSCAL%d", i+1); mot=name;
-          try { header.getKeyword(mot, form); }
+/*          sprintf(name, "TSCAL%d", i+1); mot=name; */
+          try { myCol->getColumnKeyword("TSCAL").get(form); }
           catch (const TipException &x) {}
           rescale+=SepNull+form;
           if ( !form.empty() ) colNull.at(i)*=atof(form.c_str());
           form="";
-          sprintf(name, "TZERO%d", i+1); mot=name;
-          try { header.getKeyword(mot, form); }
+/*          sprintf(name, "TZERO%d", i+1); mot=name; */
+          try { myCol->getColumnKeyword("TZERO").get(form); }
           catch (const TipException &x) {}
           rescale+=SepNull+form;
           if ( !form.empty() ) colNull.at(i)+=atof(form.c_str());
       }
-      sprintf(name, "TFORM%d", i+1);
-      mot=name; /* convert C string to C++ string */
-      header.getKeyword(mot, form);
+      myCol->getColumnKeyword("TFORM").get(form);
       if (m_loadQuantity[i]) {
 //std::cout << itQ->m_index << " ";
         if ( (text!=itQ->m_name) || (unit!=itQ->m_unit)
@@ -958,7 +967,7 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
           text="";
           throw std::runtime_error("fileDiff");
         }
-        if (itQ->m_type == Quantity::STRING) err++;
+        if (itQ->m_type == Quantity::NUM) err++;
         itQ++;
       }
     }/* loop on columns */
@@ -1002,7 +1011,8 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
             else m_numericals[i].at(m_numRows)=rowVal;
           }
         }
-        else (*itor)[itQ->m_name].get(m_strings[i].at(m_numRows) );
+        else if (itQ->m_type == Quantity::STRING)
+          (*itor)[itQ->m_name].get(m_strings[i].at(m_numRows) );
       }
     }/* loop on rows*/
   }
@@ -1040,7 +1050,7 @@ int Catalog::importSelected(std::string &filter) {
   std::ostringstream sortie; 
   sortie << err << " quantities (over " << maxSize << ") selected for import";
   printLog(1, sortie.str());
-  sortie.str(""); // Will empty the string
+  sortie.str("");
   if (err != quantSize) {
     // in fact, due to select*Quantities() restrictions,
     // quantSize can only be greater than err
@@ -1192,7 +1202,7 @@ int Catalog::importSelected(std::string &filter) {
                   m_rowIsSelected[k].at(maxRows)&= (Max_Test-quantBit);
               }
             }
-            else { // numerical quantity
+            else { // numerical quantity, VECTOR cannot exist in string data
               j=i-1;
               nbV=readQ.m_index;
               reject=readQ.m_rejectNaN;
@@ -1277,7 +1287,7 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
                         bool clobber, bool append, const std::string origin,
                         tip::Table **ptrTable) {
 
-  char name[9]; /* 8 char maximum for header key */
+/*  char name[9];  8 char maximum for header key */
   std::string text, newName;
   int  j, err;
   bool create=true;
@@ -1298,8 +1308,7 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   }
   // overwrite existing file ?
   if (!clobber) {
-    std::fstream file;
-    file.open(fileName.c_str(), std::ios::in);
+    std::fstream file (fileName.c_str(), std::ios::in);
     if (file) {
       file.close();
       create=false;
@@ -1323,8 +1332,7 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
       if (newName[j] == '/') newName[j]='_';
     }
     text="EXTENSION name set to '"+newName+"'";
-    printWarn(origin, text); 
-    err=IS_OK;
+    printWarn(origin, text);
   }
   else newName=extName;
 
@@ -1342,11 +1350,13 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   try {
     header.setKeyword(KeyCDS[0], m_catName);
     header.setKeyComment(KeyCDS[0], KeyCom[0]);
+
     header.setKeyword(KeyCDS[1], m_tableName);
     header.setKeyComment(KeyCDS[1], KeyCom[1]);
-//    if ( !m_tableRef.empty() ) header.setKeyComment("        ", m_tableRef);
-    /* test 
-    header.setKeyUnit(KeyCDS[1], "deg");*/
+    if ( !m_tableRef.empty() ) {
+      text="         "+m_tableRef; /* at least 8 leading blanks */
+      header.append(text);
+    }
   }
   catch (const TipException &x) {
     text="fits EXTENSION, cannot add CDS header keys";
@@ -1354,59 +1364,57 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   }
   try {
     unsigned int pos;
+    IColumn *myCol = 0;
+
     err=m_quantities.size();
     for (j=0; j < err; j++) {
       const Quantity &readQ=m_quantities[j];
       if (readQ.m_type == Quantity::NUM) {
         if ( !readQ.m_null.empty() ) {
-          sprintf(name, "TNULL%d", j+1);
-          newName=name; /* convert C string to C++ string */
+/*          sprintf(name, "TNULL%d", j+1);
+          newName=name;  convert C string to C++ string */
           text=readQ.m_format;
           // to be improved for integers
         }
         else if (m_URL == "CDS") text="1D";
         else text=readQ.m_format;
       }
-      else {
+      else if (readQ.m_type == Quantity::STRING) {
         text=readQ.m_format;
         if ( isalpha(readQ.m_format[0]) ) {
           text.erase(0,1);
           text=text+"A";
         }
       }
+      else text=readQ.m_format; // for VECTOR
       (*ptrTable)->appendField(readQ.m_name, text);
+      myCol=(*ptrTable)->getColumn(j);
       text=readQ.m_null;
       if ( !text.empty() ) {
-        header.setKeyword(newName, atoi(text.c_str()) );
-        header.setKeyComment(newName, "Undefined value of field");
+        myCol->getColumnKeyword("TNULL").set( atoi(text.c_str()) );
+        myCol->getColumnKeyword("TNULL").setComment("Undefined value of field");
+/*        header.setKeyword(newName, atoi(text.c_str()) );
+        header.setKeyComment(newName, "Undefined value of field");*/
         pos=text.find(SepNull); /* always exist */
         text.erase(0, pos+1);
         pos=text.find(SepNull);
         if (pos > 0) {
-          sprintf(name, "TSCAL%d", j+1);
-          newName=name; /* convert C string to C++ string */
-          header.setKeyword(newName, atoi(text.c_str()) );
-          header.setKeyComment(newName, "to rescale data");
+          myCol->getColumnKeyword("TSCAL").set( atoi(text.c_str()) );
+          myCol->getColumnKeyword("TSCAL").setComment("to rescale data");
         }
         text.erase(0, pos+1);
         if ( !text.empty() ) {
-          sprintf(name, "TZERO%d", j+1);
-          newName=name; /* convert C string to C++ string */
-          header.setKeyword(newName, atoi(text.c_str()) );
-          header.setKeyComment(newName, "offset for unsigned integers");
+          myCol->getColumnKeyword("TZERO").set( atoi(text.c_str()) );
+          myCol->getColumnKeyword("TZERO").setComment("offset for unsigned integers");
         }
       }
       text=readQ.m_unit;
       if ( !text.empty() ) {
-        sprintf(name, "TUNIT%d", j+1);
-        newName=name; /* convert C string to C++ string */
-        header.setKeyword(newName, text);
-        header.setKeyComment(newName, "physical unit of field");
+        myCol->getColumnKeyword("TUNIT").set(readQ.m_unit);
+        myCol->getColumnKeyword("TUNIT").setComment("physical unit of field");
       }
-      sprintf(name, "%s%d", Key_UCD.c_str(), j+1);
-      newName=name; /* convert C string to C++ string */
-      header.setKeyword(newName, readQ.m_ucd);
-      header.setKeyComment(newName, readQ.m_comment);
+      myCol->getColumnKeyword(Key_UCD).set(readQ.m_ucd);
+      myCol->getColumnKeyword(Key_UCD).setComment(readQ.m_comment);
     }/* loop on quantities */
   }
   catch (const TipException &x) {
@@ -1414,19 +1422,18 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
     printErr(origin, text);
     return BAD_FITS;
   }
-/* NEED new tip methods
-  const IColumn *myCol = 0;
-  try {
-    for (j=0; j < err; j++) {
-      const Quantity &readQ=m_quantities[j];
-      myCol=(*ptrTable)->getColumn(j);
-
+/*  try {
+    for (Header::Iterator itor=header.begin(); itor!=header.end(); ++itor) {
+printf("%s\n", itor->getName().c_str() );
+      if ( (!m_catRef.empty()) && (itor->getName()==KeyCDS[1]) ) {
+        text="         "+m_catRef;
+        header.insert(itor, text);
+      }
     }
   }
   catch (const TipException &x) {
-    text=": fits EXTENSION, cannot modify column description";
-    printErr(origin, text);
-    return BAD_FITS;
+    text="fits EXTENSION, cannot add CDS header long comment";
+    printWarn(origin, text);
   }
 */
   return IS_OK;
@@ -1475,7 +1482,8 @@ int Catalog::saveFits(const std::string &fileName, const std::string &extName,
             else (*itor)[readQ.m_name].set(rowVal);
           }
         }
-        else (*itor)[readQ.m_name].set( m_strings[i].at(tot) );
+        else if (readQ.m_type == Quantity::STRING)
+          (*itor)[readQ.m_name].set( m_strings[i].at(tot) );
       }
       tot++;
     }/* loop on rows */
@@ -1539,7 +1547,8 @@ int Catalog::saveSelectedFits(const std::string &fileName,
             // to be improved for integers
           }
         }
-        else (*itor)[readQ.m_name].set( m_strings[i].at(tot) );
+        else if (readQ.m_type == Quantity::STRING)
+          (*itor)[readQ.m_name].set( m_strings[i].at(tot) );
       }
       tot++;
       itor++;

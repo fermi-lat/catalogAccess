@@ -28,7 +28,7 @@ int Catalog::selectQuantity(const std::string name, const bool toBeLoaded) {
   int maxSize=m_loadQuantity.size();
   if (quantSize != maxSize) {
     printWarn("selectQuantity",
-             "cannot get all initial quantities once importSelected() done");
+              "cannot get all initial quantities once importSelected() done");
     return BAD_SEL_QUANT;
   }
   m_loadQuantity.at(num)=toBeLoaded;
@@ -45,7 +45,7 @@ int Catalog::selectAllQuantities(const bool toBeLoaded) {
   int maxSize=m_loadQuantity.size();
   if (quantSize != maxSize) {
     printWarn("selectAllQuantities",
-             "cannot get all initial quantities once importSelected() done");
+              "cannot get all initial quantities once importSelected() done");
     return BAD_SEL_QUANT;
   }
   if (toBeLoaded) // vectors with same size
@@ -865,7 +865,7 @@ int Catalog::setRejectNaN(const std::string name, const bool rejectNaN) {
     for (long i=0; i<m_numRows; i++) {
 
       if (!cutOR) // usual case
-        check=checkNUM(m_numericals[pos].at(i), index, miss, rejectNaN, precis);
+        check=checkNUM(m_numericals[pos].at(i), index, miss, rejectNaN,precis);
       else
         check=checkNUMor(m_numericals[pos].at(i), index, rejectNaN, precis);
       if (check)
@@ -942,8 +942,8 @@ int Catalog::setMatchPercent(const std::string name, double percent) {
 }
 /**********************************************************************/
 // set quantity member and apply (if quantity has a non empty selection list)
-int Catalog::setMatchEpsilon(const std::string name, const unsigned long step)
-{
+int Catalog::setMatchEpsilon(const std::string name, const unsigned long step){
+
   const std::string origin="setMatchEpsilon";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return quantSize;

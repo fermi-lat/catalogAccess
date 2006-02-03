@@ -4,7 +4,7 @@ Argument #1 (default): 5.0000e+00
 Argument #2 (default): /1rxs_50.out
 
 sizeof bool, int, long, float, double, pointer = 1, 4, 4, 4, 8, 4
-screen output of Nan, +infinite, -infinite: NaN,  Inf,  -Inf
+screen output of NaN, +infinite, -infinite: NaN,  Inf,  -Inf
 
 Number to unselect = 1.7900e+308
 Constant arcsecond = 2.7778e-04
@@ -501,19 +501,20 @@ LOG_2 (catalogAccess): deleting previous Catalog description
 WARNING catalogAccess (IN import): trying to get whole catalog file
 LOG_1 (catalogAccess): fits extension BINTABLE name = GLAST_CAT
 WARNING catalogAccess (IN import): fits EXTENSION, cannot get CDS header keys
-WARNING catalogAccess (IN import): missing keyword TBUCD1 for column#1
-WARNING catalogAccess (IN import): missing keyword TBUCD4 for column#4
-WARNING catalogAccess (IN import): missing keyword TBUCD5 for column#5
-WARNING catalogAccess (IN import): missing keyword TBUCD6 for column#6
-WARNING catalogAccess (IN import): missing keyword TBUCD7 for column#7
-WARNING catalogAccess (IN import): missing keyword TBUCD8 for column#8
-WARNING catalogAccess (IN import): missing keyword TBUCD9 for column#9
-WARNING catalogAccess (IN import): missing keyword TBUCD10 for column#10
-WARNING catalogAccess (IN import): missing keyword TBUCD11 for column#11
-WARNING catalogAccess (IN import): missing keyword TBUCD12 for column#12
-WARNING catalogAccess (IN import): missing keyword TBUCD13 for column#13
-WARNING catalogAccess (IN import): missing keyword TBUCD14 for column#14
-WARNING catalogAccess (IN import): missing keyword TBUCD15 for column#15
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#1
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#4
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#5
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#6
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#7
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#8
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#9
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#10
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#11
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#12
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#13
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#14
+WARNING catalogAccess (IN import): missing keyword TBUCD for column#15
+WARNING catalogAccess (IN import): VECTOR not supported, unusable column#16
 WARNING catalogAccess (IN import): Unknown table name, all generic quantities may be not found
 LOG_1 (catalogAccess): Original whole catalog number of rows =     17
 LOG_1 (catalogAccess): Needed RAM space (MB) for     17 data rows =   0.0
@@ -582,6 +583,10 @@ CPT_PosErr: ucd="", type=1, unit="arcsec", format="1E",
      index=11, boolGeneric=0, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment=""
+VEC: ucd="", type=0, unit="", format="2B",
+     index=3, boolGeneric=0, boolNaN=1, TNULL="",
+     selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
+comment="Test of comment field"
 TEST_U9: ucd="", type=1, unit="", format="1I",
      index=12, boolGeneric=0, boolNaN=1, TNULL="-32768!!32768",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
@@ -595,7 +600,7 @@ WARNING catalogAccess (IN maxVal): given Quantity name (SRC_3EG) is not of NUM t
 * Calling: importSelected on same file
 LOG_1 (catalogAccess): selection ellipse center RA=305 , DEC=0 with radius 45 * 45 (degrees) orientated at 0 (with respect to North pole)
 * Value returned by setSelEllipse = 1
-LOG_1 (catalogAccess): 16 quantities (over 16) selected for import
+LOG_1 (catalogAccess): 17 quantities (over 17) selected for import
 LOG_1 (catalogAccess): importSelected, selecting region from 5 loaded rows
 WARNING catalogAccess (IN eraseNonSelected): all rows selected, nothing done
 * Value returned = 5
