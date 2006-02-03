@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Feb  3 08:23:09 PST 2006
+catalogAccess/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+Change for Win32 (+ accept fits with vector)
+    *
+------------------------------------------------------------
+User: landriu  Fri Feb  3 08:23:09 PST 2006
 catalogAccess/data/outref
 
 Modified Files:
