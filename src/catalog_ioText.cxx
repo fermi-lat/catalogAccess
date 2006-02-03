@@ -267,7 +267,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
        lineSkipped=false;
   int  i, last, err=IS_OK,
        found=0,
-       nbQuantAscii=0,
+       nbQuantNum=0,
        maxLine=MAX_LINE-1; // to avoid computation each line
   int (*pfunc)(int)=toupper; // function used by transform
 
@@ -329,12 +329,12 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
         std::transform(mot.begin(), mot.end(), mot.begin(), pfunc);
         readQ.m_ucd=mot;
         if (readQ.m_format[0] == 'A') {
-          readQ.m_index=nbQuantAscii;
-          nbQuantAscii++;
+          readQ.m_index=m_quantities.size()-nbQuantNum;
           readQ.m_type=Quantity::STRING;
         }
         else {
-          readQ.m_index=m_quantities.size()-nbQuantAscii;
+          readQ.m_index=nbQuantNum;
+          nbQuantNum++;
           readQ.m_type=Quantity::NUM;
         }
         try { m_quantities.push_back(readQ); }
@@ -435,7 +435,7 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
           myFile->seekg(m_filePos);
           m_numOriRows=*maxRows; // used by importSelected();
         }
-        create_tables(nbQuantAscii, *maxRows);
+        create_tables(nbQuantNum, *maxRows);
       }
       break;
 
@@ -553,7 +553,7 @@ int Catalog::loadSelected(unsigned long *tot, std::fstream *myFile,
   }
   last=m_quantities.size();
   for (i=0; i<last; i++)
-    if (m_quantities[i].m_type == Quantity::STRING) err++;
+    if (m_quantities[i].m_type == Quantity::NUM) err++;
 //std::cout << m_numOriRows << " OriRows" << std::endl;
   m_numRows=0;
   if ( !*maxRows ) *maxRows=m_numOriRows;
@@ -775,8 +775,11 @@ int Catalog::importWeb(const std::string catName,
 int Catalog::createText(const std::string &fileName, bool clobber,
                         const std::string origin) {
   std::string  text;
-  std::fstream file;
-  int err;
+  int          err;
+  std::ios_base::openmode openMode=std::ios::in;
+  if (clobber) openMode=std::ios::out | std::ios::trunc;
+            // open in write mode, if the file already exists it is erased
+  std::fstream file (fileName.c_str(), openMode);
 
   err=checkImport(origin, true);
   if (err < IS_VOID) return err;
@@ -791,7 +794,6 @@ int Catalog::createText(const std::string &fileName, bool clobber,
 
   // overwrite existing file ?
   if (!clobber) {
-    file.open(fileName.c_str(), std::ios::in);
     if (file) {
       file.close();
       text=": FILENAME \""+fileName+"\" exist (clobber=no)";
@@ -799,9 +801,9 @@ int Catalog::createText(const std::string &fileName, bool clobber,
       return BAD_FILENAME;
     }
     file.clear();  // clears all flags associated with the current stream
+    // creates the file
+    file.open(fileName.c_str(), std::ios::out | std::ios::trunc);
   }
-  // open in write mode, if the file already existed it is erased
-  file.open(fileName.c_str(), std::ios::out | std::ios::trunc);
   if (!file) {
     text=": FILENAME \""+fileName+"\" cannot be written";
     printErr(origin, text);
@@ -928,7 +930,7 @@ int Catalog::createText(const std::string &fileName, bool clobber,
         if (m_quantities[j].m_type == Quantity::NUM) {
           r=m_numericals[m_quantities[j].m_index].at(k);
 #ifdef WIN32
-          if (_isnan((r)) {
+          if (_isnan(r)) {
 #else
           if (std::isnan(r)) {
 #endif

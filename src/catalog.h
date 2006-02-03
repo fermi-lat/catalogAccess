@@ -17,7 +17,7 @@
 #include "quantity.h"
 // can compile without first three
 //#include <cctype>      //for toupper, tolower
-//#include <algorithm>   //for transform
+#include <algorithm>   //for transform
 //#include <cstdio>      //for sprintf
 #include <fstream>    //for ifstream, ofstream
 //#include <dirent.h>   //for DIR type 
@@ -476,7 +476,7 @@ private:
       // called by setGeneric() to set m_posErrFactor
   void setGeneric(const int whichCat);
       // called just after "import..." to set m_isGeneric, m_index*
-  void create_tables(const int nbQuantAscii, const long maxRows);
+  void create_tables(const int nbQuantNum, const long maxRows);
       // creates a new column in m_strings, m_numericals
   void add_rows(const long maxRows);
       // creates a new row in m_strings, m_numericals

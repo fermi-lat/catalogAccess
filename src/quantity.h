@@ -35,7 +35,12 @@ static const double Min_Prec = std::numeric_limits<double>::epsilon();
 static const double NearZero = 10*std::numeric_limits<double>::min();
 static const unsigned long Max_Test = std::numeric_limits<unsigned long>::max();
 static const double Angle_Conv = M_PI/180.;
-static const double MissNAN = 0/0.;
+#ifdef WIN32
+static unsigned long lnan[2]={0xffffffff, 0x7fffffff};
+static const double& MissNAN = *( double* )lnan;
+#else
+static const double& MissNAN = 0/0.;
+#endif
 
 enum { IS_OK = 1, IS_VOID = 0,
       IMPORT_BIS = -1, IMPORT_NEED = -2, BAD_CATNAME = -3, BAD_FILENAME = -4,

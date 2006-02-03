@@ -177,8 +177,9 @@ void Catalog::deleteQuantities() {
   quantIter=m_quantities.begin();
   for (unsigned int i=0; i<maxSize; i++) {
     if (m_loadQuantity[i]) {/* change the index in 2D tables */
-      if (quantIter->m_type == Quantity::STRING) quantIter->m_index=nbA++;
-      else quantIter->m_index=nbD++;
+      if (quantIter->m_type == Quantity::NUM) quantIter->m_index=nbD++;
+      else quantIter->m_index=nbA++;
+      // for the moment, VECTOR considered as STRING
       quantIter++;
     }
     else m_quantities.erase(quantIter);
@@ -394,6 +395,7 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
   err=checkImport(origin, false);
   if (err < IS_VOID) return err;
 
+  err=IS_OK;
   m_numRows=0;
   i=fileName.length();
   if (i == 0) {
@@ -599,6 +601,8 @@ int Catalog::getMaxNumRowsWeb(long *nrows, const std::string catName,
 /* IS IT REALLY NEEDED ?
   err=checkImport(origin, false);
   if (err < IS_VOID) return err;
+
+  err=IS_OK;
 */
 /* now, ASCII query must be created
   and sent, using CDS package to given URL
