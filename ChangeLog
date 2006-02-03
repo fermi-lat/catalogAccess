@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: landriu  Fri Feb  3 08:23:07 PST 2006
+catalogAccess/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+Change for Win32 (+ accept fits with vector)
+    *
+------------------------------------------------------------
 User: landriu  Thu Feb  2 06:49:25 PST 2006
 catalogAccess/doc/doxy-html
 
