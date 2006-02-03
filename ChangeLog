@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Feb  3 08:23:11 PST 2006
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+Change for Win32 (+ accept fits with vector)
+    *
+------------------------------------------------------------
+User: landriu  Fri Feb  3 08:23:11 PST 2006
 catalogAccess/src
 
 Modified Files:
