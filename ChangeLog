@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: jchiang  Sat Feb  4 07:48:46 PST 2006
+catalogAccess/src
+
+Modified Files:
+	catalog_io.cxx catalog_ioText.cxx 
+Log Message:
+test file.is_open() instead of just file; tagging v0r2p7
+    *
+------------------------------------------------------------
+User: jchiang  Sat Feb  4 07:48:46 PST 2006
 catalogAccess/doc
 
 Modified Files:
