@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: jchiang  Sat Feb  4 07:48:45 PST 2006
+catalogAccess/cmt
+
+Modified Files:
+	requirements 
+Log Message:
+test file.is_open() instead of just file; tagging v0r2p7
+    *
+------------------------------------------------------------
 TAG
 Tag name: v0r2p6, operation: add
 Package: catalogAccess
