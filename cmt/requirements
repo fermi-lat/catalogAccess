@@ -1,7 +1,9 @@
 package catalogAccess
-version v0r2p6
+version v0r2p7
 
 author Aymeric Sauvageon <asauvageon@cea.fr>
+
+$Id$
 
 use STpolicy *
 use st_facilities *

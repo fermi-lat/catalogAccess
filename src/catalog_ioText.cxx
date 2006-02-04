@@ -794,7 +794,7 @@ int Catalog::createText(const std::string &fileName, bool clobber,
 
   // overwrite existing file ?
   if (!clobber) {
-    if (file) {
+    if (file.is_open()) {
       file.close();
       text=": FILENAME \""+fileName+"\" exist (clobber=no)";
       printErr(origin, text);

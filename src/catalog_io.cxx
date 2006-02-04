@@ -7,7 +7,7 @@
  *
  * @author A. Sauvageon
  *
- * $Header $
+ * $Header$
  *
  */
 
@@ -1309,7 +1309,7 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   // overwrite existing file ?
   if (!clobber) {
     std::fstream file (fileName.c_str(), std::ios::in);
-    if (file) {
+    if (file.is_open()) {
       file.close();
       create=false;
       if (!append) {
