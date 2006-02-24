@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Feb 24 08:58:17 PST 2006
+catalogAccess/data
+
+Modified Files:
+	test1.fits 
+Log Message:
+saveText modified, added GLAST catalog
+    *
+------------------------------------------------------------
+User: landriu  Fri Feb 24 08:58:17 PST 2006
 catalogAccess/cmt
 
 Modified Files:
