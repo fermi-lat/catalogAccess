@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: landriu  Fri Feb 24 08:58:18 PST 2006
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog.h catalog_io.cxx catalog_ioText.cxx 
+Log Message:
+saveText modified, added GLAST catalog
+    *
+------------------------------------------------------------
 User: landriu  Fri Feb 24 08:58:17 PST 2006
 catalogAccess/doc
 
