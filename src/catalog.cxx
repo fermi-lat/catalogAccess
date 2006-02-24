@@ -43,7 +43,8 @@ const char *Catalog::s_CatalogList[2*MAX_CAT]={
       "Veron (11th) AGN",    "VII/235/table3",  // 15069 rows (21 columns)
       "WGACAT of ROSAT",     "IX/31/wgacat",    // 88621 rows (101 columns)
       "ROSAT faint sources", "IX/29/rass_fsc",  //105924 rows (30 columns)
-      "Green galactic SNR",  "VII/227/snrs"     //   231 rows (14 columns)
+      "Green galactic SNR",  "VII/227/snrs",     //   231 rows (14 columns)
+      "GLAST expected",      "GLAST V0"
       };
 
 
@@ -57,7 +58,8 @@ const char *Catalog::s_CatalogGeneric[MAX_CAT][MAX_GEN]={
      {"Name", "+", "+", "", "+", "+"},   // ==> need to be added in decimal
      {"1WGA", "RAJ2000", "DEJ2000", "ErrorRad", "GLON", "GLAT"},
      {"1RXS", "RAJ2000", "DEJ2000", "PosErr", "+", "+"},
-     {"SNR",  "+", "+", "", "+", "+"}   // RA/DEC is in sexagesimal
+     {"SNR",  "+", "+", "", "+", "+"},   // RA/DEC is in sexagesimal
+     {"Source_Name", "RA", "DEC", "Conf_95_SemiMajor", "L", "B"}
 };
 
 

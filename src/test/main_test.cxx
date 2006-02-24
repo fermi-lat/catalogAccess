@@ -447,10 +447,24 @@ try {
 
   std::cout << "\n* Calling: import on file \"test1.fits\""
             << std::endl;
-//  strVal=myPath+"/test1_J.fits";
+//  strVal="/dsm/sappcterrier/local/home/aymsauv/glast_cat_sources.fits";
   strVal=myPath+"/test1.fits";
   err=aCat.import(strVal);
   std::cout << "* Value returned = " << err << std::endl;
+/*
+  aCat.getCatalogTitles(&catNames);
+  std::cout << "* 'aCat' info (size " << catNames.size() << "):"
+            << "\ncode=\"" << catNames[0] << "\""
+            << "\nURL =\"" << catNames[1] << "\""
+            << "\ncatalog=\"" << catNames[2] << "\"" 
+            << " [" << catNames[3] << "]" 
+            << "\ntable  =\"" << catNames[4] << "\"" 
+            << " [" << catNames[5] << "]" << std::endl;
+  std::cout <<"GENERIC NAMES: "<< aCat.getNameRA() <<","<< aCat.getNameDEC()
+    <<","<< aCat.getNamePosErr() <<","<< aCat.getNameL()<<","<< aCat.getNameB()
+    <<"."<< std::endl;
+return;
+*/
   std::cout << "* Calling: getQuantityDescription, results: "<< std::endl;
   vecSize=aCat.getQuantityDescription(&allQ);
   for (i=0; i<vecSize; i++) show_quant(allQ[i]);
@@ -458,9 +472,9 @@ try {
   if (err > 0) show_double("POS_EQ_RAJ2000 minimum", rVal);
   err=aCat.maxVal("POS_EQ_RAJ2000", &rVal);
   if (err > 0) show_double("POS_EQ_RAJ2000 maximum", rVal);
-  err=aCat.minVal("TEST_U9", &rVal);
-  if (err > 0) show_double("TEST_U9 minimum", rVal);
-  err=aCat.maxVal("SRC_3EG", &rVal);
+  err=aCat.maxVal("TEST_U9", &rVal);
+  if (err > 0) show_double("TEST_U9 maximum", rVal);
+  err=aCat.minVal("SRC_3EG", &rVal);
   vecSize=aCat.getSValues("SRC_3EG", &catNames);
   std::cout << "* SRC_3EG vector (size=" << vecSize << ")" << std::endl;
 
@@ -493,8 +507,8 @@ try {
   if (err > 0) show_double("POS_EQ_RAJ2000 minimum", rVal);
   err=aCat.maxVal("POS_EQ_RAJ2000", &rVal);
   if (err > 0) show_double("POS_EQ_RAJ2000 maximum", rVal);
-  err=aCat.minVal("TEST_U9", &rVal);
-  if (err > 0) show_double("TEST_U9 minimum", rVal);
+  err=aCat.maxVal("TEST_U9", &rVal);
+  if (err > 0) show_double("TEST_U9 maximum", rVal);
 
   std::cout << "\n* Calling: saveFits to create test1out.fits" << std::endl;
 //  err=aCat.saveText("test1out.txt" ,true);

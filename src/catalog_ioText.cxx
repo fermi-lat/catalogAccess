@@ -794,7 +794,7 @@ int Catalog::createText(const std::string &fileName, bool clobber,
 
   // overwrite existing file ?
   if (!clobber) {
-    if (file.is_open()) {
+    if ( file.is_open() ) {
       file.close();
       text=": FILENAME \""+fileName+"\" exist (clobber=no)";
       printErr(origin, text);
@@ -802,16 +802,17 @@ int Catalog::createText(const std::string &fileName, bool clobber,
     }
     file.clear();  // clears all flags associated with the current stream
     // creates the file
-    file.open(fileName.c_str(), std::ios::out | std::ios::trunc);
+    file.open(fileName.c_str(), std::ios::out);
   }
-  if (!file) {
+  if ( !file.is_open() ) {
     text=": FILENAME \""+fileName+"\" cannot be written";
     printErr(origin, text);
     return BAD_FILENAME;
   }
 
+  std::ostringstream sortie;
   char tab=0x09, sep=';';
-  int j, vecSize;
+  int  j, vecSize;
   long tot=0l, totData=0l;
   bool saveAll=(origin == "saveText");
   if (m_numRows == m_numSelRows) saveAll=true;
@@ -849,14 +850,47 @@ int Catalog::createText(const std::string &fileName, bool clobber,
     char first, *buffer=NULL;
     std::vector<std::string> formats(vecSize, "%s");
     std::vector<int>         lengths(vecSize, 0);
-    std::ostringstream sortie;
     double r;
     for (i=0; i<vecSize; i++) { 
       text=m_quantities[i].m_format;
       j=text.length();
       if (j == 0) continue;
-      first=text[0];
-      text.erase(0, 1);
+      if ( m_URL.empty() ) { /* from binary fits */
+        if (m_quantities[i].m_type == Quantity::STRING) {
+          /* according to standards: rA or rL (or A or L) */
+          first='A';
+          if (j==1) text="1";
+        }
+        else if (m_quantities[i].m_type == Quantity::NUM) { /* should read TDISP keyword */
+          first=text[j-1];
+          switch (first) {
+          case 'B':
+            first='I'; text="3";
+            break;
+          case 'I':    text="6";  /* sign + 5 digits */
+            break;
+          case 'J':
+            first='I'; text="11"; /* sign + 10 digits */
+            break;
+          case 'E':
+            first='F'; text="12.5";
+            if ((i == m_indexRA)||(i == m_indexDEC)) text="9.5";
+            break;
+          case 'D':
+                       text="12.9";
+            break;
+          default :  // To Be Done: complex C or M
+                       text="";
+            break;
+          }
+        }
+        else text=""; /* for VECTOR */
+      }
+      else {
+        /* according to standards: Aw or Iw or Fw.d or Ew.d or Dw.d */ 
+        first=text[0];
+        text.erase(0, 1);
+      }
       j=std::atoi(text.c_str());
       if (j <= 0) continue;
       lengths[i]=j;
@@ -883,12 +917,14 @@ int Catalog::createText(const std::string &fileName, bool clobber,
         else sortie << "%" << text << "f";
         formats[i]=sortie.str();
         break;
-      default :  // number of decimals is needed from CSV/TSV
+      default :  // exponential notation
         sortie << "%" << text << "e";
         formats[i]=sortie.str();
         break;
       }
       sortie.str(""); // Will empty the string
+/*std::cout << i <<":"<< m_quantities[i].m_format <<" | "<< text <<" | "<< formats[i]
+          <<" ("<< j <<")"<< std::endl;*/
     }
     // all the quantities have their sprintf format
     // IF their lengths[] is positive
@@ -904,7 +940,13 @@ int Catalog::createText(const std::string &fileName, bool clobber,
 #endif
             len=lengths[j];
             if (len == 0) len=1;
-            file << std::setw(len+1) << std::setfill(' ');
+/*             file << std::setw(len+1) << std::setfill(' ');
+DOES NOT WORK*/
+            sortie << "%" << len << "s";
+            text=sortie.str();
+            sprintf(buffer, text.c_str(), "");
+            file.write(buffer, len);
+            sortie.str("");
           }
           else if (lengths[j] > 0) {
             sprintf(buffer, formats[j].c_str(), r);
@@ -936,7 +978,13 @@ int Catalog::createText(const std::string &fileName, bool clobber,
 #endif
             len=lengths[j];
             if (len == 0) len=1;
-            file << std::setw(len+1) << std::setfill(' ');
+/*             file << std::setw(len+1) << std::setfill(' ');
+DOES NOT WORK*/
+            sortie << "%" << len << "s";
+            text=sortie.str();
+            sprintf(buffer, text.c_str(), "");
+            file.write(buffer, len);
+            sortie.str("");
           }
           else if (lengths[j] > 0) {
             sprintf(buffer, formats[j].c_str(), r);
@@ -970,7 +1018,6 @@ int Catalog::createText(const std::string &fileName, bool clobber,
   file << std::endl;
   tot++;
   file.close();
-  std::ostringstream sortie; 
   sortie << "output text file is closed ( " << tot << " lines written)";
   printLog(0, sortie.str());
   return IS_OK;  
