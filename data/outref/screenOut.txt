@@ -45,6 +45,7 @@ Veron (11th) AGN     (VII/235/table3)
 WGACAT of ROSAT      (IX/31/wgacat)
 ROSAT faint sources  (IX/29/rass_fsc)
 Green galactic SNR   (VII/227/snrs)
+GLAST expected       (GLAST V0)
 
 
 =================================
@@ -126,11 +127,11 @@ DEJ2000: ucd="", type=1, unit="deg", format="F6.2",
      index=2, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Declination (J2000)"
-GLON: ucd="", type=1, unit="deg", format="F6.2",
+GLON: ucd="POS_GAL_LON", type=1, unit="deg", format="F6.2",
      index=3, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic longitude"
-GLAT: ucd="", type=1, unit="deg", format="F6.2",
+GLAT: ucd="POS_GAL_LAT", type=1, unit="deg", format="F6.2",
      index=4, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic latitude"
@@ -280,11 +281,11 @@ DEJ2000: ucd="", type=1, unit="deg", format="F6.2",
      index=2, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Declination (J2000)"
-GLON: ucd="", type=1, unit="deg", format="F6.2",
+GLON: ucd="POS_GAL_LON", type=1, unit="deg", format="F6.2",
      index=3, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic longitude"
-GLAT: ucd="", type=1, unit="deg", format="F6.2",
+GLAT: ucd="POS_GAL_LAT", type=1, unit="deg", format="F6.2",
      index=4, boolGeneric=1, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Galactic latitude"
@@ -586,15 +587,15 @@ comment=""
 VEC: ucd="", type=0, unit="", format="2B",
      index=3, boolGeneric=0, boolNaN=1, TNULL="",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
-comment="Test of comment field"
+comment="Test"
 TEST_U9: ucd="", type=1, unit="", format="1I",
      index=12, boolGeneric=0, boolNaN=1, TNULL="-32768!!32768",
      selectList sizes=(0 num, 0 str), cuts=1.79e+308 to 1.79e+308
 comment="Test of comment field"
 Quantity POS_EQ_RAJ2000 minimum =   3.030e+02
 Quantity POS_EQ_RAJ2000 maximum =   3.098e+02
-Quantity TEST_U9 minimum =   3.277e+04
-WARNING catalogAccess (IN maxVal): given Quantity name (SRC_3EG) is not of NUM type
+Quantity TEST_U9 maximum =   3.277e+04
+WARNING catalogAccess (IN minVal): given Quantity name (SRC_3EG) is not of NUM type
 * SRC_3EG vector (size=6)
 
 * Calling: importSelected on same file
@@ -609,7 +610,7 @@ WARNING catalogAccess (IN eraseNonSelected): all rows selected, nothing done
 * Number of selected rows = 5
 Quantity POS_EQ_RAJ2000 minimum =   3.081e+02
 Quantity POS_EQ_RAJ2000 maximum =   3.083e+02
-Quantity TEST_U9 minimum =         NaN
+Quantity TEST_U9 maximum =         NaN
 
 * Calling: saveFits to create test1out.fits
 WARNING catalogAccess (IN saveFits): EXTENSION name set to ''

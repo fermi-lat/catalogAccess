@@ -24,7 +24,7 @@
 #include <iomanip>    //for setprecision, _Ios_Fmtflags, ...
 #include <stdexcept>  //for std::runtime_error
 
-#define MAX_CAT 10              // number of known catalogs
+#define MAX_CAT 11              // number of known catalogs
 #define MAX_GEN  6              // number of generic quantities
 #define MAX_URL  9              // number of known VizieR web address
 #define MAX_LINE 1025           // (maximum number of char)+1 with getline

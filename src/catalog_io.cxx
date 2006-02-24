@@ -7,7 +7,7 @@
  *
  * @author A. Sauvageon
  *
- * $Header$
+ * $Header $
  *
  */
 
@@ -103,7 +103,9 @@ void Catalog::setGeneric(const int whichCat) {
             case 3: m_indexErr=i;
                     setPosErrFactor(i);
             break;
-            default: break;
+            default:
+              if (  itQ->m_ucd.empty() && j ) itQ->m_ucd=UCD_List[j];
+            break;
           }
         }
       }// loop on generic
@@ -177,9 +179,12 @@ long Catalog::getRAMsize(const long numRows, const bool writeLog) {
       nS++;
       text=itQ->m_format;
       i=text.length();
-      if (i > 1) {
+      if (i > 0) {
         if (m_URL == "CDS") text.erase(0, 1);
-        else text.erase(i-1);
+        else { /* from binary, first char can be letter because 1 is optional */
+          text.erase(i-1);
+          if (text.empty()) text="1";
+        }
         j=std::atoi(text.c_str());
         if (j > 0) nchar+=j;
       }
@@ -330,17 +335,17 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
     m_URL="CDS"; /* to know that format string need to be changed for fits */
   }
   try {
-    test=-1;
+    test=0;
 //    Header::Iterator itor_found;
     for (Header::ConstIterator itor=header.begin();itor!=header.end();++itor) {
       mot=itor->getName();
       // long comment from wanted key
       if ( mot.empty() ) { switch (test) {
-        case 0: text=itor->getComment();
+        case 1: text=itor->getComment();
 /*                m_catRef=itor_found->getComment()+text;*/
                 m_catRef=text;
                 break;
-        case 1: text=itor->getComment();
+        case 2: text=itor->getComment();
 /*                m_tableRef=itor_found->getComment()+text;*/
                 m_tableRef=text;
                 break;
@@ -348,14 +353,14 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       } }
       else {
         if (mot == KeyCDS[0]) {
-          test=0; //itor_found=itor;
+          test=1; //itor_found=itor;
           m_catName=itor->getValue();
         }
         else if (mot == KeyCDS[1]) {
-          test=1; //itor_found=itor;
+          test=2; //itor_found=itor;
           m_tableName=itor->getValue();
         }
-        else if (test >= 0) test=2;
+        else if (test == 2) break;
       }// end of non-empty key
     }
   }
@@ -364,7 +369,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
     printErr(origin, text);
     return BAD_FITS;
   }
-  if (test < 1) {
+  if (test < 2) {
     if (binary) {
       printWarn(origin, "fits EXTENSION, cannot get CDS header keys");
     }
@@ -402,14 +407,14 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
 //      header.getKeyword(mot, text);
       std::transform(text.begin(), text.end(), text.begin(), pfunc);
       j=text.length();
+      if (j == 0) {
+        text="unauthorized FITS empty format ";
+        sortie << ": FITS format is empty, column#" << i+1;
+        throw std::runtime_error(text);
+      }
       readQ.m_format=text;
       text="";
       if (binary) {
-        if (j == 0) {
-          text="unauthorized FITS empty format ";
-          sortie << ": FITS format is empty, column#" << i+1;
-          throw std::runtime_error(text);
-        }
         if ( !myCol->isScalar() ) {
         /*  text="unauthorized FITS TABLE vector";
           sortie << ": VECTOR not supported, column#" << i+1;
@@ -420,7 +425,8 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
           sortie.str("");
           readQ.m_type=Quantity::VECTOR;
         }
-        else if (readQ.m_format[j-1] == 'A') readQ.m_type=Quantity::STRING;
+        else if ((readQ.m_format[j-1] == 'A') || (readQ.m_format[j-1] == 'L'))
+          readQ.m_type=Quantity::STRING;
         else readQ.m_type=Quantity::NUM;
 /*        sprintf(name, "TNULL%d", i+1); mot=name;
         try { header.getKeyword(mot, readQ.m_null); } */
@@ -457,8 +463,10 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
           printWarn(origin, sortie.str() );
           sortie.str(""); // Will empty the string.
         }
+        /* could also read TDISP keyword, to have better ASCII output */
       }
       else {
+        /* according to standards: Aw or Iw or Fw.d or Ew.d or Dw.d */
         if (readQ.m_format[0] == 'A') readQ.m_type=Quantity::STRING;
         else readQ.m_type=Quantity::NUM;
 /*        sprintf(name, "TBCOL%d", i+1); mot=name;
@@ -527,7 +535,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
           }
         }
         else if (itQ->m_type == Quantity::STRING)
-          (*itor)[itQ->m_name].get(m_strings[j].at(m_numRows) );
+          (*itor)[itQ->m_name].get(m_strings[j].at(m_numRows));
       }
       if (++m_numRows == *maxRows) break;
     }/* loop on rows*/
@@ -799,7 +807,7 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
   char value[20];
   bool test, probCase=false;
   std::vector<bool> isSelected;
-  if ( existCriteria(&isSelected) && (m_URL != "CDS")) {
+  if ( existCriteria(&isSelected) && (m_URL.empty()) ) {
     if (m_selRegion) {
       /* !! cannot concatenate Cstring and char !! */
       filter+='('+m_quantities[m_indexDEC].m_name+" >= ";
@@ -1165,7 +1173,7 @@ int Catalog::importSelected(std::string &filter) {
         unsigned long quantBit;
         int j, k;
         quantSize=isSelected.size();
-        if ((m_URL == "CDS") || (m_criteriaORed)) {
+        if ((!m_URL.empty()) || (m_criteriaORed)) {
           for (j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
           /* for the moment, no selection applied */
           std::vector<std::string> list;
@@ -1309,7 +1317,7 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   // overwrite existing file ?
   if (!clobber) {
     std::fstream file (fileName.c_str(), std::ios::in);
-    if (file.is_open()) {
+    if ( file.is_open() ) {
       file.close();
       create=false;
       if (!append) {
@@ -1348,14 +1356,23 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
   }
   Header &header=(*ptrTable)->getHeader();
   try {
-    header.setKeyword(KeyCDS[0], m_catName);
+/*    header.setKeyword(KeyCDS[0], m_catName);
     header.setKeyComment(KeyCDS[0], KeyCom[0]);
-
-    header.setKeyword(KeyCDS[1], m_tableName);
-    header.setKeyComment(KeyCDS[1], KeyCom[1]);
-    if ( !m_tableRef.empty() ) {
-      text="         "+m_tableRef; /* at least 8 leading blanks */
-      header.append(text);
+UNUSBALE, otherwise append of long comment done after EXTNAME
+*/
+    if ( !m_catName.empty() ) {
+      header.append( KeyRecord(KeyCDS[0],m_catName,KeyCom[0]) );
+      if ( !m_catRef.empty() )  {
+        text="         "+m_catRef; /* at least 8 leading blanks */
+        header.append(text);
+      }
+    }
+    if ( !m_tableName.empty() ) {
+      header.append( KeyRecord(KeyCDS[1],m_tableName,KeyCom[1]) );
+      if ( !m_tableRef.empty() ) {
+        text="         "+m_tableRef; /* at least 8 leading blanks */
+        header.append(text);
+      }
     }
   }
   catch (const TipException &x) {
@@ -1369,24 +1386,18 @@ int Catalog::createFits(const std::string &fileName, const std::string &extName,
     err=m_quantities.size();
     for (j=0; j < err; j++) {
       const Quantity &readQ=m_quantities[j];
-      if (readQ.m_type == Quantity::NUM) {
-        if ( !readQ.m_null.empty() ) {
-/*          sprintf(name, "TNULL%d", j+1);
-          newName=name;  convert C string to C++ string */
-          text=readQ.m_format;
-          // to be improved for integers
+      text=readQ.m_format; // from binary: same format
+      if ( !m_URL.empty() ) {
+        /* from ASCII: Iw or Fw.d or Ew.d or Dw.d (Aw for string) */
+        if (readQ.m_type == Quantity::NUM) {
+//          if (text[0]=='I') text="1J"; else text="1D";
+          text="1D"; // to keep NaN values, improve with TNULL for integers
         }
-        else if (m_URL == "CDS") text="1D";
-        else text=readQ.m_format;
-      }
-      else if (readQ.m_type == Quantity::STRING) {
-        text=readQ.m_format;
-        if ( isalpha(readQ.m_format[0]) ) {
+        else if (readQ.m_type == Quantity::STRING) {
           text.erase(0,1);
           text=text+"A";
         }
       }
-      else text=readQ.m_format; // for VECTOR
       (*ptrTable)->appendField(readQ.m_name, text);
       myCol=(*ptrTable)->getColumn(j);
       text=readQ.m_null;
