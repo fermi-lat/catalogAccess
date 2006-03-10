@@ -520,7 +520,7 @@ int Catalog::setLowerCut(const std::string name, double cutVal) {
   else {
     std::ostringstream sortie;
     sortie << "Enabling lower cut (" <<cutVal<<" on "<<name<< ")";
-    printLog(1, sortie.str());  
+    printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
   }
   
   if (check) {
@@ -608,7 +608,7 @@ int Catalog::setUpperCut(const std::string name, double cutVal) {
   else {
     std::ostringstream sortie;
     sortie << "Enabling upper cut (" <<cutVal<<" on "<<name<< ")";
-    printLog(1, sortie.str());  
+    printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
   }
   
   if (check) {
@@ -721,7 +721,7 @@ int Catalog::doSelN(const std::string name, const int index, const int code,
       sortie << "ORed with cut)";
     else
       sortie << "ANDed with cut)";
-    printLog(1, sortie.str());
+    printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
   }
   
   if (check) {
@@ -915,7 +915,7 @@ int Catalog::setMatchPercent(const std::string name, double percent) {
   // quantity is selected since list is not empty
   sortie << "Relative precision for values in list (for "<<name<< ")"
          << " is: " << percent << " (absolute precision around 0)";
-  printLog(1, sortie.str());
+  printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
   bool check,
        cutOR=m_quantities[index].m_cutORed,
        reject=m_quantities[index].m_rejectNaN,
@@ -976,7 +976,7 @@ int Catalog::setMatchEpsilon(const std::string name, const unsigned long step){
   // quantity is selected since list is not empty
   sortie << "Relative precision for values in list (for "<<name<< ")"
          << " is: " << precis << " (absolute precision around 0)";
-  printLog(1, sortie.str());
+  printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
   bool check,
        cutOR=m_quantities[index].m_cutORed,
        reject=m_quantities[index].m_rejectNaN,
@@ -1115,7 +1115,7 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
   sortie << " with \"" << name <<"\" string in list ("
          << listSize << " elements, ";
   if (exact) sortie << "exact match)"; else sortie << "caseless match)"; 
-  printLog(1, sortie.str());
+  printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
   int  pos=m_quantities[index].m_index;
   m_numSelRows=0;
   for (long i=0; i<m_numRows; i++) {

@@ -305,19 +305,23 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
         readQ.m_format=text.substr(1, pos-2); // disregard ( ) 
         text.erase(0, pos+1);
         last=text.length();
-        for (i=0; i<last; i++) {
-          if ((text[i] != ' ') && (text[i] != 0x09)) break;
+        for (i=0; i<last; i++) { /* to enable empty comment */
+          if (text[i] != ' ') break; //&& (text[i] != 0x09))
         }
-        if (i == last) break; // no DESCR found
+        if (i == last) break; // no DESCR nor UCD found
         mot=text.substr(i, last-i);
         pos=mot.find(0x09);
         if (pos == std::string::npos) break;  // lack end of data
- 
+
         text=mot;
         text.erase(0, pos+1);
-        // remove trailing blanks
-        do pos--; while (mot[pos] == ' ');
-        readQ.m_comment=mot.substr(0, pos+1);
+/* printf("descr=%s.left=%s.\n", mot.c_str(), text.c_str() ); */
+        // remove trailing blanks only if DESCR exist
+        if (pos>0) {
+          do pos--; while (mot[pos] == ' ');
+          readQ.m_comment=mot.substr(0, pos+1);
+        }
+        else readQ.m_comment="";
         mot="[ucd=";
         pos=text.find(mot);
         if (pos == std::string::npos) break;  // lack end of data
@@ -814,7 +818,8 @@ int Catalog::createText(const std::string &fileName, bool clobber,
   char tab=0x09, sep=';';
   int  j, vecSize;
   long tot=0l, totData=0l;
-  bool saveAll=(origin == "saveText");
+  bool saveAll=(origin == "saveText"),
+       specialCOORD;
   if (m_numRows == m_numSelRows) saveAll=true;
 
   file << "#RESOURCE=catalogAccess(" << m_code << ")" << std::endl;
@@ -825,8 +830,25 @@ int Catalog::createText(const std::string &fileName, bool clobber,
   tot+=5;
   vecSize=m_quantities.size();
   for (j=0; j<vecSize; j++) {
-    file << "#Column" << tab << m_quantities[j].m_name << tab << "("
-         << m_quantities[j].m_format << ")" << tab;
+    if ( m_URL.empty() )  { /* from binary fits */
+      text=m_quantities[j].m_format;
+      err=text.length();
+      if ((m_quantities[j].m_type == Quantity::STRING) ||
+          (m_quantities[j].m_type == Quantity::LOGICALS)) {
+        if (err > 1) text.erase(err-1); else text="1";
+        file << "#Column" << tab << m_quantities[j].m_name << tab << "(A"
+             << text << ")" << tab;
+      }
+      else {
+        if (err == 1) text="1"+text;
+        file << "#Column" << tab << m_quantities[j].m_name << tab << "("
+             << text << ")" << tab;
+      }
+    }
+    else {
+      file << "#Column" << tab << m_quantities[j].m_name << tab << "("
+           << m_quantities[j].m_format << ")" << tab;
+    }
     if (m_quantities[j].m_name.length() < 8) file << "        ";
     file << m_quantities[j].m_comment << tab << "[ucd="
          << m_quantities[j].m_ucd << "]"
@@ -855,8 +877,11 @@ int Catalog::createText(const std::string &fileName, bool clobber,
       text=m_quantities[i].m_format;
       j=text.length();
       if (j == 0) continue;
-      if ( m_URL.empty() ) { /* from binary fits */
-        if (m_quantities[i].m_type == Quantity::STRING) {
+      if ( m_URL.empty() || isdigit(text[0]) ) {
+        /* from binary fits OR text output from binary */
+        specialCOORD=false;
+        if ((m_quantities[i].m_type == Quantity::STRING) ||
+            (m_quantities[i].m_type == Quantity::LOGICALS)) {
           /* according to standards: rA or rL (or A or L) */
           first='A';
           if (j==1) text="1";
@@ -873,11 +898,11 @@ int Catalog::createText(const std::string &fileName, bool clobber,
             first='I'; text="11"; /* sign + 10 digits */
             break;
           case 'E':
-            first='F'; text="12.5";
-            if ((i == m_indexRA)||(i == m_indexDEC)) text="9.5";
+            first='F'; text="14.6";
+            if ((i == m_indexRA)||(i == m_indexDEC)) text="13.5"; //text="9.5";
             break;
           case 'D':
-                       text="12.9";
+                       text="14.6";
             break;
           default :  // To Be Done: complex C or M
                        text="";
@@ -890,6 +915,7 @@ int Catalog::createText(const std::string &fileName, bool clobber,
         /* according to standards: Aw or Iw or Fw.d or Ew.d or Dw.d */ 
         first=text[0];
         text.erase(0, 1);
+        specialCOORD=true;
       }
       j=std::atoi(text.c_str());
       if (j <= 0) continue;
@@ -910,11 +936,12 @@ int Catalog::createText(const std::string &fileName, bool clobber,
         formats[i]=sortie.str();
         break;
       case 'F':  // number of decimals is needed from CSV/TSV
-        if (i == m_indexRA)
-          sortie << "%0" << text << "f";
-        else if (i == m_indexDEC)
-          sortie << "%+0" << text << "f";
-        else sortie << "%" << text << "f";
+        if (specialCOORD) {
+          if (i == m_indexRA) sortie << "%0" << text << "f";
+          else if (i == m_indexDEC) sortie << "%+0" << text << "f";
+          else sortie << "%" << text << "f";
+        }
+        else sortie << "%" << text << "e";
         formats[i]=sortie.str();
         break;
       default :  // exponential notation
@@ -922,9 +949,9 @@ int Catalog::createText(const std::string &fileName, bool clobber,
         formats[i]=sortie.str();
         break;
       }
-      sortie.str(""); // Will empty the string
-/*std::cout << i <<":"<< m_quantities[i].m_format <<" | "<< text <<" | "<< formats[i]
-          <<" ("<< j <<")"<< std::endl;*/
+      sortie.str("");
+/*std::cout << i <<":"<< m_quantities[i].m_format <<" | "<< text <<" | "
+          << formats[i] <<" ("<< j <<")"<< std::endl;*/
     }
     // all the quantities have their sprintf format
     // IF their lengths[] is positive
@@ -954,7 +981,8 @@ DOES NOT WORK*/
           }
           else file << r;
         }
-        else if (m_quantities[j].m_type == Quantity::STRING) {
+        else if ((m_quantities[j].m_type == Quantity::STRING) ||
+                 (m_quantities[j].m_type == Quantity::LOGICALS)) {
           text=m_strings[m_quantities[j].m_index].at(k);
           if (lengths[j] > 0) {
             sprintf(buffer, formats[j].c_str(), text.c_str());
@@ -992,7 +1020,8 @@ DOES NOT WORK*/
           }
           else file << r;
         }
-        else if (m_quantities[j].m_type == Quantity::STRING) {
+        else if ((m_quantities[j].m_type == Quantity::STRING) ||
+                 (m_quantities[j].m_type == Quantity::LOGICALS)) {
           text=m_strings[m_quantities[j].m_index].at(k);
           if (lengths[j] > 0) {
             sprintf(buffer, formats[j].c_str(), text.c_str());

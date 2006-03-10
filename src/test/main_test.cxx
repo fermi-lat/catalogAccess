@@ -445,10 +445,11 @@ try {
             << "\ntable  =\"" << catNames[4] << "\"" 
             << " [" << catNames[5] << "]" << std::endl;
 
-  std::cout << "\n* Calling: import on file \"test1.fits\""
+  std::cout << "\n* Calling: import on file \"test2B.fits\""
             << std::endl;
 //  strVal="/dsm/sappcterrier/local/home/aymsauv/glast_cat_sources.fits";
-  strVal=myPath+"/test1.fits";
+//  strVal=myPath+"/test3L.fits";  //2B.fits";
+  strVal=myPath+"/test2B.fits";
   err=aCat.import(strVal);
   std::cout << "* Value returned = " << err << std::endl;
 /*
@@ -463,7 +464,6 @@ try {
   std::cout <<"GENERIC NAMES: "<< aCat.getNameRA() <<","<< aCat.getNameDEC()
     <<","<< aCat.getNamePosErr() <<","<< aCat.getNameL()<<","<< aCat.getNameB()
     <<"."<< std::endl;
-return;
 */
   std::cout << "* Calling: getQuantityDescription, results: "<< std::endl;
   vecSize=aCat.getQuantityDescription(&allQ);
@@ -482,6 +482,7 @@ return;
   aCat.deleteContent();
 //  aCat.selectQuantity("POS_EQ_RAJ2000", false); "VEC"
   err=aCat.setSelEllipse(305, 0., 45, 45);
+//  err=aCat.setSelEllipse(308.3, 41.3, .1, .1);
   std::cout << "* Value returned by setSelEllipse = " << err << std::endl;
 /*  aCat.setCriteriaORed(true);
   catNames.resize(2); catNames[0]="j2027+3429"; // to test case sensitive
