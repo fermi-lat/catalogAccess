@@ -75,7 +75,8 @@ bool Catalog::existCriteria(std::vector<bool> *quantSel) {
     else { all=true;  quantSel->push_back(true); }
     for (itQ=m_quantities.begin(); itQ != m_quantities.end(); itQ++) {
 
-      if (itQ->m_type == Quantity::STRING) {
+      if ((itQ->m_type == Quantity::STRING) ||
+          (itQ->m_type == Quantity::LOGICALS)) {
         if (itQ->m_listValS.size() > 0) {
           all=true;
           quantSel->push_back(true);

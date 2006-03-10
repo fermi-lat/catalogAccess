@@ -182,12 +182,19 @@ long Catalog::getRAMsize(const long numRows, const bool writeLog) {
       if (i > 0) {
         if (m_URL == "CDS") text.erase(0, 1);
         else { /* from binary, first char can be letter because 1 is optional */
-          text.erase(i-1);
-          if (text.empty()) text="1";
+          if (i > 1) text.erase(i-1); else text="1";
         }
         j=std::atoi(text.c_str());
         if (j > 0) nchar+=j;
       }
+    }
+    else if (itQ->m_type == Quantity::VECTOR) {
+    }
+    else { //Quantity::LOGICALS)
+      nS++;
+      text=itQ->m_format;
+      j=std::atoi(text.c_str());
+      if (j > 0) nchar+=j;
     }
   }
   char buffer[50];
@@ -300,6 +307,8 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
                           const std::string origin, long *maxRows) {
   std::string text, mot;
   int   i, j, max,
+        maxLogSize=0,
+        maxVecSize=0,
         nbQuantNum=0;
 /*  char  name[9];  8 char maximum for header key */
   bool  binary=true;
@@ -393,6 +402,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   }
   text="";
   std::vector<double> colNull(max, 0.0);
+  std::vector<int>    colSize(max, 0);
   try {
     const IColumn *myCol = 0;
     for (i=0; i < max; i++) {
@@ -408,7 +418,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       std::transform(text.begin(), text.end(), text.begin(), pfunc);
       j=text.length();
       if (j == 0) {
-        text="unauthorized FITS empty format ";
+        text="unauthorized FITS empty format";
         sortie << ": FITS format is empty, column#" << i+1;
         throw std::runtime_error(text);
       }
@@ -416,14 +426,22 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
       text="";
       if (binary) {
         if ( !myCol->isScalar() ) {
-        /*  text="unauthorized FITS TABLE vector";
-          sortie << ": VECTOR not supported, column#" << i+1;
-          throw std::runtime_error(text); */
-          text="skipping FITS TABLE vector";
-          sortie << "VECTOR not supported, unusable column#" << i+1;
-          printWarn(origin, sortie.str() );
-          sortie.str("");
-          readQ.m_type=Quantity::VECTOR;
+          if (readQ.m_format[j-1] == 'L') {
+            readQ.m_type=Quantity::LOGICALS;
+            j=atoi(readQ.m_format.c_str());
+            colSize[i]=j;
+            if (j > maxLogSize) maxLogSize=j;
+          }
+          else {
+            readQ.m_type=Quantity::VECTOR;
+            j=atoi(readQ.m_format.c_str());
+            colSize[i]=j;
+            if (j > maxVecSize) maxVecSize=j;
+            text="skipping FITS TABLE vector";
+            sortie << "VECTOR not supported, unusable column#" << i+1;
+            printWarn(origin, sortie.str() );
+            sortie.str("");
+          }
         }
         else if ((readQ.m_format[j-1] == 'A') || (readQ.m_format[j-1] == 'L'))
           readQ.m_type=Quantity::STRING;
@@ -433,27 +451,23 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         try { myCol->getColumnKeyword("TNULL").get(readQ.m_null); }
         catch (const TipException &x) {}
         colNull.at(i)=atof(readQ.m_null.c_str());
-        if ( !readQ.m_null.empty() ) {
+        text="";
 /*          sprintf(name, "TSCAL%d", i+1); mot=name;
           try { header.getKeyword(mot, text); } */
-          try { myCol->getColumnKeyword("TSCAL").get(text); }
-          catch (const TipException &x) {}
-          readQ.m_null+=SepNull+text;
-          if ( !text.empty() ) colNull.at(i)*=atof(text.c_str());
-          text="";
+        try { myCol->getColumnKeyword("TSCAL").get(text); }
+        catch (const TipException &x) {}
+        readQ.m_null+=SepNull+text;
+        if ( !text.empty() && (readQ.m_null[0]!=SepNull) )
+          colNull.at(i)*=atof(text.c_str());
+        text="";
 /*          sprintf(name, "TZERO%d", i+1); mot=name;
           try { header.getKeyword(mot, text); } */
-          try { myCol->getColumnKeyword("TZERO").get(text); }
-          catch (const TipException &x) {}
-          readQ.m_null+=SepNull+text;
-          if ( !text.empty() ) colNull.at(i)+=atof(text.c_str());
-          text="";
-        }
-/*        sprintf(name, "%s%d", Key_UCD.c_str(), i+1); mot=name;
-        try {
-          readQ.m_comment=header.getKeyComment(mot);
-          header.getKeyword(mot, text);
-        } */
+        try { myCol->getColumnKeyword("TZERO").get(text); }
+        catch (const TipException &x) {}
+        readQ.m_null+=SepNull+text;
+        if ( !text.empty() && (readQ.m_null[0]!=SepNull) )
+          colNull.at(i)+=atof(text.c_str());
+        text="";
         try {
           myCol->getColumnKeyword(Key_UCD).get(text);
           readQ.m_comment=myCol->getColumnKeyword(Key_UCD).getComment();
@@ -466,6 +480,8 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         /* could also read TDISP keyword, to have better ASCII output */
       }
       else {
+        readQ.m_null=SepNull;
+        readQ.m_null+=SepNull;
         /* according to standards: Aw or Iw or Fw.d or Ew.d or Dw.d */
         if (readQ.m_format[0] == 'A') readQ.m_type=Quantity::STRING;
         else readQ.m_type=Quantity::NUM;
@@ -518,6 +534,10 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   create_tables(nbQuantNum, *maxRows);
   try {
     double rowVal;
+/*when reading a Logical, string gives "T" or "F" while char gives '0' or '1'*/
+    std::vector<char>  logic(maxLogSize, ' ');
+    std::vector<double> vect(maxVecSize);
+//printf("maxVecSize = %d\n", maxVecSize);
     std::vector<Quantity>::iterator itQ;
     // Loop over all records (rows) and extract values
     for (Table::ConstIterator itor=myDOL->begin(); itor != myDOL->end();
@@ -528,7 +548,7 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         // double variable to hold the value of all the numeric fields
         if (itQ->m_type == Quantity::NUM) {
           rowVal=(*itor)[itQ->m_name].get();
-          if ( itQ->m_null.empty() ) m_numericals[j].at(m_numRows)=rowVal;
+          if ( itQ->m_null[0]==SepNull ) m_numericals[j].at(m_numRows)=rowVal;
           else {
             if (rowVal == colNull.at(i)) m_numericals[j].at(m_numRows)=MissNAN;
             else m_numericals[j].at(m_numRows)=rowVal;
@@ -536,11 +556,32 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
         }
         else if (itQ->m_type == Quantity::STRING)
           (*itor)[itQ->m_name].get(m_strings[j].at(m_numRows));
+        else if (itQ->m_type == Quantity::VECTOR) {
+        }
+        else { //Quantity::LOGICALS)
+          (*itor)[itQ->m_name].get(logic); // function resizes the vector
+          if (colSize.at(i) != (int)logic.size()) {
+            text="read vector size differs from expected";
+            printErr(origin, text);
+            throw std::runtime_error(text);
+          }
+          text="";
+          for (nbQuantNum=0; nbQuantNum < colSize.at(i); nbQuantNum++) {
+//            printf("%d", logic[nbQuantNum]);
+            switch (logic[nbQuantNum]) {
+              case 0: text+="F"; break; case 1: text+="T"; break;
+              default: text+=" ";
+            }
+          }
+          m_strings[j].at(m_numRows)=text;
+//printf("logicals[%d] row%03ld = %s.\n", colSize.at(i),m_numRows, text.c_str() );
+        }
       }
       if (++m_numRows == *maxRows) break;
     }/* loop on rows*/
   }
-  catch (const TipException &x) {
+//catch (const TipException &x) {
+  catch (...) {
     sortie << ": fits EXTENSION, cannot read after row#" << m_numRows+1;
     printErr(origin, sortie.str() );
     return BAD_ROW;
@@ -698,6 +739,7 @@ int Catalog::load(const std::string &fileName, const std::string ext,
     myFile.close();
     sortie << text << ": " << tot << " lines read";
     printLog(0, sortie.str());
+    sortie.str(""); // Will empty the string.
     m_filename=fileName;
     m_URL="CDS"; /* to know that format string need to be changed for fits */
 
@@ -953,20 +995,18 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
       try { myCol->getColumnKeyword("TNULL").get(rescale); }   
       catch (const TipException &x) {}
       colNull.at(i)=atof(rescale.c_str());
-      if ( !rescale.empty() ) {
-          form="";
+      form="";
 /*          sprintf(name, "TSCAL%d", i+1); mot=name; */
-          try { myCol->getColumnKeyword("TSCAL").get(form); }
-          catch (const TipException &x) {}
-          rescale+=SepNull+form;
-          if ( !form.empty() ) colNull.at(i)*=atof(form.c_str());
-          form="";
+      try { myCol->getColumnKeyword("TSCAL").get(form); }
+      catch (const TipException &x) {}
+      rescale+=SepNull+form;
+      if ( !form.empty() && (rescale[0]!=SepNull) ) colNull.at(i)*=atof(form.c_str());
+      form="";
 /*          sprintf(name, "TZERO%d", i+1); mot=name; */
-          try { myCol->getColumnKeyword("TZERO").get(form); }
-          catch (const TipException &x) {}
-          rescale+=SepNull+form;
-          if ( !form.empty() ) colNull.at(i)+=atof(form.c_str());
-      }
+      try { myCol->getColumnKeyword("TZERO").get(form); }
+      catch (const TipException &x) {}
+      rescale+=SepNull+form;
+      if ( !form.empty() && (rescale[0]!=SepNull) ) colNull.at(i)+=atof(form.c_str());
       myCol->getColumnKeyword("TFORM").get(form);
       if (m_loadQuantity[i]) {
 //std::cout << itQ->m_index << " ";
@@ -1005,7 +1045,8 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
   create_tables(err, *maxRows);
   try {
     double rowVal;
-    // max=m_quantities.size();
+    std::vector<char>  logic;
+    std::vector<double> vect;
     for (Table::ConstIterator itor=myDOL->begin(); itor != myDOL->end();
          ++itor, ++m_numRows) {
       err=0;
@@ -1013,7 +1054,7 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
         i=itQ->m_index;
         if (itQ->m_type == Quantity::NUM) {
           rowVal=(*itor)[itQ->m_name].get();
-          if ( itQ->m_null.empty() ) m_numericals[i].at(m_numRows)=rowVal;
+          if ( itQ->m_null[0]==SepNull ) m_numericals[i].at(m_numRows)=rowVal;
           else {
             if (rowVal == colNull[err]) m_numericals[i].at(m_numRows)=MissNAN;
             else m_numericals[i].at(m_numRows)=rowVal;
@@ -1021,6 +1062,20 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
         }
         else if (itQ->m_type == Quantity::STRING)
           (*itor)[itQ->m_name].get(m_strings[i].at(m_numRows) );
+        else if (itQ->m_type == Quantity::VECTOR) {
+        }
+        else { //Quantity::LOGICALS)
+          (*itor)[itQ->m_name].get(logic); // function resizes the vector
+          text="";
+          for (max=0; max < logic.size(); max++) {
+            switch (logic[max]) {
+              case 0: text+="F"; break; case 1: text+="T"; break;
+              default: text+=" ";
+            }
+          }
+          m_strings[i].at(m_numRows)=text;
+//printf("logicals[%ud] row%03ld = %s.\n", max,m_numRows, text.c_str() );
+        }
       }
     }/* loop on rows*/
   }
@@ -1098,6 +1153,7 @@ int Catalog::importSelected(std::string &filter) {
       if (err == IS_OK) {
         sortie << tot << " data lines read for importSelected()";
         printLog(0, sortie.str());
+        sortie.str(""); // Will empty the string.
       }
       myFile.close();
     }
@@ -1174,7 +1230,10 @@ int Catalog::importSelected(std::string &filter) {
         int j, k;
         quantSize=isSelected.size();
         if ((!m_URL.empty()) || (m_criteriaORed)) {
-          for (j=0; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
+          /* if region selected, must suppose that criteria is fulfilled */
+          if (isSelected[0]) quantBit=2ul; else quantBit=0ul;
+          m_rowIsSelected[0].assign(m_numRows, quantBit);
+          for (j=1; j<err; j++) m_rowIsSelected[j].assign(m_numRows, 0);
           /* for the moment, no selection applied */
           std::vector<std::string> list;
           std::string mot;
@@ -1255,8 +1314,8 @@ int Catalog::importSelected(std::string &filter) {
         }
         if (m_selRegion) {
           sortie << origin << ", selecting region from " << m_numRows;
-          sortie << " loaded rows";
-          printLog(1, sortie.str());
+          sortie << " loaded rows (" << m_numSelRows << " already selected)";
+          printLog(1, sortie.str()); sortie.str(""); // Will empty the string.
           int nRA =m_quantities[m_indexRA].m_index,
               nDEC=m_quantities[m_indexDEC].m_index;
           bool check;
@@ -1402,13 +1461,13 @@ UNUSBALE, otherwise append of long comment done after EXTNAME
       myCol=(*ptrTable)->getColumn(j);
       text=readQ.m_null;
       if ( !text.empty() ) {
-        myCol->getColumnKeyword("TNULL").set( atoi(text.c_str()) );
-        myCol->getColumnKeyword("TNULL").setComment("Undefined value of field");
-/*        header.setKeyword(newName, atoi(text.c_str()) );
-        header.setKeyComment(newName, "Undefined value of field");*/
+        if ( text[0]!=SepNull ) {
+          myCol->getColumnKeyword("TNULL").set( atoi(text.c_str()) );
+          myCol->getColumnKeyword("TNULL").setComment("Undefined value of field");
+        }
         pos=text.find(SepNull); /* always exist */
         text.erase(0, pos+1);
-        pos=text.find(SepNull);
+        pos=text.find(SepNull); /* always exist */
         if (pos > 0) {
           myCol->getColumnKeyword("TSCAL").set( atoi(text.c_str()) );
           myCol->getColumnKeyword("TSCAL").setComment("to rescale data");
@@ -1471,9 +1530,13 @@ int Catalog::saveFits(const std::string &fileName, const std::string &extName,
     double rowVal;
     err=m_quantities.size();
     std::vector<long> colNull(err, 0);
+    std::vector<bool> no_Null(err, true);
     for (j=0; j < err; j++) {
       readQ=m_quantities[j];
-      colNull[j]=atoi( readQ.m_null.c_str() );
+      if ( !readQ.m_null.empty() ) {
+        colNull[j]=atoi( readQ.m_null.c_str() );
+        if (readQ.m_null[0]!=SepNull) no_Null[j]=false;
+      }
     }
     // Loop over all records (rows) and set values
     for (Table::Iterator itor=myDOL->begin(); itor != myDOL->end(); ++itor) {
@@ -1483,7 +1546,7 @@ int Catalog::saveFits(const std::string &fileName, const std::string &extName,
         i=readQ.m_index;
         if (readQ.m_type == Quantity::NUM) {
           rowVal= m_numericals[i].at(tot);
-          if ( readQ.m_null.empty() ) (*itor)[readQ.m_name].set(rowVal);
+          if ( no_Null[j] ) (*itor)[readQ.m_name].set(rowVal);
           else {
 #ifdef WIN32
             if ( _isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);
@@ -1534,9 +1597,13 @@ int Catalog::saveSelectedFits(const std::string &fileName,
     double rowVal;
     err=m_quantities.size();
     std::vector<long> colNull(err, 0);
+    std::vector<bool> no_Null(err, true);
     for (j=0; j < err; j++) {
       readQ=m_quantities[j];
-      colNull[j]=atoi( readQ.m_null.c_str() );
+      if ( !readQ.m_null.empty() ) {
+        colNull[j]=atoi( readQ.m_null.c_str() );
+        if (readQ.m_null[0]!=SepNull) no_Null[j]=false;
+      }
     }
     Table::Iterator itor=myDOL->begin();
     // Loop over all selected records (rows) and set values
@@ -1547,7 +1614,7 @@ int Catalog::saveSelectedFits(const std::string &fileName,
         i=readQ.m_index;
         if (readQ.m_type == Quantity::NUM) {
           rowVal= m_numericals[i].at(tot);
-          if ( readQ.m_null.empty() ) (*itor)[readQ.m_name].set(rowVal);
+          if ( no_Null[j] ) (*itor)[readQ.m_name].set(rowVal);
           else {
 #ifdef WIN32
             if ( _isnan(rowVal) ) (*itor)[readQ.m_name].set(colNull[j]);

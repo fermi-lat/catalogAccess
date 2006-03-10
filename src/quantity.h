@@ -69,7 +69,7 @@ class Quantity {
 
 public:
 
-  typedef enum {NUM=1, STRING=2, VECTOR=0} QuantityType;
+  typedef enum {NUM=1, STRING=2, LOGICALS=3, VECTOR=0} QuantityType;
 
   Quantity() {                  // Default constructor
  
