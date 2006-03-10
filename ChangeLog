@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Mar 10 06:16:55 PST 2006
+catalogAccess/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+new m_type LOGICALS, and read unsigned int without TNULL
+    *
+------------------------------------------------------------
+User: landriu  Fri Mar 10 06:16:55 PST 2006
 catalogAccess/data/outref
 
 Modified Files:
