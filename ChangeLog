@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Wed Sep 26 12:21:45 PDT 2007
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+Use commonUtilities to obtain data path
+    *
+------------------------------------------------------------
 TAG
 Tag name: v0r3, operation: add
 Package: catalogAccess
