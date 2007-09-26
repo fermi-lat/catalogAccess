@@ -7,6 +7,7 @@
  */
 
 #include "st_facilities/Env.h"
+#include "facilities/commonUtilities.h"
 #include "src/catalog.h"
 #include <iomanip>
 
@@ -192,9 +193,9 @@ int main(int iargc, char * argv[]) {
 /****************************************************************************/
   double rVal;
   std::vector<double> listVal;
-  const std::string myPath=st_facilities::Env::getDataDir("catalogAccess");
+  const std::string myPath=facilities::commonUtilities::getDataPath("catalogAccess");
   if (myPath=="")
-    throw std::runtime_error("Environment variable CATALOGACCESSROOT not set");
+    throw std::runtime_error("Unable to determine data path to catalogAccess");
 // const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test/data";
 
   strVal=myPath+"/3EG_test.out"; 
