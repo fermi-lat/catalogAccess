@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Mon Dec 10 12:03:19 PST 2007
+catalogAccess
+
+Added Files:
+	SConscript catalogAccessLib.py 
+Log Message:
+Initial import of SCons files
+    *
+------------------------------------------------------------
 User: golpa  Wed Sep 26 12:21:45 PDT 2007
 catalogAccess/src/test
 
