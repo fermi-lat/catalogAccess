@@ -1,4 +1,16 @@
 ------------------------------------------------------------
+User: landriu  Fri Feb 22 05:48:33 PST 2008
+catalogAccess/src
+
+Modified Files:
+	catalog.cxx catalog_io.cxx catalog_ioText.cxx catalog_sel.cxx 
+	quantity.cxx 
+Removed Files:
+	catalog.h quantity.h 
+Log Message:
+moved public headers
+    *
+------------------------------------------------------------
 User: landriu  Fri Feb 22 05:48:32 PST 2008
 catalogAccess/doc
 
