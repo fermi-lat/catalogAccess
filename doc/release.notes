@@ -3,6 +3,8 @@
     @author A. Sauvageon
 
 @verbatim
+22-Feb-2008  v0r4    AS  moved public headers, replaced st_facilities by facilities
+
 10-Mar-2006  v0r3    AS  new m_type (LOGICALS) for logical vector. Save integers
                          (1I, 1J) as unsigned even if TNULL is not defined.
                          Corrected bug in importSelected from ASCII input.

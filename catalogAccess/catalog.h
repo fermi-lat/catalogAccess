@@ -14,7 +14,7 @@
 #include "tip/IFileSvc.h"
 #include "tip/Table.h"
 #include "tip/Header.h"
-#include "quantity.h"
+#include "catalogAccess/quantity.h"
 // can compile without first three
 //#include <cctype>      //for toupper, tolower
 #include <algorithm>   //for transform

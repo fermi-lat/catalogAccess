@@ -6,9 +6,8 @@
  * $Header $
  */
 
-#include "st_facilities/Env.h"
 #include "facilities/commonUtilities.h"
-#include "src/catalog.h"
+#include "catalogAccess/catalog.h"
 #include <iomanip>
 
 void help();
@@ -193,6 +192,12 @@ int main(int iargc, char * argv[]) {
 /****************************************************************************/
   double rVal;
   std::vector<double> listVal;
+/*
+  const std::string myPath=st_facilities::Env::getDataDir("catalogAccess");
+  if (myPath=="")
+    throw std::runtime_error("Environment variable CATALOGACCESSROOT not set");
+*/
+/* change from Navid Golpayegani to obtain location of the data directory */
   const std::string myPath=facilities::commonUtilities::getDataPath("catalogAccess");
   if (myPath=="")
     throw std::runtime_error("Unable to determine data path to catalogAccess");
@@ -446,11 +451,10 @@ try {
             << "\ntable  =\"" << catNames[4] << "\"" 
             << " [" << catNames[5] << "]" << std::endl;
 
-  std::cout << "\n* Calling: import on file \"test2B.fits\""
+  std::cout << "\n* Calling: import on file \"test3L.fits\""
             << std::endl;
 //  strVal="/dsm/sappcterrier/local/home/aymsauv/glast_cat_sources.fits";
-//  strVal=myPath+"/test3L.fits";  //2B.fits";
-  strVal=myPath+"/test2B.fits";
+  strVal=myPath+"/test3L.fits";  //2B.fits";
   err=aCat.import(strVal);
   std::cout << "* Value returned = " << err << std::endl;
 /*
