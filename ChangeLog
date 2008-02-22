@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 TAG
+Tag name: catalogAccess-00-04-00, operation: mov
+Package: catalogAccess
+User: glast  Fri Feb 22 13:21:05 2008
+Files:
+  catalogAccess/SConscript  1.2
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: v0r4, operation: mov
 Package: catalogAccess
 User: glast  Fri Feb 22 13:20:36 2008
