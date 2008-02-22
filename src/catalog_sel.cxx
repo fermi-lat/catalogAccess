@@ -10,7 +10,7 @@
  * $Header $
  */
 
-#include "catalog.h"
+#include "catalogAccess/catalog.h"
 
 namespace catalogAccess {
 

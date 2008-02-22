@@ -1,10 +1,10 @@
 package catalogAccess
-version v0r3
+version v0r4
 
 author Aymeric Sauvageon <asauvageon@cea.fr>
 
 use STpolicy *
-use st_facilities *
+use facilities *
 use tip *
 
 apply_pattern ST_library option=-no_share

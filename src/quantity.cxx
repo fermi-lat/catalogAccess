@@ -10,7 +10,7 @@
  * $Header $
  */
 
-#include "quantity.h"
+#include "catalogAccess/quantity.h"
 
 namespace catalogAccess {
 
