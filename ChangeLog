@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Feb 22 05:48:33 PST 2008
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+moved public headers
+    *
+------------------------------------------------------------
+User: landriu  Fri Feb 22 05:48:33 PST 2008
 catalogAccess/src
 
 Modified Files:
