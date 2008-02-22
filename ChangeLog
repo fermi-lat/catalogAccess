@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: landriu  Fri Feb 22 05:48:32 PST 2008
+catalogAccess/catalogAccess
+
+Added Files:
+	catalog.h quantity.h 
+Log Message:
+moved public headers
+    *
+------------------------------------------------------------
 User: landriu  Fri Feb 22 05:45:33 PST 2008
 catalogAccess/catalogAccess
 
