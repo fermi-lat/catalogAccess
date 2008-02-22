@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Fri Feb 22 05:48:32 PST 2008
+catalogAccess/doc
+
+Modified Files:
+	release.notes 
+Log Message:
+moved public headers
+    *
+------------------------------------------------------------
+User: landriu  Fri Feb 22 05:48:32 PST 2008
 catalogAccess/cmt
 
 Modified Files:
