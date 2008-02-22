@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: golpa  Fri Feb 22 13:15:50 PST 2008
+catalogAccess
+
+Modified Files:
+	SConscript 
+Log Message:
+Added catalogAcccess test app
+    *
+------------------------------------------------------------
 TAG
 Tag name: catalogAccess-00-04-00, operation: add
 Package: catalogAccess
