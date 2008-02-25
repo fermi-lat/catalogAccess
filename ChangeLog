@@ -1,5 +1,14 @@
 ------------------------------------------------------------
 User: landriu  Mon Feb 25 05:26:39 PST 2008
+catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+using quiet_NaN
+    *
+------------------------------------------------------------
+User: landriu  Mon Feb 25 05:26:39 PST 2008
 catalogAccess/src
 
 Modified Files:
