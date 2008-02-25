@@ -39,8 +39,8 @@ static const double Angle_Conv = M_PI/180.;
 static unsigned long lnan[2]={0xffffffff, 0x7fffffff};
 static const double& MissNAN = *( double* )lnan;
 #else
-static const double& MissNAN = 0/0.;
-//static const double& MissNAN = std::numeric_limits<double>::quiet_NaN();
+//static const double& MissNAN = 0/0.;
+static const double& MissNAN = std::numeric_limits<double>::quiet_NaN();
 #endif
 
 enum { IS_OK = 1, IS_VOID = 0,
