@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: landriu  Mon Feb 25 05:26:39 PST 2008
+catalogAccess/catalogAccess
+
+Modified Files:
+	quantity.h 
+Log Message:
+using quiet_NaN
+    *
+------------------------------------------------------------
 TAG
 Tag name: catalogAccess-00-04-00, operation: mov
 Package: catalogAccess
