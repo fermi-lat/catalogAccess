@@ -3,6 +3,7 @@
     @author A. Sauvageon
 
 @verbatim
+25-Feb-2008  v0r4p1  AS  changed MissNAN definition (using quiet_NaN)
 22-Feb-2008  v0r4    AS  moved public headers, replaced st_facilities by facilities
 
 10-Mar-2006  v0r3    AS  new m_type (LOGICALS) for logical vector. Save integers

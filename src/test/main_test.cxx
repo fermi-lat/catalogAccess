@@ -492,7 +492,7 @@ try {
 /*  aCat.setCriteriaORed(true);
   catNames.resize(2); catNames[0]="j2027+3429"; // to test case sensitive
   aCat.useOnlyS("SRC_3EG", catNames, true);
-  aCat.excludeS("SRC_3EG", catNames, true);/**/
+  aCat.excludeS("SRC_3EG", catNames, true);*/
 //  aCat.setLowerCut("SRC_theta95", 0.3);
   aCat.setUpperCut("SRC_theta95", 0.31);
 /*  aCat.setMatchPercent("SRC_theta95", 100);

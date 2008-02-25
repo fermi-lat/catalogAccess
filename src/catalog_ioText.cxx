@@ -1074,8 +1074,7 @@ int Catalog::saveSelectedText(const std::string &fileName, bool clobber) {
   return IS_OK;
 }
       /* precision is 1/28 arcsec, */
-/*
-      if (fabs(m_selEllipseCentDEC_deg) <= Min_Axis) {
+//      if (fabs(m_selEllipseCentDEC_deg) <= Min_Axis) {
         /* the ellipse SAO region is on 2D point, must calculate on sphere */
         /* can only use it if DEC = 0 */
 /*        filter="(circle("; //filter="(ellipse(";
