@@ -1,5 +1,6 @@
 def generate(env, **kw):
-    env.Tool('addLibrary', library = ['catalogAccess'], package = 'catalogAccess')
+    if not kw.get('depsOnly',0):
+        env.Tool('addLibrary', library = ['catalogAccess'], package = 'catalogAccess')
     env.Tool('st_facilitiesLib')
     env.Tool('tipLib')
 
