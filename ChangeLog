@@ -1,5 +1,15 @@
 ------------------------------------------------------------
 TAG
+Tag name: catalogAccess-00-04-01, operation: mov
+Package: catalogAccess
+User: glast  Mon Feb 25 19:02:02 2008
+Files:
+  catalogAccess/catalogAccessLib.py  1.2
+  catalogAccess/SConscript  1.3
+
+    *
+------------------------------------------------------------
+TAG
 Tag name: v0r4p1, operation: mov
 Package: catalogAccess
 User: glast  Mon Feb 25 19:01:44 2008
