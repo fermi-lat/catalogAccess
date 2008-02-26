@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Mon Feb 25 19:00:56 PST 2008
+ScienceTools-scons/catalogAccess
+
+Modified Files:
+	catalogAccessLib.py SConscript 
+Log Message:
+Set lib dependencies up for when building libraries
+    *
+------------------------------------------------------------
 TAG
 Tag name: catalogAccess-00-04-01, operation: add
 Package: catalogAccess
