@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+User: glastrm  Wed Mar 19 14:29:04 PDT 2008
+ScienceTools-scons/catalogAccess
+
+Modified Files:
+	SConscript 
+Log Message:
+Register data files
+    *
+------------------------------------------------------------
 TAG
 Tag name: catalogAccess-00-04-01, operation: mov
 Package: catalogAccess
