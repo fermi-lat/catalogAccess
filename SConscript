@@ -1,4 +1,4 @@
-#$Id: SConscript,v 1.2 2008/02/22 21:15:50 golpa Exp $
+#$Id: SConscript,v 1.3 2008/02/26 03:00:56 glastrm Exp $
 
 Import('baseEnv')
 Import('listFiles')
@@ -13,4 +13,4 @@ main_testBin = progEnv.Program('main_test', 'src/test/main_test.cxx')
 test_catalogAccess = progEnv.Program('test_catalogAccess', 'src/test/main_test.cxx')
 
 progEnv.Tool('registerObjects', package = 'catalogAccess', libraries = [catalogAccessLib], testApps = [main_testBin, test_catalogAccess],
-             includes = listFiles(['catalogAccess/*.h']))
+             includes = listFiles(['catalogAccess/*.h']), data = listFiles(['data/*'], recursive = True))
