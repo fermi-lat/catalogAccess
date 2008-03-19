@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+TAG
+Tag name: v0r4p1, operation: mov
+Package: catalogAccess
+User: glast  Wed Mar 19 14:29:31 2008
+Files:
+  catalogAccess/SConscript  1.4
+
+    *
+------------------------------------------------------------
 User: glastrm  Wed Mar 19 14:29:04 PDT 2008
 ScienceTools-scons/catalogAccess
 
