@@ -1,4 +1,13 @@
 ------------------------------------------------------------
+TAG
+Tag name: catalogAccess-00-04-01, operation: mov
+Package: catalogAccess
+User: glastrm  Thu Jun 19 14:53:56 2008
+Files:
+  catalogAccess/SConscript  1.5
+
+    *
+------------------------------------------------------------
 User: glastrm  Thu Jun 19 14:53:43 PDT 2008
 ScienceTools-scons/catalogAccess
 
