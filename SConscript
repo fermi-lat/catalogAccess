@@ -1,4 +1,6 @@
-#$Id: SConscript,v 1.3 2008/02/26 03:00:56 glastrm Exp $
+# $Id: SConscript,v 1.4 2008/03/19 21:29:04 glastrm Exp $
+# Authors: Aymeric Sauvageon <asauvageon@cea.fr>
+# Version: catalogAccess-00-04-01
 
 Import('baseEnv')
 Import('listFiles')
