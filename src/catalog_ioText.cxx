@@ -8,6 +8,7 @@
  *
  */
 
+#include <cstring>
 #include "catalogAccess/catalog.h"
 
 namespace catalogAccess {
