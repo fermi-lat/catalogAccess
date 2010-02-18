@@ -1,5 +1,5 @@
 # -*- python -*-
-# $Id: SConscript,v 1.6 2009/07/14 17:58:00 jrb Exp $
+# $Id: SConscript,v 1.7 2009/07/15 17:34:25 glastrm Exp $
 # Authors: Aymeric Sauvageon <asauvageon@cea.fr>
 # Version: catalogAccess-00-04-02
 
@@ -8,7 +8,6 @@ Import('listFiles')
 progEnv = baseEnv.Clone()
 libEnv = baseEnv.Clone()
 
-libEnv.Tool('catalogAccessLib', depsOnly = 1)
 catalogAccessLib = libEnv.StaticLibrary('catalogAccess', listFiles(['src/*.cxx']))
 
 progEnv.Tool('catalogAccessLib')
