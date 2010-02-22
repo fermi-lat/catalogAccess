@@ -1,7 +1,7 @@
 # -*- python -*-
-# $Id: SConscript,v 1.7 2009/07/15 17:34:25 glastrm Exp $
+# $Id: SConscript,v 1.8 2010/02/18 00:51:58 jrb Exp $
 # Authors: Aymeric Sauvageon <asauvageon@cea.fr>
-# Version: catalogAccess-00-04-02
+# Version: catalogAccess-00-04-03
 
 Import('baseEnv')
 Import('listFiles')
