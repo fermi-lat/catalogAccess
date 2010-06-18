@@ -2,6 +2,14 @@
 TAG
 Tag name: ScienceTools-09-17-00, operation: add
 Package: catalogAccess
+User: glastrm  Thu Jun 17 18:43:45 2010
+Files:
+
+    *
+------------------------------------------------------------
+TAG
+Tag name: ScienceTools-09-17-00, operation: add
+Package: catalogAccess
 User: glastrm  Mon Jun 14 21:45:02 2010
 Files:
   catalogAccess/.cvsignore  1.2
