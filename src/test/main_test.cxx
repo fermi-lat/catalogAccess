@@ -3,10 +3,10 @@
  * @brief  Test program to exercise catalogAccess interface.
  * @author A. Sauvageon
  *
- * $Header $
+ * $Header$
  */
 
-#include "facilities/commonUtilities.h"
+#include "st_facilities/Environment.h"
 #include "catalogAccess/catalog.h"
 #include <iomanip>
 
@@ -198,7 +198,7 @@ int main(int iargc, char * argv[]) {
     throw std::runtime_error("Environment variable CATALOGACCESSROOT not set");
 */
 /* change from Navid Golpayegani to obtain location of the data directory */
-  const std::string myPath=facilities::commonUtilities::getDataPath("catalogAccess");
+  const std::string myPath=st_facilities::Environment::dataPath("catalogAccess");
   if (myPath=="")
     throw std::runtime_error("Unable to determine data path to catalogAccess");
 // const std::string myPath="/home/aymsauv/GLAST/ZprogU9/unit_test/data";
