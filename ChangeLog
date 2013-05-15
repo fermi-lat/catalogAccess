@@ -1,4 +1,14 @@
 ------------------------------------------------------------
+User: tstephen  Wed May 15 10:14:26 PDT 2013
+ScienceTools-scons/catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+Added in code to the main() function to override the debug assertion dialogs and redirect errors to standard output.
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: ScienceTools-09-31-02, operation: add
 Package: catalogAccess
