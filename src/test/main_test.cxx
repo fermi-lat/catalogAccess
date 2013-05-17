@@ -3,7 +3,7 @@
  * @brief  Test program to exercise catalogAccess interface.
  * @author A. Sauvageon
  *
- * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/catalogAccess/src/test/main_test.cxx,v 1.18 2012/11/11 00:15:40 jchiang Exp $
+ * $Header: /nfs/slac/g/glast/ground/cvs/ScienceTools-scons/catalogAccess/src/test/main_test.cxx,v 1.19 2013/05/15 17:14:26 tstephen Exp $
  */
 
 #include "st_facilities/Environment.h"
@@ -25,12 +25,10 @@ static const std::ios_base::fmtflags
 
 int main(int iargc, char * argv[]) {
 #ifndef _DEBUG
-#ifdef WIN32
    _CrtSetReportHook( AssertDialogOverride );
    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
-#endif
 #endif
 
 
