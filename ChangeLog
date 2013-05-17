@@ -1,4 +1,15 @@
 ------------------------------------------------------------
+User: tstephen  Fri May 17 12:00:19 PDT 2013
+ScienceTools-scons/catalogAccess/src/test
+
+Modified Files:
+	main_test.cxx 
+Log Message:
+Fixed #ifdef statements around code block setting up the assertion dialog
+override.
+
+    *
+------------------------------------------------------------
 TAG
 Tag name: catalogAccess-00-04-05, operation: add
 Package: catalogAccess
