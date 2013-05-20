@@ -5,6 +5,7 @@
 @verbatim
  * EOH *
 
+ catalogAccess-00-04-07 20-May-2013 glastrm Fixed bad #ifdef in test program
  catalogAccess-00-04-06 17-May-2013 glastrm Fixed #ifdefs around code setting up the AssertDialogOveride() function
  catalogAccess-00-04-05 15-May-2013 glastrm Updated test program to override assertion dialogs on Windows.
  catalogAccess-00-04-04 10-Nov-2012 jchiang ensure setupEnvironment() is called exactly once via st_facilities::Environment
