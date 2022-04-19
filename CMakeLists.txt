@@ -21,3 +21,15 @@ add_executable(main_test src/test/main_test.cxx)
 add_executable(test_catalogAccess src/test/main_test.cxx)
 target_link_libraries(main_test PRIVATE catalogAccess)
 target_link_libraries(test_catalogAccess PRIVATE catalogAccess)
+
+###############################################################
+# Installation 
+###############################################################
+install(DIRECTORY catalogAccess DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(TARGETS catalogAccess
+        # EXPORT fermiTargets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
