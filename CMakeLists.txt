@@ -29,7 +29,7 @@ install(DIRECTORY catalogAccess DESTINATION ${FERMI_INSTALL_INCLUDEDIR})
 install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_DATADIR})
 
 install(
-  TARGETS catalogAccess
+  TARGETS catalogAccess main_test test_catalogAccess
   # EXPORT fermiTargets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION lib
