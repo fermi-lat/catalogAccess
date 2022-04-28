@@ -26,7 +26,7 @@ target_link_libraries(test_catalogAccess PRIVATE catalogAccess)
 # Installation
 ###############################################################
 install(DIRECTORY catalogAccess DESTINATION ${FERMI_INSTALL_INCLUDEDIR})
-install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_DATADIR})
+install(DIRECTORY data/ DESTINATION ${FERMI_INSTALL_REFDATADIR}/catalogAccess)
 
 install(
   TARGETS catalogAccess main_test test_catalogAccess
