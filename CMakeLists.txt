@@ -1,6 +1,6 @@
 ##### Library ######
 add_library(
-  catalogAccess STATIC
+  catalogAccess 
   src/catalog.cxx
   src/catalog_io.cxx
   src/catalog_ioText.cxx
