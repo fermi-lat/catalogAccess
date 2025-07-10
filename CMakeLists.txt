@@ -17,6 +17,8 @@ target_include_directories(
 )
 
 ###### Tests ######
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 add_executable(main_test src/test/main_test.cxx)
 add_executable(test_catalogAccess src/test/main_test.cxx)
 target_link_libraries(main_test PRIVATE catalogAccess)
