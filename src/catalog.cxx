@@ -66,7 +66,7 @@ const char *Catalog::s_CatalogGeneric[MAX_CAT][MAX_GEN]={
 
 /**********************************************************************/
 // return true if at least one criteria or selection region exist
-bool Catalog::existCriteria(std::vector<bool> *quantSel) {
+auto Catalog::existCriteria(std::vector<bool> *quantSel) -> bool {
 
   bool all=false;
   std::vector<Quantity>::const_iterator itQ;
@@ -390,8 +390,8 @@ void Catalog::getWebList(std::vector<std::string> *names, const bool isCode) {
 
 /**********************************************************************/
 // to know the maximal number of rows in the file
-int Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
-                           const std::string ext) {
+auto Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
+                           const std::string ext) -> int {
 
   int i, err;
   std::string text, origin="getMaxNumRows";
@@ -571,8 +571,8 @@ int Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
 }
 /**********************************************************************/
 // to know the maximal number of rows in the CDS catalog
-int Catalog::getMaxNumRowsWeb(long *nrows, const std::string catName,
-                              const std::string urlCode) {
+auto Catalog::getMaxNumRowsWeb(long *nrows, const std::string catName,
+                              const std::string urlCode) -> int {
 
   int i, err;
   unsigned int pos;
@@ -641,7 +641,7 @@ void Catalog::getCatalogTitles(std::vector<std::string> *titles) {
 
 /**********************************************************************/
 // get a copy of the quantity vector
-int Catalog::getQuantityDescription(std::vector<Quantity> *myQuantities) {
+auto Catalog::getQuantityDescription(std::vector<Quantity> *myQuantities) -> int {
 
   int quantSize=checkImport("getQuantityDescription", true);
   if (quantSize < IS_VOID) {
@@ -654,7 +654,7 @@ int Catalog::getQuantityDescription(std::vector<Quantity> *myQuantities) {
 
 /**********************************************************************/
 // get only Quantity member name
-int Catalog::getQuantityNames(std::vector<std::string> *names) {
+auto Catalog::getQuantityNames(std::vector<std::string> *names) -> int {
 
   const std::string origin="getQuantityNames";
   int quantSize=checkImport(origin, true);
@@ -677,7 +677,7 @@ int Catalog::getQuantityNames(std::vector<std::string> *names) {
 }
 /**********************************************************************/
 // get only Quantity member unit
-int Catalog::getQuantityUnits(std::vector<std::string> *units) {
+auto Catalog::getQuantityUnits(std::vector<std::string> *units) -> int {
 
   const std::string origin="getQuantityUnits";
   int quantSize=checkImport(origin, true);
@@ -700,7 +700,7 @@ int Catalog::getQuantityUnits(std::vector<std::string> *units) {
 }
 /**********************************************************************/
 // get only Quantity member ucd
-int Catalog::getQuantityUCDs (std::vector<std::string> *ucds) {
+auto Catalog::getQuantityUCDs (std::vector<std::string> *ucds) -> int {
 
   const std::string origin="getQuantityUCDs";
   int quantSize=checkImport(origin, true);
@@ -723,7 +723,7 @@ int Catalog::getQuantityUCDs (std::vector<std::string> *ucds) {
 }
 /**********************************************************************/
 // get only Quantity member type
-int Catalog::getQuantityTypes(std::vector<Quantity::QuantityType> *types) {
+auto Catalog::getQuantityTypes(std::vector<Quantity::QuantityType> *types) -> int {
 
   const std::string origin="getQuantityTypes";
   int quantSize=checkImport(origin, true);
@@ -747,8 +747,8 @@ int Catalog::getQuantityTypes(std::vector<Quantity::QuantityType> *types) {
 
 /**********************************************************************/
 // get the member "statErrName" of given quantity "name"
-int Catalog::getStatErrorName(const std::string name,
-                              std::string *statErrName) {
+auto Catalog::getStatErrorName(const std::string name,
+                              std::string *statErrName) -> int {
 
   int quantSize=checkImport("getStatErrorName", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -759,8 +759,8 @@ int Catalog::getStatErrorName(const std::string name,
 }
 /**********************************************************************/
 // get the member "sysErrName" of given quantity "name"
-int Catalog::getSysErrorName(const std::string name,
-                             std::string *sysErrName) {
+auto Catalog::getSysErrorName(const std::string name,
+                             std::string *sysErrName) -> int {
 
   int quantSize=checkImport("getSysErrorName", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -787,8 +787,8 @@ void Catalog::getNumRows(long *nrows) {
 
 /**********************************************************************/
 // get the value of given string quantity in given row
-int Catalog::getSValue(const std::string name, const long row,
-                       std::string *stringVal) {
+auto Catalog::getSValue(const std::string name, const long row,
+                       std::string *stringVal) -> int {
 
   const std::string origin="getSValue";
   int num=checkSize_row(origin, row);
@@ -810,8 +810,8 @@ int Catalog::getSValue(const std::string name, const long row,
 }
 /**********************************************************************/
 // get the value of given numerical quantity in given row
-int Catalog::getNValue(const std::string name, const long row,
-                       double *realVal) {
+auto Catalog::getNValue(const std::string name, const long row,
+                       double *realVal) -> int {
 
   const std::string origin="getNValue";
   int num=checkSize_row(origin, row);
@@ -837,8 +837,8 @@ int Catalog::getNValue(const std::string name, const long row,
 
 /**********************************************************************/
 // get the value of the statistical error of given quantity in given row
-int Catalog::getStatError(const std::string name, const long row,
-                          double *realValStat) {
+auto Catalog::getStatError(const std::string name, const long row,
+                          double *realValStat) -> int {
 
   *realValStat = -1.0;
   const std::string origin="getStatError";
@@ -863,8 +863,8 @@ int Catalog::getStatError(const std::string name, const long row,
 }
 /**********************************************************************/
 // get the value of the systematic error of given quantity in given row
-  int Catalog::getSysError(const std::string name, const long row,
-                           double *realValSys) {
+  auto Catalog::getSysError(const std::string name, const long row,
+                           double *realValSys) -> int {
 
   *realValSys = -1.0;
   const std::string origin="getSysError";
@@ -897,8 +897,8 @@ int Catalog::getStatError(const std::string name, const long row,
 
 /**********************************************************************/
 // for string quantity: the list of different values assumed
-int Catalog::getSValues(const std::string name,
-                        std::vector<std::string> *values) {
+auto Catalog::getSValues(const std::string name,
+                        std::vector<std::string> *values) -> int {
 
   values->clear();
   const std::string origin="getSValues";
@@ -934,7 +934,7 @@ int Catalog::getSValues(const std::string name,
 
 /**********************************************************************/
 // for numerical quantity: the minimum value in the catalog
-int Catalog::minVal(const std::string name, double *realVal) {
+auto Catalog::minVal(const std::string name, double *realVal) -> int {
 
   *realVal=NO_SEL_CUT;
   const std::string origin="minVal";
@@ -968,7 +968,7 @@ int Catalog::minVal(const std::string name, double *realVal) {
 }
 /**********************************************************************/
 // for numerical quantity: the maximum value in the catalog
-int Catalog::maxVal(const std::string name, double *realVal) {
+auto Catalog::maxVal(const std::string name, double *realVal) -> int {
 
   *realVal=NO_SEL_CUT;
   const std::string origin="maxVal";
@@ -1010,8 +1010,8 @@ void Catalog::getNumSelRows(long *nrows) {
 
 /**********************************************************************/
 // get the value of given string quantity in given selected row
-int Catalog::getSelSValue(const std::string name, const long srow,
-                          std::string *stringVal) {
+auto Catalog::getSelSValue(const std::string name, const long srow,
+                          std::string *stringVal) -> int {
 
   const std::string origin="getSelSValue";
   int num=checkSel_row(origin, srow);
@@ -1038,8 +1038,8 @@ int Catalog::getSelSValue(const std::string name, const long srow,
 }
 /**********************************************************************/
 // get the value of given numerical quantity in given selected row
-int Catalog::getSelNValue(const std::string name, const long srow,
-                          double *realVal) {
+auto Catalog::getSelNValue(const std::string name, const long srow,
+                          double *realVal) -> int {
 
   const std::string origin="getSelNValue";
   int num=checkSel_row(origin, srow);
@@ -1070,8 +1070,8 @@ int Catalog::getSelNValue(const std::string name, const long srow,
 
 /**********************************************************************/
 // get value of the statistical error of given quantity in given selected row
-int Catalog::getSelStatError(const std::string name, const long srow,
-                             double *realValStat) {
+auto Catalog::getSelStatError(const std::string name, const long srow,
+                             double *realValStat) -> int {
 
   *realValStat = -1.0;
   const std::string origin="getSelStatError";
@@ -1103,8 +1103,8 @@ int Catalog::getSelStatError(const std::string name, const long srow,
 }
 /**********************************************************************/
 // get value of the systematic error of given quantity in given selected row
-int Catalog::getSelSysError(const std::string name, const long srow,
-                             double *realValSys) {
+auto Catalog::getSelSysError(const std::string name, const long srow,
+                             double *realValSys) -> int {
 
   *realValSys = -1.0;
   const std::string origin="getSelSysError";
@@ -1143,8 +1143,8 @@ int Catalog::getSelSysError(const std::string name, const long srow,
 
 /**********************************************************************/
 // for string quantity: the list of different selected values assumed
-int Catalog::getSelSValues(const std::string name,
-                           std::vector<std::string> *values) {
+auto Catalog::getSelSValues(const std::string name,
+                           std::vector<std::string> *values) -> int {
 
   values->clear();
   const std::string origin="getSelSValues";
@@ -1184,7 +1184,7 @@ int Catalog::getSelSValues(const std::string name,
 
 /**********************************************************************/
 // for numerical quantity: the minimum value in the selected rows
-int Catalog::minSelVal(const std::string name, double *realVal) {
+auto Catalog::minSelVal(const std::string name, double *realVal) -> int {
 
   *realVal=NO_SEL_CUT;
   const std::string origin="minSelVal";
@@ -1223,7 +1223,7 @@ int Catalog::minSelVal(const std::string name, double *realVal) {
 }
 /**********************************************************************/
 // for numerical quantity: the maximum value in the selected rows
-int Catalog::maxSelVal(const std::string name, double *realVal) {
+auto Catalog::maxSelVal(const std::string name, double *realVal) -> int {
 
   *realVal=NO_SEL_CUT;
   const std::string origin="maxSelVal";
@@ -1266,7 +1266,7 @@ int Catalog::maxSelVal(const std::string name, double *realVal) {
 /*  ACCESSING the Catalog GENERIC CONTENTS                            */
 /**********************************************************************/
 // access to generic quantity for RA  (degrees)
-int Catalog::ra_deg(const long row, double *realVal, const bool inSelection) {
+auto Catalog::ra_deg(const long row, double *realVal, const bool inSelection) -> int {
 
   const std::string origin="ra_deg";
   if (m_indexRA < 0) {
@@ -1299,7 +1299,7 @@ int Catalog::ra_deg(const long row, double *realVal, const bool inSelection) {
 }
 /**********************************************************************/
 // access to generic quantity for DEC (degrees)
-int Catalog::dec_deg(const long row, double *realVal, const bool inSelection) {
+auto Catalog::dec_deg(const long row, double *realVal, const bool inSelection) -> int {
 
   const std::string origin="dec_deg";
   if (m_indexDEC < 0) {
@@ -1332,8 +1332,8 @@ int Catalog::dec_deg(const long row, double *realVal, const bool inSelection) {
 }
 /**********************************************************************/
 // access to generic quantity for position uncertainty (degrees)
-int Catalog::posError_deg(const long row, double *realVal,
-                          const bool inSelection) {
+auto Catalog::posError_deg(const long row, double *realVal,
+                          const bool inSelection) -> int {
 
   const std::string origin="posError_deg";
   if (m_indexErr < 0) {
@@ -1370,7 +1370,7 @@ int Catalog::posError_deg(const long row, double *realVal,
 
 /**********************************************************************/
 // 6 methods returning the name of generic quantities
-std::string Catalog::getNameRA() {
+auto Catalog::getNameRA() -> std::string {
   if (m_indexRA < 0) {
     if (m_numRows < 0)
       printWarn("getNameRA", "must first use one 'import' method");
@@ -1380,7 +1380,7 @@ std::string Catalog::getNameRA() {
   }
   return m_quantities[m_indexRA].m_name;
 }
-std::string Catalog::getNameDEC() {
+auto Catalog::getNameDEC() -> std::string {
   if (m_indexDEC < 0) {
     if (m_numRows < 0)
       printWarn("getNameDEC", "must first use one 'import' method");
@@ -1390,7 +1390,7 @@ std::string Catalog::getNameDEC() {
   }
   return m_quantities[m_indexDEC].m_name;
 }
-std::string Catalog::getNamePosErr() {
+auto Catalog::getNamePosErr() -> std::string {
   if (m_indexErr< 0) {
     if (m_numRows < 0)
       printWarn("getNamePosErr", "must first use one 'import' method");
@@ -1401,7 +1401,7 @@ std::string Catalog::getNamePosErr() {
   return m_quantities[m_indexErr].m_name;
 }
 
-std::string Catalog::getNameL() {
+auto Catalog::getNameL() -> std::string {
   const std::string origin="getNameL";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return "";
@@ -1413,7 +1413,7 @@ std::string Catalog::getNameL() {
   }
   return "";
 }
-std::string Catalog::getNameB() {
+auto Catalog::getNameB() -> std::string {
   const std::string origin="getNameB";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return "";
@@ -1426,7 +1426,7 @@ std::string Catalog::getNameB() {
   return "";
 }
 
-std::string Catalog::getNameObjName() {
+auto Catalog::getNameObjName() -> std::string {
   const std::string origin="getNameObjName";
   int quantSize=checkImport(origin, true);
   if (quantSize < IS_VOID) return "";

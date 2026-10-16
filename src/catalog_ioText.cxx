@@ -54,8 +54,8 @@ void Catalog::translate_cell(std::string mot, const int index) {
 /* PRIVATE METHOD is only called by: load in "catalog_io.cxx"
    read the catalog header from CDS text file
 */
-int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR,
-                          std::fstream *myFile) {
+auto Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR,
+                          std::fstream *myFile) -> int {
 
   std::string text, mot;
   unsigned int pos;
@@ -256,8 +256,8 @@ int Catalog::analyze_head(unsigned long *tot, int *what, bool *testCR,
    read catalog data from text file (read only column/quantity description
    if getDescr is true, otherwise read row data)
 */
-int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
-                     const bool getDescr, std::fstream *myFile, long *maxRows){
+auto Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
+                     const bool getDescr, std::fstream *myFile, long *maxRows) -> int{
 
   std::string  origin, text, mot;
   unsigned int pos;
@@ -534,8 +534,8 @@ int Catalog::analyze_body(unsigned long *tot, int *what, const bool testCR,
 
 /**********************************************************************/
 /* PRIVATE METHOD is called by: importSelected() in "catalog_io.cxx"  */
-int Catalog::loadSelected(unsigned long *tot, std::fstream *myFile,
-                          long *maxRows) {
+auto Catalog::loadSelected(unsigned long *tot, std::fstream *myFile,
+                          long *maxRows) -> int {
 
   const std::string origin="importSelected";
   int  i, last,
@@ -662,8 +662,8 @@ int Catalog::loadSelected(unsigned long *tot, std::fstream *myFile,
 
 /**********************************************************************/
 // common code between importWeb and importDescriptionWeb (private method)
-int Catalog::loadWeb(const std::string catName, const std::string urlCode,
-                     const std::string &fileName, const long maxRow) {
+auto Catalog::loadWeb(const std::string catName, const std::string urlCode,
+                     const std::string &fileName, const long maxRow) -> int {
 
   std::string origin, text, web;
   int i, err;
@@ -729,9 +729,9 @@ int Catalog::loadWeb(const std::string catName, const std::string urlCode,
 }
 /**********************************************************************/
 // load only the catalog description from CDS web site
-int Catalog::importDescriptionWeb(const std::string catName,
+auto Catalog::importDescriptionWeb(const std::string catName,
                                   const std::string urlCode,
-                                  const std::string &fileName) {
+                                  const std::string &fileName) -> int {
 
   int err;
   err=loadWeb(catName, urlCode, fileName, -1);
@@ -741,9 +741,9 @@ int Catalog::importDescriptionWeb(const std::string catName,
 }
 /**********************************************************************/
 // load from CDS web site an entire catalog without selection
-int Catalog::importWeb(const std::string catName,
+auto Catalog::importWeb(const std::string catName,
                        const std::string urlCode, const long maxRow,
-                       const std::string &fileName) {
+                       const std::string &fileName) -> int {
 
   int err;
   long limitRow=maxRow;
@@ -777,8 +777,8 @@ int Catalog::importWeb(const std::string catName,
 
 /**********************************************************************/
 // create catalog header from memory to a text file
-int Catalog::createText(const std::string &fileName, bool clobber,
-                        const std::string origin) {
+auto Catalog::createText(const std::string &fileName, bool clobber,
+                        const std::string origin) -> int {
   std::string  text;
   int          err;
   std::ios_base::openmode openMode=std::ios::in;
@@ -1054,7 +1054,7 @@ DOES NOT WORK*/
 }
 /**********************************************************************/
 // save whole catalog from memory to a text file
-int Catalog::saveText(const std::string &fileName, bool clobber) {
+auto Catalog::saveText(const std::string &fileName, bool clobber) -> int {
 
   const std::string origin="saveText";
   int err;
@@ -1065,7 +1065,7 @@ int Catalog::saveText(const std::string &fileName, bool clobber) {
 }
 /**********************************************************************/
 // save selected rows of catalog from memory to a text file
-int Catalog::saveSelectedText(const std::string &fileName, bool clobber) {
+auto Catalog::saveSelectedText(const std::string &fileName, bool clobber) -> int {
 
   const std::string origin="saveSelectedText";
   int err;

@@ -23,7 +23,7 @@ void show_double(const std::string name, const double val);
 static const std::ios_base::fmtflags
              outDouble=std::ios::right|std::ios::scientific;
 
-int main(int iargc, char * argv[]) {
+auto main(int iargc, char * argv[]) -> int {
 #ifdef WIN32
    _CrtSetReportHook( AssertDialogOverride );
    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);

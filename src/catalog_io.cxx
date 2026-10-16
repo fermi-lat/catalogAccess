@@ -164,7 +164,7 @@ void Catalog::setGeneric(const int whichCat) {
 
 /**********************************************************************/
 // return the number of RAM bytes needed for numRows catalog rows
-long Catalog::getRAMsize(const long numRows, const bool writeLog) {
+auto Catalog::getRAMsize(const long numRows, const bool writeLog) -> long {
 
   std::string mot, text;
   int quantSize=m_quantities.size();
@@ -303,8 +303,8 @@ void Catalog::add_rows(const long maxRows) {
 
 /**********************************************************************/
 // read the catalog from fits file (only description if getDescr is true)
-int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
-                          const std::string origin, long *maxRows) {
+auto Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
+                          const std::string origin, long *maxRows) -> int {
   std::string text, mot;
   int   i, j, max,
         maxLogSize=0,
@@ -592,8 +592,8 @@ int Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
 /* PRIVATE METHODS analyze_head, analyze_body in file "catalog_ioText.cxx" */
 /**********************************************************************/
 // common code between import and importDescription (private method)
-int Catalog::load(const std::string &fileName, const std::string ext,
-                  const bool getDescr, long *maxRows) {
+auto Catalog::load(const std::string &fileName, const std::string ext,
+                  const bool getDescr, long *maxRows) -> int {
 
   int i, err=IS_OK;
   std::string origin, text;
@@ -775,8 +775,8 @@ int Catalog::load(const std::string &fileName, const std::string ext,
 }
 /**********************************************************************/
 // read only the catalog description from file
-int Catalog::importDescription(const std::string &fileName,
-                               const std::string ext) {
+auto Catalog::importDescription(const std::string &fileName,
+                               const std::string ext) -> int {
   int err;
   err=checkImport("importDescription", false);
   // must be called before load() which set m_numRows to 0
@@ -790,8 +790,8 @@ int Catalog::importDescription(const std::string &fileName,
 }
 /**********************************************************************/
 // read from file an entire catalog without selection
-int Catalog::import(const std::string &fileName, const long maxRows,
-                    const std::string ext) {
+auto Catalog::import(const std::string &fileName, const long maxRows,
+                    const std::string ext) -> int {
   int err;
   long maxR=maxRows;
   err=checkImport("import", false);
@@ -837,8 +837,8 @@ int Catalog::import(const std::string &fileName, const long maxRows,
 
 
 /**********************************************************************/
-int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
-                            long *maxRows, std::string &filter)
+auto Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
+                            long *maxRows, std::string &filter) -> int
 {
   const std::string  origin="importSelected";
   std::ostringstream sortie;
@@ -1092,7 +1092,7 @@ int Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
 /**********************************************************************/
 // if a catalog description was already loaded, this method does
 // the same as import() adding selection criteria for loading
-int Catalog::importSelected(std::string &filter) {
+auto Catalog::importSelected(std::string &filter) -> int {
 
   const std::string origin="importSelected";
   int quantSize=checkImport(origin, true);
@@ -1350,9 +1350,9 @@ int Catalog::importSelected(std::string &filter) {
 
 /**********************************************************************/
 // create catalog header from memory to a FITS file
-int Catalog::createFits(const std::string &fileName, const std::string &extName,
+auto Catalog::createFits(const std::string &fileName, const std::string &extName,
                         bool clobber, bool append, const std::string origin,
-                        tip::Table **ptrTable) {
+                        tip::Table **ptrTable) -> int {
 
 /*  char name[9];  8 char maximum for header key */
   std::string text, newName;
@@ -1510,8 +1510,8 @@ printf("%s\n", itor->getName().c_str() );
 }
 /**********************************************************************/
 // save whole catalog from memory to a FITS file
-int Catalog::saveFits(const std::string &fileName, const std::string &extName,
-                      bool clobber, bool append) {
+auto Catalog::saveFits(const std::string &fileName, const std::string &extName,
+                      bool clobber, bool append) -> int {
 
   const std::string origin="saveFits";
   Table *myDOL=0;
@@ -1576,9 +1576,9 @@ int Catalog::saveFits(const std::string &fileName, const std::string &extName,
 }
 /**********************************************************************/
 // save selected rows of catalog from memory to a FITS file
-int Catalog::saveSelectedFits(const std::string &fileName,
+auto Catalog::saveSelectedFits(const std::string &fileName,
                               const std::string &extName,
-                              bool clobber, bool append) {
+                              bool clobber, bool append) -> int {
 
   const std::string origin="saveSelectedFits";
   Table *myDOL=0;

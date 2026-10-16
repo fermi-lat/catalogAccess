@@ -18,7 +18,7 @@ namespace catalogAccess {
 /*  METHOD for SELECTING QUANTITY (BEFORE IMPORT)                     */
 /**********************************************************************/
 // importSelected() will actually load selected quantities
-int Catalog::selectQuantity(const std::string name, const bool toBeLoaded) {
+auto Catalog::selectQuantity(const std::string name, const bool toBeLoaded) -> int {
 
   int quantSize=checkImport("selectQuantity", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -35,7 +35,7 @@ int Catalog::selectQuantity(const std::string name, const bool toBeLoaded) {
   return IS_OK;
 }
 /**********************************************************************/
-int Catalog::selectAllQuantities(const bool toBeLoaded) {
+auto Catalog::selectAllQuantities(const bool toBeLoaded) -> int {
 
   int quantSize=checkImport("selectAllQuantities", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -59,7 +59,7 @@ int Catalog::selectAllQuantities(const bool toBeLoaded) {
 /*  METHODS for SELECTING DATA (BEFORE or AFTER IMPORT)               */
 /**********************************************************************/
 // check if given row is inside the elliptical region (private method)
-bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
+auto Catalog::checkRegion(const long row, const int nRA, const int nDEC) -> bool {
 
   /* for the moment, only circle
     if angle phi=RA and t=PI/2 - DEC then:
@@ -94,8 +94,8 @@ bool Catalog::checkRegion(const long row, const int nRA, const int nDEC) {
 /**********************************************************************/
 // check if value pass criteria for given quantity index (cut AND list)
 // private method called by useOnlyN, excludeN
-bool Catalog::checkNUM(const double r, const int index, const bool miss,
-                       const bool reject, const double precis) {
+auto Catalog::checkNUM(const double r, const int index, const bool miss,
+                       const bool reject, const double precis) -> bool {
 
   // since we test the NaN only once at the beginning
   // this methods MUST NOT be called if no criteria is applied
@@ -136,8 +136,8 @@ bool Catalog::checkNUM(const double r, const int index, const bool miss,
 /**********************************************************************/
 // check if value pass criteria for given quantity index (cut OR list)
 // private method called by includeN
-bool Catalog::checkNUMor(const double r, const int index,
-                         const bool reject, const double precis) {
+auto Catalog::checkNUMor(const double r, const int index,
+                         const bool reject, const double precis) -> bool {
 
   // since we test the NaN only once at the beginning
   // this methods MUST NOT be called if no criteria is applied
@@ -186,7 +186,7 @@ bool Catalog::checkNUMor(const double r, const int index,
 /**********************************************************************/
 // compute the global bit selection at existing row,
 // suppose that m_rowIsSelected is correctly set (private method)
-bool Catalog::rowSelect(const long row, const std::vector<bool> &quantSel) {
+auto Catalog::rowSelect(const long row, const std::vector<bool> &quantSel) -> bool {
 
   int  numBit=sizeof(long)*8,
        vecSize=quantSel.size();
@@ -269,7 +269,7 @@ void Catalog::unsetCuts(const int index) {
 }
 /**********************************************************************/
 // unset all selection criteria relating to quantity "name"
-int Catalog::unsetCuts(const std::string name) {
+auto Catalog::unsetCuts(const std::string name) -> int {
 
   int quantSize=checkImport("unsetCuts", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -283,7 +283,7 @@ int Catalog::unsetCuts(const std::string name) {
 /**********************************************************************/
 // unset all cuts on all quantities except the selection ellipse;
 // this also deletes the selection string
-int Catalog::unsetCuts() {
+auto Catalog::unsetCuts() -> int {
 
   int quantSize=checkImport("unsetCuts", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -329,7 +329,7 @@ int Catalog::unsetCuts() {
 
 /**********************************************************************/
 // if true, criteria between quantities are ORed instead of ANDed
-int Catalog::setCriteriaORed(const bool bitOR) {
+auto Catalog::setCriteriaORed(const bool bitOR) -> int {
 
   const std::string origin="setCriteriaORed";
   int quantSize=checkImport(origin, true);
@@ -354,9 +354,9 @@ int Catalog::setCriteriaORed(const bool bitOR) {
 
 /**********************************************************************/
 // set and apply an elliptical selection region
-int Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
+auto Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
                            const double majAxis_deg, const double minAxis_deg,
-                           const double rot_deg) {
+                           const double rot_deg) -> int {
 
   const std::string origin="setSelEllipse";
   std::string text;
@@ -439,7 +439,7 @@ int Catalog::setSelEllipse(const double centRA_deg, const double centDEC_deg,
 }
 /**********************************************************************/
 // remove the effects of the ellipse selection
-int Catalog::unsetSelEllipse() {
+auto Catalog::unsetSelEllipse() -> int {
 
   int quantSize=checkImport("unsetSelEllipse", true);
   if (quantSize < IS_VOID) return quantSize;
@@ -478,7 +478,7 @@ int Catalog::unsetSelEllipse() {
 /**********************************************************************/
 // set and apply a cut on given quantity such that all values >= cutVal pass
 // double is not const because it can be locally modified to NO_SEL_CUT
-int Catalog::setLowerCut(const std::string name, double cutVal) {
+auto Catalog::setLowerCut(const std::string name, double cutVal) -> int {
 
   const std::string origin="setLowerCut";
   int quantSize=checkImport(origin, true);
@@ -567,7 +567,7 @@ int Catalog::setLowerCut(const std::string name, double cutVal) {
 /**********************************************************************/
 // set and apply a cut on given quantity such that all values <= cutVal pass
 // double is not const because it can be locally modified to NO_SEL_CUT
-int Catalog::setUpperCut(const std::string name, double cutVal) {
+auto Catalog::setUpperCut(const std::string name, double cutVal) -> int {
 
   const std::string origin="setUpperCut";
   int quantSize=checkImport(origin, true);
@@ -664,8 +664,8 @@ int Catalog::setUpperCut(const std::string name, double cutVal) {
 
 /**********************************************************************/
 // select rows depending on the given numerical list for existing index
-int Catalog::doSelN(const std::string name, const int index, const int code,
-                    const std::vector<double> &listVal) {
+auto Catalog::doSelN(const std::string name, const int index, const int code,
+                    const std::vector<double> &listVal) -> int {
 
   std::ostringstream sortie;
   m_quantities[index].m_cutORed=false;
@@ -766,8 +766,8 @@ int Catalog::doSelN(const std::string name, const int index, const int code,
 }
 /**********************************************************************/
 // include rows which value is NOT in the given list AND value within cut
-int Catalog::excludeN(const std::string name,
-                      const std::vector<double> &listVal) {
+auto Catalog::excludeN(const std::string name,
+                      const std::vector<double> &listVal) -> int {
 
   int done=checkImport("excludeN", true);
   if (done < IS_VOID) return done;
@@ -785,8 +785,8 @@ int Catalog::excludeN(const std::string name,
 }
 /**********************************************************************/
 // only include rows which have numerical value in the given list AND cut
-int Catalog::useOnlyN(const std::string name,
-                      const std::vector<double> &listVal) {
+auto Catalog::useOnlyN(const std::string name,
+                      const std::vector<double> &listVal) -> int {
 
   int done=checkImport("useOnlyN", true);
   if (done < IS_VOID) return done;
@@ -804,8 +804,8 @@ int Catalog::useOnlyN(const std::string name,
 }
 /**********************************************************************/
 // only include rows which have numerical value in the given list OR cut
-int Catalog::includeN(const std::string name,
-                      const std::vector<double> &listVal) {
+auto Catalog::includeN(const std::string name,
+                      const std::vector<double> &listVal) -> int {
 
   int done=checkImport("includeN", true);
   if (done < IS_VOID) return done;
@@ -824,7 +824,7 @@ int Catalog::includeN(const std::string name,
 
 /**********************************************************************/
 // set quantity member and apply (if different and quantity is selected)
-int Catalog::setRejectNaN(const std::string name, const bool rejectNaN) {
+auto Catalog::setRejectNaN(const std::string name, const bool rejectNaN) -> int {
 
   const std::string origin="setRejectNaN";
   int quantSize=checkImport(origin, true);
@@ -881,7 +881,7 @@ int Catalog::setRejectNaN(const std::string name, const bool rejectNaN) {
 }
 /**********************************************************************/
 // set quantity member and apply (if quantity has a non empty selection list)
-int Catalog::setMatchPercent(const std::string name, double percent) {
+auto Catalog::setMatchPercent(const std::string name, double percent) -> int {
 
   const std::string origin="setMatchPercent";
   int quantSize=checkImport(origin, true);
@@ -942,7 +942,7 @@ int Catalog::setMatchPercent(const std::string name, double percent) {
 }
 /**********************************************************************/
 // set quantity member and apply (if quantity has a non empty selection list)
-int Catalog::setMatchEpsilon(const std::string name, const unsigned long step){
+auto Catalog::setMatchEpsilon(const std::string name, const unsigned long step) -> int{
 
   const std::string origin="setMatchEpsilon";
   int quantSize=checkImport(origin, true);
@@ -1004,8 +1004,8 @@ int Catalog::setMatchEpsilon(const std::string name, const unsigned long step){
 
 /**********************************************************************/
 // check if given value is within interval cut
-int Catalog::checkValWithinCut(const std::string name, const double value,
-                               bool *cutLow, bool *cutUp,int *checkResult) {
+auto Catalog::checkValWithinCut(const std::string name, const double value,
+                               bool *cutLow, bool *cutUp,int *checkResult) -> int {
 
   *cutLow=false;
   *cutUp=false;
@@ -1051,8 +1051,8 @@ int Catalog::checkValWithinCut(const std::string name, const double value,
 
 /**********************************************************************/
 // select rows depending on the given string list for existing index
-int Catalog::doSelS(const std::string name, const int index, const int code,
-                    const std::vector<std::string> &list, const bool exact) {
+auto Catalog::doSelS(const std::string name, const int index, const int code,
+                    const std::vector<std::string> &list, const bool exact) -> int {
 
   std::ostringstream sortie;
   bool miss;
@@ -1137,8 +1137,8 @@ int Catalog::doSelS(const std::string name, const int index, const int code,
 }
 /**********************************************************************/
 // exclude all rows which have string value in the given list
-int Catalog::excludeS(const std::string name,
-                      const std::vector<std::string> &list, const bool exact) {
+auto Catalog::excludeS(const std::string name,
+                      const std::vector<std::string> &list, const bool exact) -> int {
 
   int done=checkImport("excludeS", true);
   if (done < IS_VOID) return done;
@@ -1156,8 +1156,8 @@ int Catalog::excludeS(const std::string name,
 }
 /**********************************************************************/
 // only include rows which have string value in the given list
-int Catalog::useOnlyS(const std::string name,
-                      const std::vector<std::string> &list, const bool exact) {
+auto Catalog::useOnlyS(const std::string name,
+                      const std::vector<std::string> &list, const bool exact) -> int {
 
   int done=checkImport("useOnlyS", true);
   if (done < IS_VOID) return done;
@@ -1177,7 +1177,7 @@ int Catalog::useOnlyS(const std::string name,
 
 /**********************************************************************/
 // erase all non-selected rows from memory
-int Catalog::eraseNonSelected() {
+auto Catalog::eraseNonSelected() -> int {
 
   const std::string origin="eraseNonSelected";
   if (m_numRows <= 0) {
@@ -1292,7 +1292,7 @@ int Catalog::eraseNonSelected() {
 }
 /**********************************************************************/
 // erase all selected rows from memory
-int Catalog::eraseSelected() {
+auto Catalog::eraseSelected() -> int {
 
   const std::string origin="eraseSelected";
   if (m_numRows <= 0) {
