@@ -208,7 +208,7 @@ None. `catalogAccessLib.py` and `SConscript` belong to the old SCons build.
 
 None in the library. The test program needs `FERMI_INST_DIR` (through
 `st_facilities::Environment::dataPath`; see "Runtime environment" in
-`docs/architecture/README.md`).
+ScienceTools' `docs/architecture/README.md`).
 
 ## Build and test
 
@@ -242,7 +242,18 @@ None in the library. The test program needs `FERMI_INST_DIR` (through
     HDU of `test.fits`, logical columns).
   - `3EG_all.{fits,tsv}` (about 0.8 MB together): **not referenced** by the
     test or by any other package.
-  - `outref/`: expected outputs.
+  - `outref/`: expected outputs (`screenOut.txt`, `1rxs_50.out.{txt,fits}`).
+    Installed with the rest of `data/`, but nothing compares against them.
+- **ST-unit-test:** the default run of ScienceTools'
+  `recipe/tests/ST-unit-test` (`unitTestsWithoutRoot`) runs
+  `test_catalogAccess` (not `main_test`) with no arguments, then
+  `check_test_catalogAccess_output`, which `ftdiff`s `test1out.fits`
+  (excluding `DATASUM`) against
+  `share/fermitools/data/catalogAccess/outref/test1out.fits`. That reference
+  file is not in this repo: it ships in the `fermitools-test-scripts-data`
+  conda package, sourced from `outrefFiles/catalogAccess/` in
+  `fermitools-data`. The transcript is not compared. See "Testing" in
+  ScienceTools' `docs/architecture/README.md`.
 
 ## Invariants and gotchas
 
