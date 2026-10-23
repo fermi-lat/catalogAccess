@@ -250,9 +250,9 @@ ScienceTools' `docs/architecture/README.md`).
   `check_test_catalogAccess_output`, which `ftdiff`s `test1out.fits`
   (excluding `DATASUM`) against
   `share/fermitools/data/catalogAccess/outref/test1out.fits`. That reference
-  file is not in this repo: it ships in the `fermitools-test-scripts-data`
-  conda package, sourced from `outrefFiles/catalogAccess/` in
-  `fermitools-data`. The transcript is not compared. See "Testing" in
+  file is not in this repo: it ships in the runtime `fermitools-data`
+  conda package (sourced from `outrefFiles/catalogAccess/` in the
+  `fermitools-data` repository). The transcript is not compared. See "Testing" in
   ScienceTools' `docs/architecture/README.md`.
 
 ## Invariants and gotchas
