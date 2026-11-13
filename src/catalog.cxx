@@ -430,7 +430,7 @@ auto Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
   myFile.close();
   std::ostringstream sortie;
   bool  myTest;
-  const Extension *myEXT = 0;
+  const Extension *myEXT = nullptr;
   // cannot use readTable because FITS IMAGE returns also error 1
   try {
     myEXT=IFileSvc::instance().readExtension(fileName, ext);
@@ -465,7 +465,7 @@ auto Catalog::getMaxNumRows(long *nrows, const std::string &fileName,
       m_numRows=err;
       return err;
     }
-    const Table *myDOL = 0;
+    const Table *myDOL = nullptr;
     try {
       myDOL=IFileSvc::instance().readTable(fileName, ext);
       *nrows=myDOL->getNumRecords();

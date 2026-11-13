@@ -598,9 +598,9 @@ auto Catalog::loadSelected(unsigned long *tot, std::fstream *myFile,
       char *posC=strchr(line, sep);
       // if separator isn't the default ; search for TAB
       // suppose there is at least 2 columns
-      if (posC == NULL) {
+      if (posC == nullptr) {
         posC=strchr(line, 0x09);
-        if (posC != NULL) sep=0x09;
+        if (posC != nullptr) sep=0x09;
         else {
           printErr(origin, "first data line has no separator");
           err=BAD_FILETYPE;
@@ -870,7 +870,7 @@ auto Catalog::createText(const std::string &fileName, bool clobber,
   tot+=3;
   try {
     int i, len, bufSize=0;
-    char first, *buffer=NULL;
+    char first, *buffer=nullptr;
     std::vector<std::string> formats(vecSize, "%s");
     std::vector<int>         lengths(vecSize, 0);
     double r;
@@ -924,7 +924,7 @@ auto Catalog::createText(const std::string &fileName, bool clobber,
       if (j > bufSize) {
         bufSize=j;
         buffer=(char *)realloc(buffer, bufSize*sizeof(char));
-        if (buffer == NULL)
+        if (buffer == nullptr)
           throw std::runtime_error("Cannot allocate string buffer");
       }
       switch (first) {
@@ -1038,7 +1038,7 @@ DOES NOT WORK*/
     } // loop on rows and quantities, selected branch
 
     if (saveAll) tot+=m_numRows; else tot+=m_numSelRows;
-    if (buffer != NULL) free(buffer);
+    if (buffer != nullptr) free(buffer);
   }
   catch (const std::exception &prob) {
     text=std::string("EXCEPTION writing rows in file: ")+prob.what();

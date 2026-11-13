@@ -84,7 +84,7 @@ void Catalog::setGeneric(const int whichCat) {
   m_indexErr= -1;
   m_indexRA = -1;
   m_indexDEC= -1;
-  std::vector<Quantity>::iterator itQ=m_quantities.begin();
+  auto itQ=m_quantities.begin();
   for (int i=0; itQ != m_quantities.end(); ++itQ, ++i) {
 
     if ((whichCat >= 0) && (whichCat < MAX_CAT)) {
@@ -172,7 +172,7 @@ auto Catalog::getRAMsize(const long numRows, const bool writeLog) -> long {
 
   int nD=0, nS=0, nchar=0;
   int i, j;
-  std::vector<Quantity>::iterator itQ=m_quantities.begin();
+  auto itQ=m_quantities.begin();
   for (; itQ != m_quantities.end(); ++itQ) {
     if (itQ->m_type == Quantity::NUM) nD++;
     else if  (itQ->m_type == Quantity::STRING) {
@@ -346,7 +346,7 @@ auto Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   try {
     test=0;
 //    Header::Iterator itor_found;
-    for (Header::ConstIterator itor=header.begin();itor!=header.end();++itor) {
+    for (auto itor=header.begin();itor!=header.end();++itor) {
       mot=itor->getName();
       // long comment from wanted key
       if ( mot.empty() ) { switch (test) {
@@ -404,7 +404,7 @@ auto Catalog::analyze_fits(const Table *myDOL, const bool getDescr,
   std::vector<double> colNull(max, 0.0);
   std::vector<int>    colSize(max, 0);
   try {
-    const IColumn *myCol = 0;
+    const IColumn *myCol = nullptr;
     for (i=0; i < max; i++) {
       text="";
       myCol=myDOL->getColumn(i);
@@ -629,7 +629,7 @@ auto Catalog::load(const std::string &fileName, const std::string ext,
   myFile.close();
   std::ostringstream sortie;
   bool  myTest;
-  const Extension *myEXT = 0;
+  const Extension *myEXT = nullptr;
   // cannot use readTable because FITS IMAGE returns also error 1
   try {
     myEXT=IFileSvc::instance().readExtension(fileName, ext);
@@ -664,7 +664,7 @@ auto Catalog::load(const std::string &fileName, const std::string ext,
       m_numRows=err;
       return err;
     }
-    const Table *myDOL = 0;
+    const Table *myDOL = nullptr;
     try {
       myDOL=IFileSvc::instance().readTable(fileName, ext);
     }
@@ -843,7 +843,7 @@ auto Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
   const std::string  origin="importSelected";
   std::ostringstream sortie;
   unsigned int       i, max;
-  const Table *myDOL = 0;
+  const Table *myDOL = nullptr;
 
   /* create the selection string */
   char value[20];
@@ -981,9 +981,9 @@ auto Catalog::loadSelectFits(const std::string &fileName, const std::string ext,
 /*  const Header &header=myDOL->getHeader();
     char name[9];  8 char maximum for header key */
   std::vector<double> colNull(max, 0.0);
-  std::vector<Quantity>::iterator itQ=m_quantities.begin();
+  auto itQ=m_quantities.begin();
   try {
-    const IColumn *myCol = 0;
+    const IColumn *myCol = nullptr;
     for (i=0; i < max; i++) {
       text="start";
       rescale="";
@@ -1164,7 +1164,7 @@ auto Catalog::importSelected(std::string &filter) -> int {
     text=m_filename;
     std::string fileName=text.substr(0, pos);
     text.erase(0, pos+1);
-    const Extension *myEXT = 0;
+    const Extension *myEXT = nullptr;
     // cannot use readTable because FITS IMAGE returns also error 1
     try {
       myEXT=IFileSvc::instance().readExtension(fileName, text);
@@ -1440,7 +1440,7 @@ UNUSBALE, otherwise append of long comment done after EXTNAME
   }
   try {
     unsigned int pos;
-    IColumn *myCol = 0;
+    IColumn *myCol = nullptr;
 
     err=m_quantities.size();
     for (j=0; j < err; j++) {
@@ -1514,7 +1514,7 @@ auto Catalog::saveFits(const std::string &fileName, const std::string &extName,
                       bool clobber, bool append) -> int {
 
   const std::string origin="saveFits";
-  Table *myDOL=0;
+  Table *myDOL=nullptr;
   int err;
   err=createFits(fileName, extName, clobber, append, origin, &myDOL);
   if (err < IS_VOID) return err;
@@ -1569,7 +1569,7 @@ auto Catalog::saveFits(const std::string &fileName, const std::string &extName,
   }/* end of try */
   }/* at least 1 row */
 
-  delete myDOL; myDOL=0;
+  delete myDOL; myDOL=nullptr;
   sortie << "output fits is closed ( " << tot << " rows written)";
   printLog(0, sortie.str());
   return IS_OK;
@@ -1581,7 +1581,7 @@ auto Catalog::saveSelectedFits(const std::string &fileName,
                               bool clobber, bool append) -> int {
 
   const std::string origin="saveSelectedFits";
-  Table *myDOL=0;
+  Table *myDOL=nullptr;
   int err;
   err=createFits(fileName, extName, clobber, append, origin, &myDOL);
   if (err < IS_VOID) return err;
@@ -1640,7 +1640,7 @@ auto Catalog::saveSelectedFits(const std::string &fileName,
   }/* end of try */
   }/* at least 1 selected row */
 
-  delete myDOL; myDOL=0;
+  delete myDOL; myDOL=nullptr;
   sortie << "output fits is closed ( " << tot << " rows written)";
   printLog(0, sortie.str());
   return IS_OK;

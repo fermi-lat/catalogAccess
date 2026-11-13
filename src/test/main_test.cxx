@@ -119,7 +119,7 @@ auto main(int iargc, char * argv[]) -> int {
 
 /****************************************************************************/
   show_STEP("\nSTEP 1) METHODS when NOTHING IMPORTED");
-  catalogAccess::Catalog *myCat = new catalogAccess::Catalog();
+  auto *myCat = new catalogAccess::Catalog();
   myCat->getNumRows(&numRows);
   std::cout << "* Number of rows in 'myCat' (new catalog pointer) = "
             << numRows << std::endl;
@@ -338,7 +338,7 @@ auto main(int iargc, char * argv[]) -> int {
 //try {
   std::cout << "* Default Quantity constructor, changing m_name to: toto"
             << std::endl;
-  catalogAccess::Quantity *myQ = new catalogAccess::Quantity();
+  auto *myQ = new catalogAccess::Quantity();
   myQ->m_name="toto";
   show_quant(*myQ);
   delete myQ;
